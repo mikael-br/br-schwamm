@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2021 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -44,7 +44,6 @@
 	bottom: 0;
 }
 
-
 .hud-right #foe-helper-hud-wrapper {
 	width: inherit;
 	height: 218px;
@@ -62,7 +61,7 @@
 .hud-right .hud-btn {
 	height: 53px;
     width: 54px;
-    margin-bottom: 2px;
+	margin-bottom: 2px;
 }
 
 .hud-right .menu-placeholder {
@@ -70,6 +69,7 @@
 	height: 55px;
 }
 
+/* --- Preserve start --------------------------------------------- */ 
 .hud-btn span.hud-counter {
 	padding: 2px;
 	width: 16px;
@@ -93,4 +93,5 @@
 	line-height: 16px;
 	pointer-events: none;
 }
+/* --- Preserve end --------------------------------------------- */ 
 

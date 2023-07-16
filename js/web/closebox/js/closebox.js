@@ -54,7 +54,7 @@ let CloseBox = {
     Settings: {
         ButtonSize: 60,
         Excludes: [],
-        Ignore: ['menu_box'],
+        Ignore: ['menu_box'],  /* preserve */
         BoxAlignment: 0,
         HideAllButton: true,
         CloseAllButton: true,
@@ -89,8 +89,8 @@ let CloseBox = {
                 title: i18n('Boxes.CloseBox.Title'),
                 auto_close: false,
                 dragdrop: true,
-                fixdragdrop: false,
-                onlyTitle: true,
+                fixdragdrop: false,  /* preserve */
+                onlyTitle: true,     /* preserve */
                 resize: false,
                 minimize: false,
                 settings: 'CloseBox.CloseBoxSettings()'
@@ -154,7 +154,9 @@ let CloseBox = {
         $.each(openBoxes, function () {
 
             let box = $(this);
+            /* --- Preserve start --------------------------------------------- */ 
             if (box.attr('id') !== 'CloseBox' && !CloseBox.Settings.Ignore.includes(box.attr('id')))
+            /* --- Preserve end --------------------------------------------- */ 
             {
                 box.hide();
             }
@@ -176,7 +178,9 @@ let CloseBox = {
 
         $.each(openBoxes, function () {
             let box = $(this);
+            /* --- Preserve start --------------------------------------------- */ 
             if (box.attr('id') !== 'CloseBox' && !CloseBox.Settings.Ignore.includes(box.attr('id')) && !CloseBox.Settings.Excludes.includes(box.attr('id')))
+            /* --- Preserve end --------------------------------------------- */ 
             {
                 box.remove();
             }

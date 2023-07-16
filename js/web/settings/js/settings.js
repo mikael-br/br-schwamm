@@ -73,8 +73,8 @@ let Settings = {
 			HTML.Box({
 				id: 'SettingsBox',
 				title: i18n('Boxes.Settings.Title'),
-				auto_close: true,
-				dragdrop: true
+				auto_close: true, 
+				dragdrop: true      /* preserve */
 			});
 
 		} else {
@@ -113,7 +113,7 @@ let Settings = {
 				let d = grps[x],
 					status = d['status'],
 					button = d['button'],
-					doubleoptin = !!d['doubleoptin'],
+					doubleoptin = !!d['doubleoptin'],  /* preserve */
 					c = $('<div />').addClass('item'),
 					cr = $('<div />').addClass('item-row'),
 					ct = $('<h2 />'),
@@ -130,17 +130,16 @@ let Settings = {
 
 					let s = localStorage.getItem(d['name']);
 
-					if(s !== null){
-						try
-						{
-							status = JSON.parse(s);
-						} catch (e) {
-							localStorage.removeItem(key);
-						}
+					if (s !== null) {
+						status = JSON.parse(s);
 					}
 				}
 
-				if (d['callback'] !== undefined) {
+				// no value && no callback function, make it empty
+				if(d['callback'] === undefined && status === undefined && d['button'] === undefined) {
+					cs.html('');
+				}
+				else if (d['callback'] !== undefined) {
 					cs.html(Settings[d['callback']]());
 
 				}
@@ -161,7 +160,7 @@ let Settings = {
 					cs.find('input.setting-check').attr('checked', '');
 				}
 
-				cs.find('input.setting-check').addClass(doubleoptin ? 'doubleoptin' : '');
+				cs.find('input.setting-check').addClass(doubleoptin ? 'doubleoptin' : '');  /* preserve */
 				cs.find('.check').addClass(status ? '' : 'unchecked');
 				cs.find('.toogle-word').text(status ? i18n('Boxes.Settings.Active') : i18n('Boxes.Settings.Inactive'));
 
@@ -210,12 +209,14 @@ let Settings = {
 		let id = $(el).data('id'),
 			v = $(el).prop('checked');
 
+		/* --- Preserve start --------------------------------------------- */ 
 		if ($(el).hasClass('doubleoptin') && v === true) {
 			if (!window.confirm(i18n(`Settings.${id}.DoubleOptIn`))) {
 				$(el).prop('checked', false);
 				return;
 			}
 		}
+		/* --- Preserve end --------------------------------------------- */ 
 
 		localStorage.setItem(id, v);
 
@@ -253,13 +254,7 @@ let Settings = {
 				return null;
 
 			} else {
-				let p = Settings.Preferences.find(itm => itm['name'] === name);
-				if (p === undefined) {
-					console.error('Error getting default value of setting "'+name+'". setting not found');
-					return null;
-				} else {
-					return p['status'];
-				}
+				return Settings.Preferences.find(itm => itm['name'] === name)['status'];
 			}
 		}
 	},
@@ -271,15 +266,16 @@ let Settings = {
 	 * @returns {string}
 	 */
 	VersionInfo: () => {
-
-		return `<p>${i18n('Settings.Version.Link').replace('__version__', extVersion.replaceAll('.', ''))}</p>
-				<dl class="info-box">
-					<dt>${i18n('Settings.Version.Title')}</dt><dd>${extVersion}</dd>
-					<dt>${i18n('Settings.Version.Base')}</dt><dd>FoE Helfer ${extBaseVersion}</dd>
+		let v = extVersion.includes('beta') ? `` : `<p>${i18n('Settings.Version.Link').replace('__version__', '')}</p>`;
+		v +=	`<dl class="info-box">
+					<dt>${i18n('Settings.Version.Title')}:</dt><dd>${extVersion}</dd>
+					<dt>FoE Helper:</dt><dd>${extVersionName}</dd>
 					<dt>${i18n('Settings.Version.PlayerId')}</dt><dd>${ExtPlayerID}</dd>
 					<dt>${i18n('Settings.Version.GuildId')}</dt><dd>${(ExtGuildID ? ExtGuildID : 'N/A')}</dd>
 					<dt>${i18n('Settings.Version.World')}</dt><dd>${ExtWorld}</dd>
 				</dl>`;
+		return v;
+		
 	},
 
 
@@ -411,7 +407,7 @@ let Settings = {
 		return '<ul class="helplist">' +
 			'<li><a href="https://foe-helper.com" target="_blank"><span class="website">&nbsp;</span>' + i18n('Settings.Help.Website') + '</a></li>' +
 			'<li><a href="https://discuss.foe-helper.com/" target="_blank"><span class="forums">&nbsp;</span>' + i18n('Settings.Help.Forums') + '</a></li>' +
-			'<li><a href="https://discord.gg/z97KZq4" target="_blank"><span class="discord">&nbsp;</span>' + i18n('Settings.Help.Discord') + '</a></li>' +
+			'<li><a href="https://discord.gg/uQY7rqDJ7z" target="_blank"><span class="discord">&nbsp;</span>' + i18n('Settings.Help.Discord') + '</a></li>' +
 			'<li><a href="https://github.com/mainIine/foe-helfer-extension/issues" target="_blank"><span class="github">&nbsp;</span>' + i18n('Settings.Help.Github') + '</a></li>' +
 			'</ul>';
 	},

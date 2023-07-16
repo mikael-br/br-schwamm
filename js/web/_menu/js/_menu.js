@@ -345,9 +345,11 @@ let _menu = {
 			true
 		);
 
+		/* --- Preserve start --------------------------------------------- */ 
 		let btn_Calc = $('<span />').bind('click', function () {
 			Calculator.Open(true);
 		});
+		/* --- Preserve end --------------------------------------------- */ 
 
 		btn_CalcBG.append(btn_Calc);
 
@@ -591,12 +593,14 @@ let _menu = {
 			HiddenRewards.init();
 		})
 
+	/* --- Preserve start --------------------------------------------- */ 
 		return btn_RewardsBG.append(
 			btn_Rewards, 
 			$('<span id="hidden-reward-count" class="hud-counter">0</span>'), 
 			$('<span id="hidden-future-reward-count" class="hud-future-counter">0</span>')
 		);
 	},
+	/* --- Preserve end --------------------------------------------- */ 
 
 	recurringQuests_Btn: () => {
 		let btn_RewardsBG = _menu.MakeButton('recurringQuests', i18n('Menu.recurringQuests.Title'), i18n('Menu.recurringQuests.Desc'));
@@ -631,6 +635,7 @@ let _menu = {
 		return btn_UnitBG.append(btn_Unit);
 	},
 
+	/* --- Preserve start --------------------------------------------- */ 
 	/**
 	 * Sabotage actions
 	 * @returns {*|jQuery}
@@ -669,6 +674,7 @@ let _menu = {
 
 		return btn_LootingBG.append(btn_Looting);
 	},
+	/* --- Preserve end --------------------------------------------- */ 
 
 	/**
 	 * Notice function
@@ -912,12 +918,12 @@ let _menu = {
 		let btn = _menu.MakeButton(
 			'guildMemberstat',
 			i18n('Menu.GuildMemberStat.Title'),
-			'<em id="guildMemberstat-Btn-closed" class="tooltip-error">' + i18n('Menu.GuildMemberStat.Warning') + '<br></em>' + i18n('Menu.GuildMemberStat.Desc'),
+			'<em id="guildmemberstat-Btn-closed" class="tooltip-error">' + i18n('Menu.GuildMemberStat.Warning') + '<br></em>' + i18n('Menu.GuildMemberStat.Desc'),
 			true
 		);
 
 		let btn_sp = $('<span />').bind('click', function () {
-			if ($('#guildMemberstat-Btn').hasClass('hud-btn-red') === false) {
+			if ($('#guildmemberstat-Btn').hasClass('hud-btn-red') === false) {
 				GuildMemberStat.BuildBox(false);
 			}
 		});

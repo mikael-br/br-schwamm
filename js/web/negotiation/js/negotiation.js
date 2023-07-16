@@ -391,8 +391,7 @@ let Negotiation = {
 				if (slotSugestion) {
 					h.push('<td class="text-center">');
 					h.push(`<span class="goods-sprite ${good_id}"></span>`);
-					h.push(`<span class="numberIcon">${place+1}-${(slotSugestion.id+1) % 10}</span>`);
-					h.push('</td>');
+					h.push(`<span class="numberIcon" title="${HTML.i18nReplacer(i18n("Boxes.Negotiation.KeyboardTooltip"), {place: place + 1, slot: (slotSugestion.id+1) % 10})}">${place+1}-${(slotSugestion.id+1) % 10}</span>`);					h.push('</td>');
 				} else {
 					h.push('<td>&nbsp;</td>');
 				}
@@ -465,7 +464,9 @@ let Negotiation = {
 	 * @param {number} [forcedTryCount]
 	 */
 	StartNegotiation: (responseData, forcedTryCount) => {
+		/* --- Preserve start --------------------------------------------- */ 
 		if (responseData.context === Negotiation.CONST_Context_GBG && !Settings.GetSetting('AutomaticNegotiationForGbG')) {
+		/* --- Preserve end --------------------------------------------- */ 
 			if (! $('#negotiation-Btn').hasClass('hud-btn-red')) {
 				$('#negotiation-Btn').addClass('hud-btn-red');
 				_menu.toolTipp('#negotiation-Btn', i18n('Menu.Negotiation.Title'), '<em id="negotiation-Btn-closed" class="tooltip-error">' + i18n('Menu.Negotiation.Warning') + '<br></em>' + i18n('Menu.Negotiation.Desc'));

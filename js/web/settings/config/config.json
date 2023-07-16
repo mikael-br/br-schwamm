@@ -13,71 +13,78 @@
 		"sort": 0
 	},
 	{
+		"preserve": true,
 		"name": "AutomaticNegotiationForGbG",
 		"status": false,
 		"doubleoptin": true,
 		"group": "Boxes",
-		"sort": 2
+		"sort": 1
 	},
 	{
 		"name": "ShowInvestments",
 		"status": true,
 		"group": "Boxes",
-		"sort": 3
+		"sort": 2
 	},
 	{
 		"name": "ShowGuildTreasuryLogExport",
 		"status": true,
 		"group": "Boxes",
-		"sort": 4
+		"sort": 3
 	},
 	{
 		"name": "ShowMarketFilter",
 		"status": false,
 		"group": "Boxes",
-		"sort": 5
+		"sort": 4
 	},
 	{
 		"name": "ShowOwnPartOnAllGBs",
 		"status": false,
 		"group": "Boxes",
-		"sort": 6
+		"sort": 5
 	},
 	{
 		"name": "ShowEventChest",
 		"status": true,
 		"group": "Boxes",
-		"sort": 7
+		"sort": 6
 	},
 	{
 		"name": "ShowRougeUnitWarning",
 		"status": true,
 		"group": "Boxes",
-		"sort": 8
+		"sort": 7
+	},
+	{
+		"name": "ShowArmyAdvice",
+		"status": false,
+		"group": "Boxes",
+		"sort": 7
 	},
 	{
 		"name": "ShowBlueGalaxyHelper",
 		"status": true,
 		"group": "Boxes",
-		"sort": 9
+		"sort": 8
 	},
 	{
 		"name": "ShowPlayersMotivation",
 		"status": true,
 		"group": "Boxes",
-		"sort": 10
+		"sort": 9
 	},
 	{
 		"name": "AutoOpenInfoBox",
 		"status": false,
 		"group": "Boxes",
-		"sort": 11
+		"sort": 10
 	},
 	{
 		"name": "AutoOpenCloseBox",
 		"status": false,
 		"group": "Boxes",
-		"sort": 12
+		"sort": 11
 	},
 	{
 		"name": "doubleFPtimeout",
@@ -89,51 +96,54 @@
 		"name": "ShowMapTradeWarning",
 		"status": true,
 		"group": "Boxes",
-		"sort": 14
+		"sort": 13
 	},
 	{
 		"name": "Auctions",
 		"status": false,
 		"group": "Boxes",
-		"sort": 15
+		"sort": 13
 	},
 	{
 		"name": "ShowScoutingTimes",
 		"status": true,
 		"group": "Boxes",
-		"sort": 16
+		"sort": 14
 	},
 	{
 		"name": "Show2kQuestMark",
 		"status": false,
 		"group": "Boxes",
-		"sort": 17
+		"sort": 15
 	},
 	{
 		"name": "ShowLinks",
 		"status": true,
 		"group": "Boxes",
-		"sort": 18
+		"sort": 16
 	},
 	{
 		"name": "HideHelperDuringBattle",
 		"status": false,
 		"group": "Boxes",
-		"sort": 19
+		"sort": 17
 	},
 	{
 		"name": "ShowAztecHelper",
 		"status": true,
 		"group": "Boxes",
-		"sort": 20
+		"sort": 18
 	},
-	{	"name": "ShowNeighborsLootables",
+	{
+		"preserve": true,
+		"name": "ShowNeighborsLootables",
 		"status": false,
 		"doubleoptin": true,
 		"group": "Boxes",
 		"sort": 21
 	},
 	{
+		"preserve": true,
 		"name": "ShowPlayersAttDeffValues",
 		"status": true,
 		"doubleoptin": true,
@@ -141,6 +151,7 @@
 		"sort": 22
 	},
 	{
+		"preserve": true,
 		"name": "ShowPossibleInvestments",
 		"status": false,
 		"doubleoptin": true,
@@ -148,6 +159,7 @@
 		"sort": 23
 	},
 	{
+		"preserve": true,
 		"name": "ShowGvGFightHud",
 		"status": false,
 		"group": "Boxes",
@@ -215,6 +227,11 @@
 		"sort": 9
 	},
 	{
+		"name": "LoadBeta",
+		"group": "Extension",
+		"sort": 9
+	},
+	{
 		"name": "About",
 		"callback": "About",
 		"group": "About",
@@ -225,5 +242,11 @@
 		"callback": "VersionInfo",
 		"group": "About",
 		"sort": 1
+	},
+	{
+		"name": "Help",
+		"callback": "Help",
+		"group": "About",
+		"sort": 2
 	}
 ]

@@ -20,14 +20,13 @@ FoEproxy.addFoeHelperHandler('QuestsUpdated', data => {
 let Calculator = {
 
 	ForderBonus: 90,
-	SoundFile: new Audio(extUrl + 'vendor/sounds/message.mp3'),
-	PlayerName: undefined,
-	PlayerID: undefined,
-	LastPlayerID: 0,
-	PlayInfoSound: null,
-	PlayOverviewInfoSound: null,
-	DetailViewIsNewer: false,
-	OpenedFromOverview: undefined,
+    SoundFile: new Audio(extUrl + 'vendor/sounds/message.mp3'),
+    PlayerName: undefined,
+    LastPlayerID: 0,
+    PlayInfoSound: null,
+	PlayerID: undefined,           /* preserve */
+	DetailViewIsNewer: false,      /* preserve */
+	OpenedFromOverview: undefined, /* preserve */
 	Rankings : undefined,
 	CityMapEntity : undefined,
 	LastRecurringQuests: undefined,
@@ -37,13 +36,10 @@ let Calculator = {
 	],
 	ClanId: null,
 	ClanName: null,
-	Overview : undefined,
-	Initalized: false,
+	Overview : undefined,          /* preserve */
+	Initalized: false,             /* preserve */
 
-	/**
-	 * Show calculator
-	*
-	*/
+	/* --- Preserve start Open calculator --------------------------------------------- */ 
 	Open: (autoClose = false) => {
 		
 		// Nur Übersicht verfügbar
@@ -110,10 +106,12 @@ let Calculator = {
 			}
 		}
 	},
+	/* --- Preserve end Open Calculator --------------------------------------------- */ 
 	
+	/* --- Preserve start Init Calculator --------------------------------------------- */ 
 	/**
 	 * Calculator Initialisieren
-	 *
+	 * called by looting.js
 	 */
 	initCalculator: () => {
 		if (!Calculator.Initialized) {
@@ -176,22 +174,32 @@ let Calculator = {
 			Calculator.ClanId = PlayerDict[Calculator.PlayerID]['ClanId'];
 			Calculator.ClanName = PlayerDict[Calculator.PlayerID]['ClanName'];
 		}
+	/* --- Preserve end Init Calculator --------------------------------------------- */ 
 
 	},
-
 	/**
-	 * Kostenrechner anzeigen
+	 * Show calculator
 	 *
+	 * @param action
+	 * @constructor
 	 */
-	Show: () => {
+	Show: (action = '') => {
 		Calculator.initCalculator();
+        // moment.js global setzen
+        moment.locale(MainParser.Language);
 
-		// moment.js global setzen
-		moment.locale(MainParser.Language);
+        // close at the second click
+		if ($('#costCalculator').length > 0 && action === 'menu')
+		{
+			HTML.CloseOpenBox('costCalculator');
+			return;
+		}
 
-		// Wenn die Box noch nicht da ist, neu erzeugen und in den DOM packen
-		if ($('#costCalculator').length === 0) {
-			HTML.Box({
+		Calculator.ForderBonusPerConversation = (localStorage.getItem('CalculatorForderBonusPerConversation') !== 'false');
+			
+        // Wenn die Box noch nicht da ist, neu erzeugen und in den DOM packen
+        if ($('#costCalculator').length === 0) {
+           HTML.Box({
 				id: 'costCalculator',
 				title: i18n('Boxes.Calculator.Title'),
 				ask: i18n('Boxes.Calculator.HelpLink'),
@@ -236,39 +244,38 @@ let Calculator = {
 				}
 			});
 
-		}
+        }
 
 		let ForderBonusLoaded = false;
-		if(Calculator.ForderBonusPerConversation && MainParser.OpenConversation){
-			let StorageKey = 'CalculatorForderBonus_' + MainParser.OpenConversation,
-				StorageValue = localStorage.getItem(StorageKey);
-			
-			if(StorageValue !== null){
-				Calculator.ForderBonus = parseFloat(StorageValue);
-				ForderBonusLoaded = true;
+			if(Calculator.ForderBonusPerConversation && MainParser.OpenConversation){
+				let StorageKey = 'CalculatorForderBonus_' + MainParser.OpenConversation,
+					StorageValue = localStorage.getItem(StorageKey);
+				
+				if(StorageValue !== null){
+					Calculator.ForderBonus = parseFloat(StorageValue);
+					ForderBonusLoaded = true;
+				}
 			}
-		}
 
-		if(!ForderBonusLoaded){
-			let ab = localStorage.getItem('CalculatorForderBonus');
-			// alten Wert übernehmen, wenn vorhanden
-			if (ab !== null) {
-				Calculator.ForderBonus = parseFloat(ab);
+			if(!ForderBonusLoaded){
+				let ab = localStorage.getItem('CalculatorForderBonus');
+				// alten Wert übernehmen, wenn vorhanden
+				if (ab !== null) {
+					Calculator.ForderBonus = parseFloat(ab);
+				}
 			}
-		}
-			
+
 		let h = [];
 
-		// BuildingName konnte nicht aus der BuildingInfo geladen werden
+        // BuildingName konnte nicht aus der BuildingInfo geladen werden
 		let BuildingName = MainParser.CityEntities[Calculator.CityMapEntity['cityentity_id']]['name'];
 		let Level = (Calculator.CityMapEntity['level'] !== undefined ? Calculator.CityMapEntity['level'] : 0);
 		let MaxLevel = (Calculator.CityMapEntity['max_level'] !== undefined ? Calculator.CityMapEntity['max_level'] : 0);
 
-		h.push('<div class="text-center dark-bg" style="padding:5px 0 3px;">');
+        h.push('<div class="text-center dark-bg" style="padding:5px 0 3px;">');
 
-		// LG - Daten + Spielername
-		h.push('<div class="header"><strong>');
-		h.push('<span class="building-name">' + BuildingName + '</span>');
+        // LG - Daten + Spielername
+		h.push('<div class="header"><strong><span class="building-name">' + BuildingName + '</span>');
 
 		if (Calculator.PlayerName) {
 			h.push('<span class="player-name">' + MainParser.GetPlayerLink(Calculator.PlayerID, Calculator.PlayerName));
@@ -280,10 +287,12 @@ let Calculator = {
 			h.push('</span></strong>');
 		}
 
-		h.push('<p style="margin: 8px 0 0">' + i18n('Boxes.Calculator.Step') + '' + Level + ' &rarr; ' + (Level + 1) + ' | ' + i18n('Boxes.Calculator.MaxLevel') + ': ' + MaxLevel + '</p>');
+        h.push('<p style="margin: 8px 0 0">'+i18n('Boxes.Calculator.Step') + '' + Level + ' &rarr; ' + (Level + 1) + ' | ' + i18n('Boxes.Calculator.MaxLevel') + ': ' + MaxLevel + '</p></div>');
 
+                /* --- Preserve start --------------------------------------------- */ 
 		// FP im Lager
 		h.push('<p style="margin: 8px 0 0">' + i18n('Boxes.Calculator.AvailableFP') + ': <strong class="fp-storage">' + HTML.Format(StrategyPoints.AvailableFP) + '</p></div>');
+                /* --- Preserve end --------------------------------------------- */ 
 
 		h.push('</div>');
 
@@ -319,48 +328,46 @@ let Calculator = {
 		investmentSteps.forEach(bonus => {
 			h.push(`<button class="btn btn-default btn-toggle-arc ${(bonus === Calculator.ForderBonus ? 'btn-active' : '')}" data-value="${bonus}">${bonus}%</button>`);
 		});
-		h.push('</div><br>');
+        h.push('</div><br>');
+		/* --- Preserve start --------------------------------------------- */ 
 		h.push('<table width="100%"><tr><td width="50%" style="text-align: left">');
+		/* --- Preserve end --------------------------------------------- */ 
 		
 		h.push('<span><strong>' + i18n('Boxes.Calculator.FriendlyInvestment') + '</strong> ' + '<input type="number" id="costFactor" step="0.1" min="12" max="200" value="' + Calculator.ForderBonus + '">%</span>');
 
+		/* --- Preserve start --------------------------------------------- */ 
 		h.push('</td><td style="text-align: right">');
-
 		h.push('<strong>' + i18n('Boxes.Calculator.AggressiveInvestment') + '</strong><br>');
-
 		h.push('</td></tr></table>');
+		/* --- Preserve end --------------------------------------------- */ 
 
-		h.push('</div>');
+       h.push('</div>');
 
-		// Tabelle zusammen fummeln
-		h.push('<table style="width:100%"><tbody><tr>');
-		h.push('<td><table id="costTableFordern" class="foe-table"></table></td>');
-		h.push('<td><table id="costTableBPMeds" class="foe-table"></table></td>');
-		h.push('<td><table id="costTableAggressiveInvestment" class="foe-table"></table></td>');
-		h.push('</tr></tbody></table>');
+        // Tabelle zusammen fummeln
+		h.push('<table id="costTableFordern" style="width:100%" class="foe-table"></table>');
 
-		// Wieviel fehlt noch bis zum leveln?
+        // Wieviel fehlt noch bis zum leveln?
 		let rest = (Calculator.CityMapEntity['state']['invested_forge_points'] === undefined ? Calculator.CityMapEntity['state']['forge_points_for_level_up'] : Calculator.CityMapEntity['state']['forge_points_for_level_up'] - Calculator.CityMapEntity['state']['invested_forge_points']);
 
 		h.push('<div class="text-center dark-bg" style="padding-top:5px;padding-bottom:5px;"><em>' + i18n('Boxes.Calculator.Up2LevelUp') + ': <span id="up-to-level-up" style="color:#FFB539">' + HTML.Format(rest) + '</span> ' + i18n('Boxes.Calculator.FP') + '</em></div>');
 
 		h.push(Calculator.GetRecurringQuestsLine(Calculator.PlayInfoSound));
 
-		// in die bereits vorhandene Box drücken
-		$('#costCalculator').find('#costCalculatorBody').html(h.join(''));
-		$('#costCalculator').find('.tooltip').remove();
+        // in die bereits vorhandene Box drücken
+        $('#costCalculator').find('#costCalculatorBody').html(h.join(''));
+        $('#costCalculator').find('.tooltip').remove();
 
-		// Stufe ist noch nicht freigeschaltet
+        // Stufe ist noch nicht freigeschaltet
 		if (Calculator.CityMapEntity['level'] === Calculator.CityMapEntity['max_level']) {
-			$('#costCalculator').find('#costCalculatorBody').append($('<div />').addClass('lg-not-possible').attr('data-text', i18n('Boxes.Calculator.LGNotOpen')));
+            $('#costCalculator').find('#costCalculatorBody').append($('<div />').addClass('lg-not-possible').attr('data-text', i18n('Boxes.Calculator.LGNotOpen')));
 		}
 
 		// es fehlt eine Straßenanbindung
 		else if (Calculator.CityMapEntity['connected'] === undefined) {
-			$('#costCalculator').find('#costCalculatorBody').append($('<div />').addClass('lg-not-possible').attr('data-text', i18n('Boxes.Calculator.LGNotConnected')));
-		}
+            $('#costCalculator').find('#costCalculatorBody').append($('<div />').addClass('lg-not-possible').attr('data-text', i18n('Boxes.Calculator.LGNotConnected')));
+        }
 
-		Calculator.CalcBody();
+        Calculator.CalcBody();
 	},
 
 
@@ -398,7 +405,7 @@ let Calculator = {
 			if (PlaySound) { //Nicht durch Funktion PlaySound ersetzen!!! GetRecurringQuestLine wird auch vom EARechner aufgerufen.
 				if (Settings.GetSetting('EnableSound')) Calculator.SoundFile.play();
 			}
-		}
+        }
 
 		Calculator.LastRecurringQuests = RecurringQuests;
 
@@ -411,22 +418,20 @@ let Calculator = {
 	 */
 	CalcBody: ()=> {
 		let hFordern = [],
-			hBPMeds = [],
-			hAggressiveInvestment = [],
 			BestKurs = 999999,
 			arc = 1 + (MainParser.ArkBonus / 100),
 			ForderArc = 1 + (Calculator.ForderBonus / 100);
 
-		let EigenPos,
-			EigenBetrag = 0;
+        let EigenPos,
+            EigenBetrag = 0;
 
-		// Ränge durchsteppen, Suche nach Eigeneinzahlung
+        // Ränge durchsteppen, Suche nach Eigeneinzahlung
 		for (let i = 0; i < Calculator.Rankings.length;i++) {
 			if (Calculator.Rankings[i]['player']['player_id'] !== undefined && Calculator.Rankings[i]['player']['player_id'] === ExtPlayerID) {
-				EigenPos = i;
+                EigenPos = i;
 				EigenBetrag = (isNaN(parseInt(Calculator.Rankings[i]['forge_points']))) ? 0 : parseInt(Calculator.Rankings[i]['forge_points']);
-				break;
-			}
+                break;
+            }
 		}
 
 		let ForderStates = [],
@@ -597,17 +602,13 @@ let Calculator = {
 			'<th>#</th>' +
 			'<th><span class="forgepoints" title="' + HTML.i18nTooltip(i18n('Boxes.Calculator.Commitment')) + '"></span></th>' +
 			'<th>' + i18n('Boxes.Calculator.Profit') + '</th>' +
-			'</thead>');
-
-		hBPMeds.push('<thead>' +
 			'<th><span class="blueprint" title="' + HTML.i18nTooltip(i18n('Boxes.Calculator.BPs')) + '"></span></th>' +
 			'<th><span class="medal" title="' + HTML.i18nTooltip(i18n('Boxes.Calculator.Meds')) + '"></span></th>' +
-			'</thead>');
-
-		hAggressiveInvestment.push('<thead>' +
+			/* --- Preserve start Aggressive Investment --------------------------------------------- */ 
 			'<th><span class="forgepoints" title="' + HTML.i18nTooltip(i18n('Boxes.Calculator.Commitment')) + '"></span></th>' +
 			'<th>' + i18n('Boxes.Calculator.Profit') + '</th>' +
 			'<th>' + i18n('Boxes.Calculator.Rate') + '</th>' +
+			/* --- Preserve end Aggressive Investment --------------------------------------------- */ 
 			'</thead>');
 
 		for (let Rank = 0; Rank < ForderRankCosts.length; Rank++) {
@@ -622,8 +623,8 @@ let Calculator = {
 			if (SaveStates[Rank] !== 'Self' && Kurs > 0) {
 				if (Kurs < BestKurs) {
 					BestKurs = Kurs;
-					BestKursNettoFP = FPNettoRewards[Rank];
-					BestKursEinsatz = SaveRankCosts[Rank];
+					let BestKursNettoFP = FPNettoRewards[Rank],
+						BestKursEinsatz = SaveRankCosts[Rank];
 				}
 			}
 
@@ -643,9 +644,11 @@ let Calculator = {
 				GewinnText = HTML.Format(ForderGewinn), //Default: Gewinn
 				GewinnTooltip,
 
+				/* --- Preserve start --------------------------------------------- */ 
 				KursClass,
 				KursText,
 				KursTooltip = [];
+				/* --- Preserve end --------------------------------------------- */ 
 
 			if (ForderFPRewards[Rank] - EigenBetrag > StrategyPoints.AvailableFP) {
 				EinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTForderFPStockLow'), { 'fpstock': StrategyPoints.AvailableFP, 'costs': ForderFPRewards[Rank] - EigenBetrag, 'tooless': (ForderFPRewards[Rank] - EigenBetrag - StrategyPoints.AvailableFP) }));
@@ -690,7 +693,9 @@ let Calculator = {
 				}
 
 				if (ForderGewinn > 0) {
+					/* --- Preserve start --------------------------------------------- */ 
 					GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTProfitSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': Einzahlungen[Rank], 'profit': ForderGewinn, 'safe': SaveRankCosts[Rank] })]
+					/* --- Preserve end --------------------------------------------- */ 
 				}
 				else {
 					GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTLossSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': Einzahlungen[Rank], 'loss': 0 - ForderGewinn })]
@@ -720,6 +725,8 @@ let Calculator = {
 				if (ForderRankDiff < 0) {
 					EinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTLevelWarning'), { 'fpcount': (0 - ForderRankDiff), 'totalfp': ForderRankCosts[Rank] }));
 				}
+
+				GewinnClass = '';
 			}
 			else if (ForderStates[Rank] === 'Profit') {
 				RowClass = 'bg-green';
@@ -738,19 +745,6 @@ let Calculator = {
 				GewinnText = '-';
 				GewinnTooltip = [];
 			}
-
-			hFordern.push('<tr class="' + RowClass + '">');
-			hFordern.push('<td class="text-center"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
-			hFordern.push('</tr>');
-
-
-			//else if (ForderStates[Rank] === 'LevelWarning') {
-			//	let ToolTip = ;
-			//}
-
-
 
 			// BP+Meds
 
@@ -775,14 +769,8 @@ let Calculator = {
 				RowClass = 'bg-green';
 			}
 
-			hBPMeds.push('<tr class="' + RowClass + '">');
-			hBPMeds.push('<td class="text-center">' + HTML.Format(BPRewards[Rank]) + '</td>');
-			hBPMeds.push('<td class="text-center">' + HTML.Format(MedalRewards[Rank]) + '</td>');
-			hBPMeds.push('</tr>');
 
-
-			// AggressiveInvestment
-
+			/* --- Preserve start  AggressiveInvestment --------------------------------------------- */
 			EinsatzClass = (SaveRankCosts[Rank] > StrategyPoints.AvailableFP ? 'error' : ''); //Default: rot wenn Vorrat nicht ausreichend, sonst gelb
 			EinsatzText = HTML.Format(SaveRankCosts[Rank]) //Default: Einsatz
 			EinsatzTooltip = [];
@@ -862,16 +850,21 @@ let Calculator = {
 				KursText = '-';
 			}
 
-			hAggressiveInvestment.push('<tr class="' + RowClass + '">');
-			hAggressiveInvestment.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hAggressiveInvestment.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
-			hAggressiveInvestment.push('<td class="text-center"><strong class="' + KursClass + ' td-tooltip" title="' + HTML.i18nTooltip(KursTooltip.join('<br>')) + '">' + KursText + '</strong></td>');
-			hAggressiveInvestment.push('</tr>');
+			hFordern.push('<tr class="' + RowClass + '">');
+			hFordern.push('<td class="text-center"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
+			hFordern.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center">' + HTML.Format(BPRewards[Rank]) + '</td>');
+			hFordern.push('<td class="text-center">' + HTML.Format(MedalRewards[Rank]) + '</td>');
+			hFordern.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center"><strong class="' + KursClass + ' td-tooltip" title="' + HTML.i18nTooltip(KursTooltip.join('<br>')) + '">' + KursText + '</strong></td>');
+			hFordern.push('</tr>');
+			/* --- Preserve end Aggressive Investment--------------------------------------------- */ 
 		}
 
 		$('#costTableFordern').html(hFordern.join(''));
-		$('#costTableBPMeds').html(hBPMeds.join(''));
-		$('#costTableAggressiveInvestment').html(hAggressiveInvestment.join(''));
+		/* --- Preserve start --------------------------------------------- */ 
 
 		Calculator.RefreshGreatBuildingsDB({
 			playerId: Calculator.CityMapEntity['player_id'],
@@ -881,14 +874,16 @@ let Calculator = {
 			bestRateNettoFp: BestKursNettoFP,
 			bestRateCosts: BestKursEinsatz
 		});
+		/* --- Preserve end --------------------------------------------- */ 
 
 		$('.td-tooltip').tooltip({
 			html: true,
 			container: '#costCalculator'
 		});
 	},
+		
 
-
+	/* --- Preserve start --------------------------------------------- */ 
 	/**
 	 * Aktualisiert die GBs in der IndexDB
 	 *
@@ -922,7 +917,7 @@ let Calculator = {
 		}
 		/* Ende Neuer Code: */
 	},
-
+	/* --- Preserve end --------------------------------------------- */ 
 
 	/**
 	 * Formats the course
@@ -956,29 +951,17 @@ let Calculator = {
 		}
 	},
 
-
+		
 	/**
 	 * Spielt einen Sound im Calculator ab
 	 *
 	 * @returns {string}
 	 */
-	PlaySound: () => {
-		if (Calculator.PlayInfoSound) {
+    PlaySound: () => {
+        if (Calculator.PlayInfoSound) {
 			if (Settings.GetSetting('EnableSound')) Calculator.SoundFile.play();
-		}
-	},
-
-
-	/**
-	* Spielt einen Sound in der Overview ab
-	*
-	* @returns {string}
-	*/
-	PlayOverviewSound: () => {
-		if (Calculator.PlayOverviewInfoSound) {
-			if (Settings.GetSetting('EnableSound')) Calculator.SoundFile.play();
-		}
-	},
+        }
+    },
 
 
 	ShowCalculatorSettings: ()=> {
@@ -1026,7 +1009,7 @@ let Calculator = {
 
 
 	SettingsInsertNewRow: ()=> {
-		let nV = `<p class="new-row">${i18n('Boxes.Calculator.Settings.newValue')}: <input type="number" class="settings-values" style="width:30px"> <span class="btn btn-default btn-green" onclick="Calculator.SettingsInsertNewRow()">+</span></p>`;
+    	let nV = `<p class="new-row">${i18n('Boxes.Calculator.Settings.newValue')}: <input type="number" class="settings-values" style="width:30px"> <span class="btn btn-default btn-green" onclick="Calculator.SettingsInsertNewRow()">+</span></p>`;
 
 		$(nV).insertAfter( $('.new-row:eq(-1)') );
 	},
@@ -1041,9 +1024,9 @@ let Calculator = {
 
 	SettingsSaveValues: ()=> {
 
-		let values = [];
+    	let values = [];
 
-		// get each visible value
+    	// get each visible value
 		$('.settings-values').each(function(){
 			let v = $(this).val().trim();
 
@@ -1071,6 +1054,7 @@ let Calculator = {
 	},
 
 
+	/* --- Preserve start --------------------------------------------- */ 
 	/**
 	 * Übersicht der LGs scannen
 	 *
@@ -1109,7 +1093,7 @@ let Calculator = {
 				let disabled = $(this).hasClass('deactivated');
 
 				localStorage.setItem('CalculatorOverviewTone', (disabled ? '' : 'deactivated'));
-				Calculator.PlayOverviewInfoSound = !!disabled;
+				Calculator.PlayInfoSound = !!disabled;
 
 				if (disabled === true) {
 					$('#CalculatorOverviewTone').removeClass('deactivated');
@@ -1249,17 +1233,8 @@ let Calculator = {
 		}
 
 		// Gibt was zu holen
-		if (LGFound)
+		if (! LGFound)
 		{
-			if (PlayAudio && !DisableAudio)
-			{
-				Calculator.PlayOverviewSound();
-			}
-			
-		}
-
-		// gibt nichts zu holen
-		else {
 				h.push('<tr>');
 			h.push('<td colspan="5" class="text-center no-investments-possible" style="padding:2px 0 3px;"><strong>');
 
@@ -1268,5 +1243,6 @@ let Calculator = {
 		h.push('</table>');
 
 		$('#LGInvestmentOverviewBox').find('#LGInvestmentOverviewBoxBody').html(h.join(''));
+		/* --- Preserve end --------------------------------------------- */ 
 	}
 };

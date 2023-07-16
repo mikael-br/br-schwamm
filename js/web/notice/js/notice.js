@@ -32,17 +32,19 @@ let Notice = {
 
 	ActiveTab: 1,
 	ActiveSubTab: 1,
-	Banned: false,
+	Banned: false,    /* preserve */
 
 	/**
 	 * On init get the content
 	 */
 	init: ()=> {
-		if(Notice.notes === null && Settings.GetSetting('GlobalSend') === true) {
+		if(Notice.notes === null && Settings.GetSetting('GlobalSend') === true) {  /* preserve */
 			MainParser.send2Server({isEmpty:true}, 'Notice/get',(resp)=>{
+				/* --- Preserve start --------------------------------------------- */ 
 				if (resp.status == 'OK' && resp.notice === undefined) {
 					Notice.Banned = true;
 				}
+				/* --- Preserve start --------------------------------------------- */ 
 				
 				Notice.notes = resp.notice;
 
@@ -85,13 +87,16 @@ let Notice = {
 
 		Notice.Players = PlayerDict;
 
-		if(Settings.GetSetting('GlobalSend') && !Notice.Banned){
+		if(Settings.GetSetting('GlobalSend') && !Notice.Banned){  /* preserve */
 			Notice.prepareContent();
 		}
 
 		// global send is deactivated
 		else {
+		/* --- Preserve start --------------------------------------------- */ 
+
 			$('#noticesBody').addClass('global-send-required-bg').append( $('<span />').addClass('global-send-required').html(Notice.Banned ? i18n('Boxes.Notice.BannedFromApi') : i18n('Boxes.Notice.GlobalSendRequired')) );
+		/* --- Preserve end --------------------------------------------- */ 
 		}
 	},
 

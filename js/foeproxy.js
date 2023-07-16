@@ -358,7 +358,7 @@ const FoEproxy = (function () {
 		}
 	}
 
-	// Achtung! Die WebSocket.prototype.send funktion wird nicht zurück ersetzt, falls anderer code den prototypen auch austauscht.
+	// Attention. The WebSocket.prototype.send function is not replaced back if other code also replaces the prototype
 	const observedWebsockets = new WeakSet();
 	const oldWSSend = WebSocket.prototype.send;
 	WebSocket.prototype.send = function (data) {
@@ -376,7 +376,7 @@ const FoEproxy = (function () {
 	/**
 	 * This function gets the callbacks from proxyMap[service][method] and executes them.
 	 */
-	function _proxyAction(service, method, data, postData, responseData) {
+	function _proxyAction(service, method, data, postData, responseData) {           /* preserve responseData! */
 		const map = proxyMap[service];
 		if (!map) {
 			return;
@@ -387,7 +387,7 @@ const FoEproxy = (function () {
 		}
 		for (let callback of list) {
 			try {
-				callback(data, postData, responseData);
+				callback(data, postData, responseData);                  /* preserve */
 			} catch (e) {
 				console.error(e);
 			}
@@ -397,13 +397,13 @@ const FoEproxy = (function () {
 	/**
 	 * This function gets the callbacks from proxyMap[service][method],proxyMap[service]['all'] and proxyMap['all']['all'] and executes them.
 	 */
-	function proxyAction(service, method, data, postData, responseData) {
+	function proxyAction(service, method, data, postData, responseData) {            /* preserve */
 		let filteredPostData = postData.filter(r => r && r.requestId && data && data.requestId && r.requestId === data.requestId); //Nur postData mit zugehöriger requestId weitergeben
 
-		_proxyAction(service, method, data, filteredPostData, responseData);
-		_proxyAction('all', method, data, filteredPostData, responseData);
-		_proxyAction(service, 'all', data, filteredPostData, responseData);
-		_proxyAction('all', 'all', data, filteredPostData, responseData);
+		_proxyAction(service, method, data, filteredPostData, responseData);     /* preserve */
+		_proxyAction('all', method, data, filteredPostData, responseData);       /* preserve */
+		_proxyAction(service, 'all', data, filteredPostData, responseData);      /* preserve */
+		_proxyAction('all', 'all', data, filteredPostData, responseData);        /* preserve */
 	}
 
 	/**
@@ -507,22 +507,22 @@ const FoEproxy = (function () {
 		// nur die jSON mit den Daten abfangen
 		if (url.indexOf("game/json?h=") > -1) {
 
-			let responseData = /** @type {FoE_NETWORK_TYPE[]} */(JSON.parse(this.responseText));
+			let d = /** @type {FoE_NETWORK_TYPE[]} */(JSON.parse(this.responseText));
 
 			let requestData = postData;
 
 			try {
 				requestData = JSON.parse(new TextDecoder().decode(postData));
 				// StartUp Service zuerst behandeln
-				for (let entry of responseData) {
+				for (let entry of d) {
 					if (entry['requestClass'] === 'StartupService' && entry['requestMethod'] === 'getData') {
-						proxyAction(entry.requestClass, entry.requestMethod, entry, requestData, responseData);
+						proxyAction(entry.requestClass, entry.requestMethod, entry, requestData, d);     /* preserve */
 					}
 				}
 
-				for (let entry of responseData) {
+				for (let entry of d) {  
 					if (!(entry['requestClass'] === 'StartupService' && entry['requestMethod'] === 'getData')) {
-						proxyAction(entry.requestClass, entry.requestMethod, entry, requestData, responseData);
+						proxyAction(entry.requestClass, entry.requestMethod, entry, requestData, d);     /* preserve */
 					}
 				}
 
@@ -538,16 +538,18 @@ const FoEproxy = (function () {
 		if (!data) return;
 		try {
 			
-			let post;
+			let posts=[];
 
 			if (typeof data === 'object' && data instanceof ArrayBuffer)
-				post = JSON.parse(new TextDecoder().decode(data))[0];
+				posts = JSON.parse(new TextDecoder().decode(data));
 			else 
-				post = JSON.parse(data)[0];
+				posts = JSON.parse(data);
 
 			//console.log(post);
-			if (!post || !post.requestClass || !post.requestMethod || !post.requestData) return;
-			proxyRequestAction(post.requestClass, post.requestMethod, post);
+			for (let post of posts) {
+				if (!post || !post.requestClass || !post.requestMethod || !post.requestData) return;
+				proxyRequestAction(post.requestClass, post.requestMethod, post);
+			}
 		} catch (e) {
 			console.log('Can\'t parse postData: ', data);
 		}

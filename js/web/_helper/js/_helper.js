@@ -162,7 +162,7 @@ let HTML = {
 		let title = $('<span />').addClass('title').html(args['title']);
 		
 		if (args['onlyTitle'] !== true) {
-			title = $('<span />').addClass('title').html((extVersion.indexOf("beta") > -1 ? '(Beta) ': '') + args['title'] + ' <small><em> - FoE Helper</em></small>');
+			title = $('<span />').addClass('title').html((extVersion.indexOf("beta") > -1 ? '(Beta) ': '') + args['title'] + ' <small><em> - FoE Tools</em></small>');
 		}
 		title = title.attr('title', title[0].textContent);
 		let	buttons = $('<div />').attr('id', args['id'] + 'Buttons').addClass('box-buttons'),
@@ -229,6 +229,7 @@ let HTML = {
 			div.offset({ top: Math.min(parseInt(c[0]), window.innerHeight - 50), left: Math.min(parseInt(c[1]), window.innerWidth - 100) });
 		}
 
+		/* --- Preserve start --------------------------------------------- */ 
 		if(args['dragdrop'] && (args['fixdragdrop'] === undefined || args['fixdragdrop'] !== false)) {
 			let drag = $('<span />').addClass('window-dragtoggle').attr('id', `${args['id']}-dragtoggle`);
 			buttons.prepend(drag);
@@ -251,6 +252,7 @@ let HTML = {
 			});
 		}
 
+		/* --- Preserve en --------------------------------------------- */ 
 		// Ein Link zu einer Seite
 		if (args['ask']) {
 			let ask = $('<span />').addClass('window-ask').attr('data-url', args['ask']);
@@ -577,14 +579,34 @@ let HTML = {
 				sw: '.window-grippy',
 				nw: '.window-grippy'
 			},
-			minHeight: $(box).css("min-width") || 100,
-			minWidth: $(box).css("min-height") || 220,
+			minHeight: 100,
+			minWidth: 220,
 			stop: (e, $el) => {
-				let size = $el.element.width() + '|' + $el.element.height();
+				let w = $el.element.width();
+				let h = $el.element.height();
+				let t = $el.element.offset().top;
+				let l = $el.element.offset().left;
+				if (window.innerHeight<h+t) {
+					let h= window.innerHeight-t-5;
+					$el.element.height(h);
+				}
+				if (window.innerWidth<l+w) {
+					let w= window.innerWidth-l-5;
+					$el.element.width(w);
+				}
+				
+				let size = w + '|' + h;
 
 				localStorage.setItem(id + 'Size', size);
 			}
 		};
+
+		// Except the "menu Box"
+		if(id === 'menu_box')
+		{
+			options['minWidth'] = 101;
+			options['minHeight'] = 87;
+		}
 
 		// keep aspect ratio
 		if (keepRatio) {

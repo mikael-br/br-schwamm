@@ -133,9 +133,9 @@ let BlueGalaxy = {
 
             if (Production['products']) {
                 let FP = Production['products']['strategy_points'];
-                let Diamonds = Production['products']['premium'];
+                let Diamonds = Production['products']['premium'];      /* preserve */
                 if (!FP) FP = 0;
-                if (!Diamonds) Diamonds = 0;
+                if (!Diamonds) Diamonds = 0;                           /* preserve */
                 let GoodsSum = 0;
                 for (let j = 0; j < GoodsList.length; j++) {
                     let GoodID = GoodsList[j]['id'];
@@ -148,7 +148,7 @@ let BlueGalaxy = {
                     ID: ID, 
                     EntityID: EntityID, 
                     FP: FP, 
-                    Diamonds: Diamonds,
+                    Diamonds: Diamonds,                                /* preserve */
                     Goods: GoodsSum, 
                     In: Production['in'], 
                     At: Production['at']
@@ -156,11 +156,13 @@ let BlueGalaxy = {
             }
         }
                 
+        /* --- Preserve start --------------------------------------------- */ 
         Buildings = Buildings.filter(obj => ((obj['FP'] > 0 || obj['Diamonds'] > 0 || obj['Goods'] > 0) && obj['In'] < 23 * 3600)); // Hide everything above 23h
 
         Buildings = Buildings.sort(function (a, b) {
             return (b['Diamonds'] - a['Diamonds']) + (b['FP'] - a['FP']) + BlueGalaxy.GoodsValue * (b['Goods'] - a['Goods']);
         });
+        /* --- Preserve end --------------------------------------------- */ 
 
         let h = [];
         h.push('<div class="text-center dark-bg header">');
@@ -198,7 +200,7 @@ let BlueGalaxy = {
                 '<tr>' +
                 '<th>' + i18n('Boxes.BlueGalaxy.Building') + '</th>' +
                 '<th>' + i18n('Boxes.BlueGalaxy.FP') + '</th>' +
-                '<th>' + i18n('Boxes.BlueGalaxy.Diamonds') + '</th>' +
+                '<th>' + i18n('Boxes.BlueGalaxy.Diamonds') + '</th>' +                                /* preserve */
                 '<th>' + i18n('Boxes.BlueGalaxy.Goods') + '</th>' +
                 '<th>' + i18n('Boxes.BlueGalaxy.DoneIn') + '</th>' +
                 '<th></th>' +
@@ -208,7 +210,7 @@ let BlueGalaxy = {
             let CollectionsLeft = BlueGalaxy.DoubleCollections,
                 FPBonusSum = 0,
                 GoodsBonusSum = 0;
-                DiamondsBonusSum = 0;
+                DiamondsBonusSum = 0;                                                                /* preserve */
 
             for (let i = 0; i < Buildings.length; i++) {
                 if (CollectionsLeft <= 0) break;
@@ -218,7 +220,7 @@ let BlueGalaxy = {
                 table.push('<tr>');
                 table.push('<td>' + BuildingName + '</td>');
                 table.push('<td class="text-center">' + HTML.Format(Buildings[i]['FP']) + '</td>');
-                table.push('<td class="text-center">' + HTML.Format(Buildings[i]['Diamonds']) + '</td>');
+                table.push('<td class="text-center">' + HTML.Format(Buildings[i]['Diamonds']) + '</td>');  /* preserve */
                 table.push('<td class="text-center">' + HTML.Format(Buildings[i]['Goods']) + '</td>');
 
                 if (Buildings[i]['At'] * 1000 <= MainParser.getCurrentDateTime()) {
@@ -227,7 +229,7 @@ let BlueGalaxy = {
 
                     FPBonusSum += Buildings[i]['FP'] * BlueGalaxy.GalaxyFactor;
                     GoodsBonusSum += Buildings[i]['Goods'] * BlueGalaxy.GalaxyFactor;
-                    DiamondsBonusSum += Buildings[i]['Diamonds'] * BlueGalaxy.GalaxyFactor;
+                    DiamondsBonusSum += Buildings[i]['Diamonds'] * BlueGalaxy.GalaxyFactor;              /* preserve */
                 }
                 else {
                     table.push('<td style="white-space:nowrap"><strong class="error">' + moment.unix(Buildings[i]['At']).fromNow() + '</strong></td>');
@@ -244,8 +246,10 @@ let BlueGalaxy = {
 
             table.push('</table');
 
+       /* --- Preserve start --------------------------------------------- */ 
             if (FPBonusSum > 0 || DiamondsBonusSum > 0 || GoodsBonusSum > 0) {
                 h.push(HTML.i18nReplacer(i18n('Boxes.BlueGalaxy.EstimatedBonus'), { FP: Math.round(FPBonusSum), Diamonds: Math.round(DiamondsBonusSum), Goods: Math.round(GoodsBonusSum)}));
+       /* --- Preserve end --------------------------------------------- */ 
                 h.push('<br>');
             }
         }

@@ -65,7 +65,7 @@
 	--border-table-bottom: #3D250F;
 	--border-table-bottom-darker: #170602;
 
-	--hud-counter-warn: rgba(208, 126, 3);
+	--hud-counter-warn: rgba(208, 126, 3); /* preserve */
 	--hud-counter: #3180bf;
 	--hud-counter-success: #497b0b;
 
@@ -73,8 +73,8 @@
 	--black: #000;
 	--black-50: rgba(0, 0, 0, 0.5);
 	--black-65: rgba(0,0,0, 0.65);
-	--black-25: rgba(0,0,0, 0.25);
-	--red-50: rgba(167, 31, 31, 0.50);
+	--black-25: rgba(0,0,0, 0.25);        /* preserve */
+	--red-50: rgba(167, 31, 31, 0.50);    /* preserve */
 
 	--text-success: #29b206;
 	--text-info: #2196f3;

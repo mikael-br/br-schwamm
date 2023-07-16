@@ -101,13 +101,9 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 		}, {capture: false, once: true, passive: true});
 	});
 
-	
-	const v = chrome.runtime.getManifest().version + (loadBeta ? '-beta-'+ betaDate:'');
-	let bv = chrome.runtime.getManifest().version_name;
-	if (bv != '') {
-		bv = bv.match(/\((\d+\.\d+\.\d+\.\d+)\)/);
-		bv = bv != null ? bv = bv[1] : '';
-	}
+	let m = chrome.runtime.getManifest();
+	const v = m.version + (loadBeta ? '-beta-'+ betaDate:'');
+	const vn = m.version_name;
 
 	let   lng = chrome.i18n.getUILanguage();
 	const uLng = localStorage.getItem('user-language');
@@ -119,7 +115,7 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 
 	// is there a translation?
 	if (Languages.PossibleLanguages[lng] === undefined) {
-		lng = 'en';
+		lng = 'de';
 	}
 
 	if (uLng !== null){
@@ -143,7 +139,7 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 			let cssFiles = [
 				'variables',
 				'goods',
-				cssname,
+				cssname,	
 				'boxes'
 			];
 
@@ -171,7 +167,7 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 				extUrl: extUrl,
 				GuiLng: lng,
 				extVersion: v,
-				extBaseVersion: bv,
+				extVersionName: vn,
 				isRelease: true,
 				devMode: `${!('update_url' in chrome.runtime.getManifest())}`,
 				loadBeta: loadBeta

@@ -43,7 +43,7 @@
 
 #costCalculator #costCalculatorBody input {
 	display: inline-block;
-	width: 45px;
+	width: 45px;  /* preserve */
 	text-align: center;
 	padding: 1px 5px;
 	line-height: 1.5;
@@ -123,9 +123,11 @@
 	color: var(--text-success);
 }
 
+/* --- Preserve start --------------------------------------------- */ 
 #costCalculator #costCalculatorBody strong.error {
 	color: #ec4d4d;
 }
+/* --- Preserve end --------------------------------------------- */ 
 
 #costCalculator #costCalculatorBody .text-grey,
 #costCalculator #costCalculatorBody .text-grey strong {
@@ -153,11 +155,13 @@
 	background-color: var(--background-table-bright);
 }
 
+/* --- Preserve start --------------------------------------------- */ 
 #costCalculatorBody .costFactorWrapper {
 	padding: 5px 5px;
 	align-items: center;
 	justify-content: space-between;
 }
+/* --- Preserve end --------------------------------------------- */ 
 
 #costCalculatorBody .costFactorWrapper > div:first-child {
 	text-align: center;
@@ -174,7 +178,7 @@
 #costCalculatorBody .costFactorWrapper > div:last-child {
 	text-align: center;
 	width: 39%;
-	margin-top: 10px;
+	margin-top: 10px;  /* preserve */
 }
 
 #costCalculatorBody .costFactorWrapper .btn-default {
@@ -186,17 +190,19 @@
 	margin-right: 15px;
 }
 
+/* --- Preserve start --------------------------------------------- */ 
 #costCalculatorBody .costFactorWrapper .btn-default:not(:first-child) {
 	display: inline-block;
 	margin-left: 3px;
 }
+/* --- Preserve end --------------------------------------------- */ 
 
 #costCalculatorBody #costTable {
 	user-select: text;
 }
 
 
-
+/* --- Preserve start --------------------------------------------- */ 
 #LGInvestmentOverviewBox {
 	top: 30%;
 	right: 15%;
@@ -267,3 +273,5 @@
 #LGInvestmentOverviewBox #LGInvestmentOverviewBoxBody .color-description:hover > span {
 	display: block;
 }
+/* --- Preserve end --------------------------------------------- */ 
+

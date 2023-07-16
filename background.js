@@ -98,7 +98,7 @@ alertsDB.version(1).stores({
 			if (typeof data.body  !== 'string')       throw 'Alert: "data.body" needs to be a string';
 			if (!Number.isInteger(data.expires))      throw 'Alert: "data.expires" needs to be a integer';
 			if (!Number.isInteger(data.repeat))       throw 'Alert: "data.repeat" needs to be a integer';
-			if (data.actions instanceof Array)        throw 'Alert: "data.actions" needs to be an array';
+			if (data.actions != null && !(data.actions instanceof Array))        throw 'Alert: "data.actions" needs to be an array';
 			if (typeof data.category   !== 'string')  throw 'Alert: "data.category" needs to be a string';
 			if (typeof data.persistent !== 'boolean') throw 'Alert: "data.persistent" needs to be a boolean';
 			if (typeof data.tag        !== 'string')  throw 'Alert: "data.tag" needs to be a string';
@@ -251,11 +251,12 @@ alertsDB.version(1).stores({
 					type: 'basic',
 					title: alert.data.title,
 					message: alert.data.body,
+					buttons: alert.data.actions,
+					requireInteraction: alert.data.persistent||false,
 					// @ts-ignore
 					contextMessage: 'FoE Toolbox − '+trimPrefix(alert.server, "https://"),
 					iconUrl: '/images/app128.png',
-					eventTime: alert.data.expires,
-					requireInteraction: alert.data.persistent
+					eventTime: alert.data.expires
 				}
 			);
 		}
@@ -368,10 +369,6 @@ alertsDB.version(1).stores({
 				browser.scripting.executeScript({target: {tabId: tab.id}, func: InstallConfirm}).then(() => console.log('reload executed'));
 			}
 		});
-
-		browser.tabs.create({
-			url: `https://github.com/sdn-br/foe-toolbox/wiki/Changelog#${version.replaceAll('.', '')}`
-		});
 	});
 
 
@@ -415,7 +412,7 @@ alertsDB.version(1).stores({
 	 * @param {browser.runtime.MessageSender} sender 
 	 * @returns {Promise<{ok: true, data: any} | {ok: false, error: string}>}
 	 */
-	async function handleWebpageRequests(request, sender, sendResponse) {
+	async function handleWebpageRequests(request, sender) {
 		"use strict";
 		if (!sender.origin) sender.origin = sender.url;
 		// remove sender.id if it was just a forwarded message, so it can't run into private API's
@@ -475,7 +472,7 @@ alertsDB.version(1).stores({
 
 							// Deaktiviere die standard behandlung durch die entfernung der id
 							delete alert.id;
-							await Alerts.trigger(alert);
+							await Alerts.trigger(alert)
 							return APIsuccess(true);
 						}
 
@@ -646,32 +643,6 @@ alertsDB.version(1).stores({
 					return APIsuccess(false);
 				}
 				return APIsuccess(true);
-			}
-
-			case "send2Server": {
-				let data = request.data;
-				let playerId = request.playerId;
-				let guildId = request.guildId | '';
-				let world = request.world;
-
-				console.log({data: data});
-				return fetch(
-					request.url + request.endpoint + '/?player_id=' + playerId + '&guild_id=' + guildId + '&world=' + world,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({data})
-					}
-				).then(response => { 
-					return response.json().then(body => {
-						return APIsuccess({
-							status: response.status,
-							body: body
-						});
-					})
-				});
 			}
 
 		} // end of switch type

@@ -68,7 +68,7 @@ FoEproxy.addHandler('BattlefieldService', 'all', async (data, postData, response
 	let defenderPlayerId = data.responseData.defenderPlayerId || otherUnits[0].ownerId;
 	let isPvpArena = responseData.find(e => e.requestClass === 'PVPArenaService') !== undefined;
 
-	if(defenderPlayerId <= 0) {
+	if(defenderPlayerId <= 0) { // PvP Arena
 		let logEntry = responseData.find(e => e.requestClass === 'PVPArenaService' && e.requestMethod === 'addLog');
 		if (logEntry !== undefined) {
 			defenderPlayerId = logEntry.responseData.otherPlayer.player.player_id;

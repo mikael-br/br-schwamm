@@ -1,6 +1,7 @@
 /*
- * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * *************************************************************************************
+ *
+ * Copyright (C) 2023 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -8,7 +9,7 @@
  * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
  * for full license details.
  *
- * **************************************************************************************
+ * *************************************************************************************
  */
 
 let lng = window.navigator.language.split('-')[0];
@@ -25,7 +26,7 @@ let i18n = {
 
 $(function(){
 	$('body').on('click', '.foe-link', ()=> {
-		chrome.tabs.create({url: "https://foe-rechner.de/"});
+		chrome.tabs.create({url: "https://foe-helper.com/"});
 	});
 
 	$('body').on('click', '.paypal-link', ()=> {

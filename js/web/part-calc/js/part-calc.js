@@ -11,6 +11,8 @@
  * **************************************************************************************
  */
 
+// This module is for the player's GBs ("GB Calculator")
+
 // Fremdes LG gelevelt
 FoEproxy.addWsHandler('OtherPlayerService', 'newEvent', data => {
 	if (!Parts.CityMapEntity || !Parts.Rankings) return; // Noch kein LG offen
@@ -40,7 +42,7 @@ FoEproxy.addFoeHelperHandler('QuestsUpdated', data => {
 
 /**
  *
- * @type {{FirstCycle: boolean, IsNextLevel: boolean, CalcBackgroundBody: Parts.CalcBackgroundBody, BuildBoxPowerLeveling: Parts.BuildBoxPowerLeveling, CopyStrings: {}, LastLevel: null, TrustExistingPlaces: boolean, RemainingOwnPart: null, CopyIncludeFP: boolean, CopyOwnPlayerName: null, CopyBuildingName: null, CopyIncludeLevelString: boolean, PowerLevelingMaxLevel: number, CopyDescending: boolean, CopyPlaces: boolean[], CopyIncludeGB: boolean, CopyModeAuto: boolean, CurrentMaezens: *[], UpdateTableBodyPowerLeveling: Parts.UpdateTableBodyPowerLeveling, Exts: number[], SettingsRemoveRow: Parts.SettingsRemoveRow, CopyModeAutoUnsafe: boolean, CityMapEntity: undefined, SafePlaces: undefined, DangerPlaces: undefined, LeveltLG: undefined, Rankings: undefined, Level: undefined, Show: Parts.Show, ArcPercents: number[], GetCopyStringEx: (function(*, *, *, *, *, *, *, *, *): string), DefaultButtons: (number|string)[], CalcBody: Parts.CalcBody, GetCopyString: (function(): string), CalcBodyPowerLevelingData: (function(): {HasDoubleCollection: boolean, DoubleCollections: [], EigenNettos: [], CityEntity: *, EigenBruttos: [], MaxLevel: number | number, OwnPartSum: number, MinLevel: *, Places: []}), PowerLevelingData: null, CopyModeAll: boolean, CopyFunction: (function(*, *): string), CopyFormatPerGB: boolean, CalcBodyPowerLeveling: Parts.CalcBodyPowerLeveling, SettingsInsertNewRow: Parts.SettingsInsertNewRow, CopyDangerPrefix: string, CopyDangerSuffix: string, CopyIncludeDanger: boolean, CopyIncludePlayer: boolean, CopyIncludeOwnPart: boolean, LastPlayerID: null, ShowCalculatorSettings: Parts.ShowCalculatorSettings, GetStorageKey: ((function(*, *): string)|*), SettingsSaveValues: Parts.SettingsSaveValues, LockExistingPlaces: boolean, BackGroundBoxAnimation: Parts.BackGroundBoxAnimation, CopyPlayerName: null, PlaceAvailables: *[], LastEntityID: null, Maezens: *[], CalcTableBodyPowerLeveling: Parts.CalcTableBodyPowerLeveling, CopyString: null, CopyPreP: boolean, CopyIncludeLevel: boolean, IsPreviousLevel: boolean, ShowPowerLeveling: Parts.ShowPowerLeveling, PlayInfoSound: null}}
+ * @type {{FirstCycle: boolean, IsNextLevel: boolean, CalcBackgroundBody: Parts.CalcBackgroundBody, BuildBoxPowerLeveling: Parts.BuildBoxPowerLeveling, CopyStrings: {}, LastLevel: null, TrustExistingPlaces: boolean, RemainingOwnPart: null, CopyIncludeFP: boolean, CopyOwnPlayerName: null, CopyBuildingName: null, CopyIncludeLevelString: boolean, PowerLevelingStartLevel: number, PowerLevelingEndLevel: number, CopyDescending: boolean, CopyPlaces: boolean[], CopyIncludeGB: boolean, CopyModeAuto: boolean, CurrentMaezens: *[], UpdateTableBodyPowerLeveling: Parts.UpdateTableBodyPowerLeveling, Exts: number[], SettingsRemoveRow: Parts.SettingsRemoveRow, CopyModeAutoUnsafe: boolean, CityMapEntity: undefined, SafePlaces: undefined, DangerPlaces: undefined, LeveltLG: undefined, Rankings: undefined, Level: undefined, Show: Parts.Show, ArcPercents: number[], GetCopyStringEx: (function(*, *, *, *, *, *, *, *, *): string), DefaultButtons: (number|string)[], CalcBody: Parts.CalcBody, GetCopyString: (function(): string), CalcBodyPowerLevelingData: (function(): {HasDoubleCollection: boolean, DoubleCollections: [], EigenNettos: [], CityEntity: *, EigenBruttos: [], EndLevel: number | number, OwnPartSum: number, StartLevel: *, Places: []}), PowerLevelingData: null, CopyModeAll: boolean, CopyFunction: (function(*, *): string), CopyFormatPerGB: boolean, CalcBodyPowerLeveling: Parts.CalcBodyPowerLeveling, SettingsInsertNewRow: Parts.SettingsInsertNewRow, CopyDangerPrefix: string, CopyDangerSuffix: string, CopyIncludeDanger: boolean, CopyIncludePlayer: boolean, CopyIncludeOwnPart: boolean, LastPlayerID: null, ShowCalculatorSettings: Parts.ShowCalculatorSettings, GetStorageKey: ((function(*, *): string)|*), SettingsSaveValues: Parts.SettingsSaveValues, LockExistingPlaces: boolean, BackGroundBoxAnimation: Parts.BackGroundBoxAnimation, CopyPlayerName: null, PlaceAvailables: *[], LastEntityID: null, Maezens: *[], CalcTableBodyPowerLeveling: Parts.CalcTableBodyPowerLeveling, CopyString: null, CopyPreP: boolean, CopyIncludeLevel: boolean, IsPreviousLevel: boolean, ShowPowerLeveling: Parts.ShowPowerLeveling, PlayInfoSound: null}}
  */
 let Parts = {
 	CityMapEntity: undefined,
@@ -57,7 +59,8 @@ let Parts = {
 	CurrentMaezens: [],
 	RemainingOwnPart: null,
 
-	PowerLevelingMaxLevel: 999999,
+	PowerLevelingStartLevel: null,
+	PowerLevelingEndLevel: 999999,
 	PowerLevelingData: null,
 
 	PlaceAvailables: [],
@@ -69,9 +72,8 @@ let Parts = {
 	],
 
 	// Settings
-	ArcBonusForEachGB: false,
+	ArcBonusForEachGB: false,  /* preserve */
 	CopyFormatPerGB: false,
-	OneFPForNonFPPlace: false,
 
 	FirstCycle: true,
 	LastPlayerID: null,
@@ -84,7 +86,7 @@ let Parts = {
 	TrustExistingPlaces: false,
 
 	ArcPercents: [90, 90, 90, 90, 90],
-	DefaultArchPercents: [90, 90, 90, 90, 90],
+	DefaultArchPercents: [90, 90, 90, 90, 90],  /* preserve */
 	Exts: [0, 0, 0, 0, 0],
 
 	//Settings Copybox
@@ -97,7 +99,7 @@ let Parts = {
 	CopyIncludeDanger: false,
 	CopyIncludePlayer: true,
 	CopyIncludeGB: true,
-	CopyIncludeLevel: true,
+	CopyIncludeLevel: false,
 	CopyIncludeFP: true,
 	CopyIncludeOwnPart: false,
 	CopyPreP: true,
@@ -192,7 +194,10 @@ let Parts = {
 				});
 
 				Parts.ArcPercents = ArcPercents;
+				/* --- Preserve start --------------------------------------------- */ 
+
 				localStorage.setItem(Parts.GetStorageKey('ArcPercents', (Parts.ArcBonusForEachGB ? Parts.CityMapEntity['cityentity_id'] : null)), JSON.stringify(ArcPercents));
+				/* --- Preserve end --------------------------------------------- */ 
 
 				Parts.CalcBody(Parts.Level);
 			});
@@ -216,7 +221,9 @@ let Parts = {
 					$('.arc-percent-input').eq(i).val(ArkBonus);
 				}
 
+				/* --- Preserve start --------------------------------------------- */ 
 				localStorage.setItem(Parts.GetStorageKey('ArcPercents', (Parts.ArcBonusForEachGB ? Parts.CityMapEntity['cityentity_id'] : null)), JSON.stringify(Parts.ArcPercents));
+				/* --- Preserve end --------------------------------------------- */ 
 
 				Parts.CalcBody(Parts.Level);
 			});
@@ -229,7 +236,9 @@ let Parts = {
 			});
 
 			$('#OwnPartBox').on('click', '.button-powerleveling', function () {
-				Parts.PowerLevelingMaxLevel = 999999;
+				// Reset power leveling range
+				Parts.PowerLevelingStartLevel = Parts.Level;
+				Parts.PowerLevelingEndLevel = 999999;
 				Parts.ShowPowerLeveling(false);
 			});
 
@@ -383,7 +392,7 @@ let Parts = {
 
 
 	/**
-	 * Sichtbarer Teil
+	 * Visible part
 	 *
 	 */
 	CalcBody: (NextLevel) => {
@@ -395,7 +404,7 @@ let Parts = {
 			EraName = GreatBuildings.GetEraName(CityEntity['asset_id']),
 			Era = Technologies.Eras[EraName];
 
-		let Total; // Gesamt FP des aktuellen Levels
+		let Total; // Total FP of the current level
 
 		if (NextLevel) {		
 			Parts.IsPreviousLevel = false;
@@ -411,15 +420,7 @@ let Parts = {
 
 		// Restore Default settings
 		if (Parts.FirstCycle) {
-			let SavedOneFPForNonFPPlace = localStorage.getItem(Parts.GetStorageKey('OneFPForNonFPPlace', null));
-			if (SavedOneFPForNonFPPlace !== null) Parts.OneFPForNonFPPlace = (SavedOneFPForNonFPPlace === 'true');
-
-			let SavedArcBonusForEachGB = localStorage.getItem(Parts.GetStorageKey('ArcBonusForEachGB', null));
-			if (SavedArcBonusForEachGB !== null) Parts.ArcBonusForEachGB = (SavedArcBonusForEachGB === 'true');
-
-			Parts.ArcPercents = Parts.DefaultArchPercents;
-
-			let SavedArcPercents = localStorage.getItem(Parts.GetStorageKey('ArcPercents', (Parts.ArcBonusForEachGB ? Parts.CityMapEntity['cityentity_id'] : null)));
+			let SavedArcPercents = localStorage.getItem(Parts.GetStorageKey('ArcPercents', null));
 			if (SavedArcPercents !== null) Parts.ArcPercents = JSON.parse(SavedArcPercents);
 
 			let SavedCopyOwnPlayerName = localStorage.getItem(Parts.GetStorageKey('CopyOwnPlayerName', null));
@@ -551,11 +552,8 @@ let Parts = {
 						if (FPCount > 0) {
 							FPRewards[Place] = MainParser.round(FPCount * arcs[Place]);
 						}
-						else if (Parts.OneFPForNonFPPlace) {
-							FPRewards[Place] = 1;
-						}
 						else {
-							FPRewards[Place] = 0;
+							FPRewards[Place] = 1;
 						}
 						if (FPRewards[Place] === undefined) FPRewards[Place] = 0;
 
@@ -752,7 +750,7 @@ let Parts = {
 
 		h.push('<tr>');
 		h.push('<th>' + i18n('Boxes.OwnpartCalculator.Order') + '</th>');
-		h.push('<th class="text-center"><span class="forgepoints" title="' + HTML.i18nTooltip(i18n('Boxes.OwnpartCalculator.Deposit')) + '"></span></th>');
+		h.push('<th class="text-center"><span class="forgepoints" title="' + HTML.i18nTooltip(i18n('Boxes.OwnpartCalculator.Deposit')) + '"></th>');
 		h.push('<th class="text-center">' + i18n('Boxes.OwnpartCalculator.Done') + '</th>');
 		h.push('<th class="text-center"><span class="blueprint" title="' + HTML.i18nTooltip(i18n('Boxes.OwnpartCalculator.BPs')) + '"></span></th>');
 		h.push('<th class="text-center"><span class="medal" title="' + HTML.i18nTooltip(i18n('Boxes.OwnpartCalculator.Meds')) + '"></span></th>');
@@ -793,10 +791,10 @@ let Parts = {
 			{
 				h.push('<td class="text-center"><strong class="' + (PlayerID === ExtPlayerID ? '' : 'success') + '">' + (Parts.Maezens[i] > 0 ? HTML.Format(Parts.Maezens[i]) : '-') + '</strong >' + '</td>');
 				if (Parts.LeveltLG[i]) {
-					h.push('<td class="text-center"><strong class="error">levelt</strong></td>');
+					h.push(`<td class="text-center"><strong class="error">${i18n("Boxes.OwnpartCalculator.levelt")}</strong></td>`);
 				}
 				else if (Parts.DangerPlaces[i] > 5) {
-					h.push('<td class="text-center"><strong class="error">danger (' + HTML.Format(Parts.DangerPlaces[i]) + 'FP)</strong></td>');
+					h.push(`<td class="text-center"><strong class="error">${i18n("Boxes.OwnpartCalculator.danger")} (${HTML.Format(Parts.DangerPlaces[i])}FP)</strong></td>`);
 				}
 				else {
 					h.push('<td class="text-center"><strong class="info">-</strong></td>');
@@ -1129,7 +1127,7 @@ let Parts = {
 
 		// Container zusammen setzen
 		let div = $('<div />').addClass('OwnPartBoxBackground'),
-			a = $('<div />').addClass('outerArrow').append( $('<span />').addClass('arrow game-cursor') ).append( $('<div />').addClass('OwnPartBoxBackgroundBody window-box').append(h.join('')) );
+			a = $('<div />').addClass('outerArrow').append( $('<span />').addClass('arrow game-cursor').attr('id', 'OwnPartBoxArrow') ).append( $('<div />').addClass('OwnPartBoxBackgroundBody window-box').append(h.join('')) );
 
 		$OwnPartBox
 			.append( div.append(a) )
@@ -1138,7 +1136,7 @@ let Parts = {
 
 		// der "Toogle"-Pfeil wurde geklickt,
 		// lasst die Spiele beginnen
-		$('.arrow').bind('click', function(){
+		$('#OwnPartBoxArrow').bind('click', function(){
 			if( $OwnPartBox.hasClass('show') ){
 				Parts.BackGroundBoxAnimation(false);
 			} else {
@@ -1292,7 +1290,7 @@ let Parts = {
 
 
 	BuildBoxPowerLeveling: (event) => {
-		// Gibt es schon? Raus...
+		// Create the window if it does not exist yet...
 		if ($('#PowerLevelingBox').length === 0) {
 			// Box in den DOM
 			HTML.Box({
@@ -1304,27 +1302,53 @@ let Parts = {
 			});
 
 			const box = $('#PowerLevelingBox');
-			box.on('blur', '#maxlevel', function () {
-				Parts.PowerLevelingMaxLevel = parseFloat($('#maxlevel').val());
+
+			// Events on the `startLevel` input field
+			box.on('blur', '#startLevel', function () {
+				Parts.PowerLevelingStartLevel = parseFloat($('#startLevel').val());
 				Parts.UpdateTableBodyPowerLeveling();
-				//Parts.CalcBodyPowerLeveling();
 			});
-			box.on('keydown', '#maxlevel', function (e) {
+			box.on('keydown', '#startLevel', function (e) {
 				const key = e.key;
 				const input = e.target;
 				if (key === "ArrowUp") {
-					Parts.PowerLevelingMaxLevel = Number.parseInt(input.value) + 1;
+					Parts.PowerLevelingStartLevel = Number.parseInt(input.value) + 1;
 					Parts.UpdateTableBodyPowerLeveling();
 					e.preventDefault();
 				} else if (key === "ArrowDown") {
-					Parts.PowerLevelingMaxLevel = Number.parseInt(input.value) - 1;
+					Parts.PowerLevelingStartLevel = Number.parseInt(input.value) - 1;
 					Parts.UpdateTableBodyPowerLeveling();
 					e.preventDefault();
 				} else if (key === "Enter") {
-					Parts.PowerLevelingMaxLevel = Number.parseInt(input.value);
+					Parts.PowerLevelingStartLevel = Number.parseInt(input.value);
 					Parts.UpdateTableBodyPowerLeveling();
 				}
 			});
+
+			// Events on the `endLevel` input field
+			box.on('blur', '#endLevel', function () {
+				Parts.PowerLevelingEndLevel = parseFloat($('#endLevel').val());
+				Parts.UpdateTableBodyPowerLeveling();
+				//Parts.CalcBodyPowerLeveling();
+			});
+			box.on('keydown', '#endLevel', function (e) {
+				const key = e.key;
+				const input = e.target;
+				if (key === "ArrowUp") {
+					Parts.PowerLevelingEndLevel = Number.parseInt(input.value) + 1;
+					Parts.UpdateTableBodyPowerLeveling();
+					e.preventDefault();
+				} else if (key === "ArrowDown") {
+					Parts.PowerLevelingEndLevel = Number.parseInt(input.value) - 1;
+					Parts.UpdateTableBodyPowerLeveling();
+					e.preventDefault();
+				} else if (key === "Enter") {
+					Parts.PowerLevelingEndLevel = Number.parseInt(input.value);
+					Parts.UpdateTableBodyPowerLeveling();
+				}
+			});
+
+			// Event on the "Copy values" button in each row
 			box.on('click', '.button-powerlevel-copy', function () {
 				let gb_level = parseInt($(this).parent().find(".hidden-text").html());
 
@@ -1348,8 +1372,15 @@ let Parts = {
 			CityEntity = MainParser.CityEntities[EntityID],
 			EraName = GreatBuildings.GetEraName(EntityID),
 			Era = Technologies.Eras[EraName],
-			MinLevel = Parts.Level,
-			MaxLevel = (GreatBuildings.Rewards[Era] ? Math.min(Parts.PowerLevelingMaxLevel, GreatBuildings.Rewards[Era].length) : 0);
+			StartLevel = Parts.PowerLevelingStartLevel,
+			EndLevel = (GreatBuildings.Rewards[Era] ? Math.min(Parts.PowerLevelingEndLevel, GreatBuildings.Rewards[Era].length) : 0);
+
+		// Limit minimum value for the power leveling range
+		StartLevel = StartLevel < 0 ? 0 : StartLevel;
+		EndLevel = EndLevel <= 0 ? 1 : EndLevel;
+
+		// StartLevel must be a smaller number than EndLevel
+		StartLevel = StartLevel >= EndLevel ? EndLevel - 1 : StartLevel;
 
 		let Totals = [],
 			Places = [],			
@@ -1360,7 +1391,8 @@ let Parts = {
 
 		let OwnPartSum = 0;
 
-		for (let i = MinLevel; i < MaxLevel; i++) {
+		for (let i = StartLevel; i < EndLevel; i++) {
+			// How many FPs are needed in total to level the GB
 			if (i < 10) {
 				Totals[i] = CityEntity['strategy_points_for_upgrade'][i];
 			}
@@ -1368,11 +1400,14 @@ let Parts = {
 				Totals[i] = Math.ceil(CityEntity['strategy_points_for_upgrade'][9] * Math.pow(1.025, i - 9));
 			}
 
-			if (i > MinLevel) {
+			// How many FPs are needed for each spot.
+			// For non-current levels, calculate the FPs for each spot...
+			if (i != Parts.Level) {
 				Places[i] = GreatBuildings.GetMaezen(GreatBuildings.Rewards[Era][i], Parts.ArcPercents)
 
 				EigenBruttos[i] = Totals[i] - Places[i][0] - Places[i][1] - Places[i][2] - Places[i][3] - Places[i][4]
 			}
+			// ...and for the current, it's already calculated
 			else {
 				Places[i] = Parts.CurrentMaezens;
 				
@@ -1403,8 +1438,8 @@ let Parts = {
 			Places,
 			CityEntity,
 			OwnPartSum,
-			MinLevel,
-			MaxLevel,
+			StartLevel,
+			EndLevel,
 			EigenBruttos,
 			DoubleCollections,
 			EigenNettos
@@ -1412,18 +1447,24 @@ let Parts = {
 	},
 
 
+	/**
+	 * Puts together the HTML code of the table for power leveling
+	 * @param {Array.<Stringy>} h 
+	 */
 	CalcTableBodyPowerLeveling: (h) => {
 		const {
 			HasDoubleCollection,
 			Places,
-			MinLevel,
-			MaxLevel,
+			StartLevel,
+			EndLevel,
 			EigenBruttos,
 			DoubleCollections,
 			EigenNettos
 		} = Parts.PowerLevelingData;
 
-		for (let i = MinLevel; i < MaxLevel; i++) {
+
+
+		for (let i = StartLevel; i < EndLevel; i++) {
 			h.push('<tr>');
 			h.push('<td class="bright" style="white-space:nowrap">' + i + ' → ' + (i + 1) + '</td>');
 			h.push('<td><span class="hidden-text"> - #1 (</span>' + HTML.Format(Places[i][0]) + '<span class="hidden-text">)</span></td>');
@@ -1453,11 +1494,19 @@ let Parts = {
 
 			tableBody.innerHTML = h.join('');
 
-			const maxlevel = /** @type {HTMLInputElement} */(document.getElementById('maxlevel'));
-			if (maxlevel.value != '' + Parts.PowerLevelingData.MaxLevel) {
-				maxlevel.value = '' + Parts.PowerLevelingData.MaxLevel;
+			// Startlevel
+			const startLevel = /** @type {HTMLInputElement} */(document.getElementById('startLevel'));
+			if (startLevel.value != '' + Parts.PowerLevelingData.StartLevel) {
+				startLevel.value = '' + Parts.PowerLevelingData.StartLevel;
 			}
-			Parts.PowerLevelingMaxLevel = Parts.PowerLevelingData.MaxLevel;
+			Parts.PowerLevelingStartLevel = Parts.PowerLevelingData.StartLevel;
+
+			// EndLevel
+			const endLevel = /** @type {HTMLInputElement} */(document.getElementById('endLevel'));
+			if (endLevel.value != '' + Parts.PowerLevelingData.EndLevel) {
+				endLevel.value = '' + Parts.PowerLevelingData.EndLevel;
+			}
+			Parts.PowerLevelingEndLevel = Parts.PowerLevelingData.EndLevel;
 
 			const ownPartSum = /** @type {HTMLElement} */(document.getElementById('PowerLevelingBoxOwnPartSum'));
 			ownPartSum.innerText = HTML.Format(MainParser.round(Parts.PowerLevelingData.OwnPartSum));
@@ -1473,16 +1522,17 @@ let Parts = {
 			HasDoubleCollection,
 			CityEntity,
 			OwnPartSum,
-			MaxLevel,
+			StartLevel,
+			EndLevel,
 		} = Parts.PowerLevelingData;
 
 		let h = [];
-
 		h.push('<div class="dark-bg" style="margin-bottom:3px;padding: 5px;">');
 		h.push('<h1 class="text-center">' + CityEntity['name'] + '</h1>')
 
 		h.push('<div class="d-flex justify-content-center">');
-		h.push('<div style="margin: 5px 10px 0 0;">' + i18n('Boxes.PowerLeveling.MaxLevel') + ': <input type="number" id="maxlevel" step="1" min=10" max="1000" value="' + MaxLevel + '""></div>');
+		h.push('<div style="margin: 5px 10px 0 0;">' + i18n('Boxes.PowerLeveling.StartLevel') + ': <input type="number" id="startLevel" step="1" min=0" max="1000" value="' + StartLevel + '"></div>');
+		h.push('<div style="margin: 5px 10px 0 0;">' + i18n('Boxes.PowerLeveling.EndLevel') + ': <input type="number" id="endLevel" step="1" min=10" max="1000" value="' + EndLevel + '"></div>');
 		h.push('<div>' + i18n('Boxes.PowerLeveling.OwnPartSum') +': <strong class="info" id="PowerLevelingBoxOwnPartSum">'+ HTML.Format(MainParser.round(OwnPartSum)) + '</strong></div>')
 		h.push('</div>');
 		h.push('</div>');
@@ -1550,9 +1600,7 @@ let Parts = {
 		c.push(nV);
 
 		c.push('<p><input id="copyformatpergb" class="copyformatpergb game-cursor" ' + (Parts.CopyFormatPerGB ? 'checked' : '') + ' type="checkbox"> ' + i18n('Boxes.OwnpartCalculator.CopyFormatPerGB'));
-		c.push('<br><input type="checkbox" id="openonaliengb" class="openonaliengb game-cursor" ' + ((allGB == 'true') ? 'checked' : '') + '> ' + i18n('Settings.ShowOwnPartOnAllGBs.Desc'));
-		c.push('<br><input id="onefpfornonfpplace" class="onefpfornonfpplace game-cursor" ' + (Parts.OneFPForNonFPPlace ? 'checked' : '') + ' type="checkbox"> ' + i18n('Boxes.OwnpartCalculator.OneFPForNonFPPlace')) + '</p>';
-		c.push('<br><input id="arcbonusforeachgb" class="arcbonusforeachgb game-cursor" ' + (Parts.ArcBonusForEachGB ? 'checked' : '') + ' type="checkbox"> ' + i18n('Boxes.OwnpartCalculator.ArcBonusForEachGB')) + '</p>';
+		c.push('<br><input type="checkbox" id="openonaliengb" class="openonaliengb game-cursor" ' + ((allGB == 'true') ? 'checked' : '') + '> ' + i18n('Settings.ShowOwnPartOnAllGBs.Desc')) + '</p>';
 
 		// save button
 		c.push(`<p><button id="save-calculator-settings" class="btn btn-default" style="width:100%" onclick="Parts.SettingsSaveValues()">${i18n('Boxes.Calculator.Settings.Save')}</button></p>`);
@@ -1605,20 +1653,20 @@ let Parts = {
 			openforeignGB = true;
 		localStorage.setItem('ShowOwnPartOnAllGBs',openforeignGB);
 
-		let OldOneFPForNonFPPlace = Parts.OneFPForNonFPPlace;
-		Parts.OneFPForNonFPPlace = $('.onefpfornonfpplace').prop('checked');
-		localStorage.setItem(Parts.GetStorageKey('OneFPForNonFPPlace', null), Parts.OneFPForNonFPPlace);
-
+		/* --- Preserve start --------------------------------------------- */ 
 		let OldArcBonusForEachGB = Parts.ArcBonusForEachGB;
 		Parts.ArcBonusForEachGB = $('.arcbonusforeachgb').prop('checked');
 		localStorage.setItem(Parts.GetStorageKey('ArcBonusForEachGB', null), Parts.ArcBonusForEachGB);
+		/* --- Preserve end --------------------------------------------- */ 
 
 
 		$(`#OwnPartBoxSettingsBox`).fadeToggle('fast', function(){
 			$(this).remove();
 
 			// reload box
+			/* --- Preserve start --------------------------------------------- */ 
 			if (Parts.CopyFormatPerGB !== OldCopyFormatPerGB || Parts.OneFPForNonFPPlace !== OldOneFPForNonFPPlace) Parts.FirstCycle = true;
+			/* --- Preserve end --------------------------------------------- */ 
 			Parts.CalcBody();
 		});
 	}

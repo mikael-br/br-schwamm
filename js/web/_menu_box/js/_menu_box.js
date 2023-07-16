@@ -160,7 +160,10 @@ let _menu_box = {
 			$($('#menu_boxBody').children(`div#${buttonId}`)[0]).show();
 	},
 
+	/* --- Preserve start --------------------------------------------- */ 
 	ToggleDraggable: () => {
 		HTML.DragBox(document.getElementById('menu_box'), true, true);
 	},
+	/* --- Preserve end --------------------------------------------- */ 
+
 };

@@ -649,9 +649,12 @@ let Outposts = {
 
 
 	SubmitData: () => {
+		/* --- Preserve start --------------------------------------------- */ 
+
 		if (!window.confirm(i18n('Boxes.CityMap.SendDoubleOptIn'))) {
 			return;
 		}
+		/* --- Preserve end --------------------------------------------- */ 
 
 		let currentDate = new Date(),
 			d = {

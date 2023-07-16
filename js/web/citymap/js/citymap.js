@@ -27,18 +27,17 @@ let CityMap = {
 	OccupiedArea: 0,
 	EfficiencyFactor: 0,
 	IsExtern: false,
-	ActiveEntityId : null,
 
 
 	/**
 	 * Zündung...
 	 *
 	 * @param event
+	 * @param event
 	 * @param Data The City data
 	 * @param Title Name of the city
-	 * @param Id of the active entity
 	 */
-	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...', ActiveEntityId = null)=> {
+	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...')=> {
 
 		if (Data === null) { // No data => own city
 			CityMap.IsExtern = false;
@@ -48,8 +47,6 @@ let CityMap = {
 		else {
 			CityMap.IsExtern = true;
 		}
-
-		CityMap.ActiveEntityId = ActiveEntityId;
 
 		CityMap.CityData = Object.values(Data).sort(function (X1, X2) {
 			if (X1.x < X2.x) return -1;
@@ -96,7 +93,19 @@ let CityMap = {
 		}
 
 		setTimeout(()=>{
-			CityMap.SetBuildings();
+
+			// separate city
+			if(Data === false)
+			{
+				setTimeout(()=>{
+					CityMap.SetBuildings();
+
+				}, 100);
+
+			} else {
+				CityMap.SetBuildings(Data);
+			}
+
 		}, 100);
 	},
 
@@ -152,9 +161,9 @@ let CityMap = {
 			$('#grid-outer').attr('data-unit', unit);
 			localStorage.setItem('CityMapScale', unit);
 
-			CityMap.SetBuildings();
+			CityMap.SetBuildings(CityMap.CityData, false);
 
-			CityMap.scrollToActiveElementOrCenter();
+			$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -280, top: -280}, easing: 'swing'});
 			$('.to-old-legends').hide();
 			$('.building-count-area').show();
 		});
@@ -220,9 +229,11 @@ let CityMap = {
 	 *
 	 * @param Data
 	 */
-	SetBuildings: ()=> {
+	SetBuildings: (Data = null)=> {
 
 		// https://foede.innogamescdn.com/assets/city/buildings/R_SS_MultiAge_SportBonus18i.png
+
+		let ActiveId = $('#grid-outer').find('.pulsate').data('entityid') || null;
 
 		// einmal komplett leer machen, wenn gewünscht
 		$('#grid-outer').find('.map-bg').remove();
@@ -236,7 +247,7 @@ let CityMap = {
 			// Unlocked Areas rendern
 			CityMap.BuildGrid();
 		}
-		
+
 		let MinX = 0,
 			MinY = 0,
 			MaxX = 71,
@@ -247,8 +258,8 @@ let CityMap = {
 			if (!CityMap.CityData.hasOwnProperty(b) || CityMap.CityData[b]['x'] < MinX || CityMap.CityData[b]['x'] > MaxX || CityMap.CityData[b]['y'] < MinY || CityMap.CityData[b]['y'] > MaxY) continue;
 
 			let CityMapEntity = CityMap.CityData[b],
-				d = MainParser.CityEntities[CityMap.CityData[b]['cityentity_id']],
-				BuildingSize = CityMap.GetBuildingSize(CityMap.CityData[b]),
+				d = MainParser.CityEntities[CityMapEntity['cityentity_id']],
+				BuildingSize = CityMap.GetBuildingSize(CityMapEntity),
 
 				x = (CityMap.CityData[b]['x'] === undefined ? 0 : ((parseInt(CityMap.CityData[b]['x']) * CityMap.ScaleUnit) / 100)),
 				y = (CityMap.CityData[b]['y'] === undefined ? 0 : ((parseInt(CityMap.CityData[b]['y']) * CityMap.ScaleUnit) / 100)),
@@ -304,7 +315,7 @@ let CityMap = {
 			}
 
 			// die Größe wurde geändert, wieder aktivieren
-			if (CityMap.ActiveEntityId !== undefined && CityMap.ActiveEntityId !== null && CityMap.ActiveEntityId === CityMap.CityData[b]['id'])
+			if (ActiveId !== null && ActiveId === CityMap.CityData[b]['id'])
 			{
 				f.addClass('pulsate');
 			}
@@ -318,27 +329,14 @@ let CityMap = {
 		// Gebäudenamen via Tooltip
 		$('.entity').tooltip({
 			container: '#city-map-overlayBody',
-			html: true,
-			trigger: 'hover'
+			html: true
 		});
 
 		$('#grid-outer').draggable();
 
 		CityMap.getAreas();
-
-		CityMap.scrollToActiveElementOrCenter();
 	},
 
-	/**
-	 * Scrollls the map to the active element
-	 */
-	scrollToActiveElementOrCenter: () => {
-		if (CityMap.ActiveEntityId !== undefined && CityMap.ActiveEntityId !== null) {
-			$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -($('#map-container').width()/2), top:  -($('#map-container').height()/2)}, easing: 'swing'});
-		} else {
-			//$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -($('#map-container').width()/2), top:  -($('#map-container').height()/2)}, easing: 'swing'});
-		}
-	},
 
 	/**
 	 * Statistiken in die rechte Sidebar
@@ -383,7 +381,9 @@ let CityMap = {
 			let TypeName = i18n('Boxes.CityMap.' + type)
 			const count = sortable[x][1];
 			const pct = parseFloat(100*count/CityMap.OccupiedArea).toFixed(1);
+
 			let str = `${TypeName}:<br> ${count} (${pct}%)<br>`;
+
 			if (type === 'street') {
 				str = str + HTML.Format(Math.round(CityMap.EfficiencyFactor * 10000) / 100) + '% ' + i18n('Boxes.Citymap.Efficiency') + '<br>';
 			}
@@ -460,9 +460,11 @@ let CityMap = {
 	 */
 	SubmitData: ()=> {
 
+		/* --- Preserve start --------------------------------------------- */ 
 		if (!window.confirm(i18n('Boxes.CityMap.SendDoubleOptIn'))) {
 			return;
 		}
+		/* --- Preserve end --------------------------------------------- */ 
 
 		let currentDate = new Date(),
 			d = {
@@ -513,7 +515,7 @@ let CityMap = {
 			$('#CityMapSubmit').fadeToggle(function(){
 				$(this).remove();
 			});
-		}, true);
+		});
 	},
 
 

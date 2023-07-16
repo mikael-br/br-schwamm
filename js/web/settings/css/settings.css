@@ -90,15 +90,17 @@
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: flex-end;
-	width: 200px;
+	width: 231px;           /* preserve */
 	user-select: text;
 }
 
 #SettingsBoxBody .item-row dl dt {
-	width: 86px;
+	width: 75px;
+	text-align: right;      /* preserve */
+    padding-right: 0.5rem;  /* preserve */
 }
 #SettingsBoxBody .item-row dl dd {
-	width: 114px;
+	width: 146px;
 	margin-inline-start: 0;
 }
 
