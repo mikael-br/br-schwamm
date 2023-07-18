@@ -631,7 +631,7 @@ let Calculator = {
 
 			// Fördern
 
-			let ColClass,
+			let ColClass_foerdern,
 				RankClass,
 				RankText = Rank + 1, //Default: Rangnummer
 				RankTooltip = [],
@@ -642,13 +642,7 @@ let Calculator = {
 
 				GewinnClass = (ForderGewinn >= 0 ? 'success' : 'error'), //Default: Grün wenn >= 0 sonst rot
 				GewinnText = HTML.Format(ForderGewinn), //Default: Gewinn
-				GewinnTooltip,
-
-				/* --- Preserve start --------------------------------------------- */ 
-				KursClass,
-				KursText,
-				KursTooltip = [];
-				/* --- Preserve end --------------------------------------------- */ 
+				GewinnTooltip;
 
 			if (ForderFPRewards[Rank] - EigenBetrag > StrategyPoints.AvailableFP) {
 				EinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTForderFPStockLow'), { 'fpstock': StrategyPoints.AvailableFP, 'costs': ForderFPRewards[Rank] - EigenBetrag, 'tooless': (ForderFPRewards[Rank] - EigenBetrag - StrategyPoints.AvailableFP) }));
@@ -771,27 +765,29 @@ let Calculator = {
 
 
 			/* --- Preserve start  AggressiveInvestment --------------------------------------------- */
-			EinsatzClass = (SaveRankCosts[Rank] > StrategyPoints.AvailableFP ? 'error' : ''); //Default: rot wenn Vorrat nicht ausreichend, sonst gelb
-			EinsatzText = HTML.Format(SaveRankCosts[Rank]) //Default: Einsatz
-			EinsatzTooltip = [];
+			let ColClass_loot,
 
-			GewinnClass = (SaveGewinn >= 0 ? 'success' : 'error'); //Default: Grün wenn >= 0 sonst rot
-			GewinnText = HTML.Format(SaveGewinn); //Default: Gewinn
-			GewinnTooltip = [];
+				LootEinsatzClass = (SaveRankCosts[Rank] > StrategyPoints.AvailableFP ? 'error' : ''), //Default: rot wenn Vorrat nicht ausreichend, sonst gelb
+				LootEinsatzText = HTML.Format(SaveRankCosts[Rank]), //Default: Einsatz
+				LootEinsatzTooltip = [],
 
-			KursClass = (SaveGewinn >= 0 ? 'success' : 'error'); //Default: Grün wenn Gewinn sonst rot
-			KursText = (SaveGewinn >= 0 ? Calculator.FormatKurs(Kurs) : '-'); //Default: Kurs anzeigen bei Gewinn
-			KursTooltip = [];
+				LootGewinnClass = (SaveGewinn >= 0 ? 'success' : 'error'), //Default: Grün wenn >= 0 sonst rot
+				LootGewinnText = HTML.Format(SaveGewinn), //Default: Gewinn
+				LootGewinnTooltip = [],
+
+				LootKursClass = (SaveGewinn >= 0 ? 'success' : 'error'), //Default: Grün wenn Gewinn sonst rot
+				LootKursText = (SaveGewinn >= 0 ? Calculator.FormatKurs(Kurs) : '-'), //Default: Kurs anzeigen bei Gewinn
+				LootKursTooltip = [];
 
 			if (SaveRankCosts[Rank] > StrategyPoints.AvailableFP) {
-				EinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTAggressiveInvestmentFPStockLow'), { 'fpstock': StrategyPoints.AvailableFP, 'costs': SaveRankCosts[Rank], 'tooless': (SaveRankCosts[Rank] - StrategyPoints.AvailableFP) }));
+				LootEinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTAggressiveInvestmentFPStockLow'), { 'fpstock': StrategyPoints.AvailableFP, 'costs': SaveRankCosts[Rank], 'tooless': (SaveRankCosts[Rank] - StrategyPoints.AvailableFP) }));
 			}
 
 			if (SaveGewinn >= 0) {
-				GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTProfit'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'costs': SaveCosts, 'profit': SaveGewinn })]
+				LootGewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTProfit'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'costs': SaveCosts, 'profit': SaveGewinn })]
 			}
 			else {
-				GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTLoss'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'costs': SaveCosts, 'loss': 0-SaveGewinn })]
+				LootGewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTLoss'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'costs': SaveCosts, 'loss': 0-SaveGewinn })]
 			}
 
 			if (SaveStates[Rank] === 'Self') {
@@ -800,29 +796,29 @@ let Calculator = {
 				RankClass = 'info';
 
 				if (Einzahlungen[Rank] < SaveRankCosts[Rank]) {
-					EinsatzClass = 'error';
-					EinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTPaidTooLess'), { 'paid': Einzahlungen[Rank], 'topay': SaveRankCosts[Rank], 'tooless': SaveRankCosts[Rank] - Einzahlungen[Rank] }));
+					LootEinsatzClass = 'error';
+					LootEinsatzTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTPaidTooLess'), { 'paid': Einzahlungen[Rank], 'topay': SaveRankCosts[Rank], 'tooless': SaveRankCosts[Rank] - Einzahlungen[Rank] }));
 				}
 				else {
-					EinsatzClass = 'info';
+					LootEinsatzClass = 'info';
 				}
 
-				EinsatzText = HTML.Format(Einzahlungen[Rank]);
+				LootEinsatzText = HTML.Format(Einzahlungen[Rank]);
 				if (Einzahlungen[Rank] < SaveRankCosts[Rank]) {
-					EinsatzText += '/' + HTML.Format(SaveRankCosts[Rank]);
+					LootEinsatzText += '/' + HTML.Format(SaveRankCosts[Rank]);
 				}
 
-				GewinnClass = 'info';
+				LootGewinnClass = 'info';
 				if (SaveGewinn > 0) {
-					GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTProfitSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': SaveCosts, 'profit': SaveGewinn })]
+					LootGewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTProfitSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': SaveCosts, 'profit': SaveGewinn })]
 				}
 				else {
-					GewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTLossSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': SaveCosts, 'loss': 0 - SaveGewinn })]
+					LootGewinnTooltip = [HTML.i18nReplacer(i18n('Boxes.Calculator.TTLossSelf'), { 'nettoreward': FPNettoRewards[Rank], 'arcfactor': (100 + MainParser.ArkBonus), 'bruttoreward': FPRewards[Rank], 'paid': SaveCosts, 'loss': 0 - SaveGewinn })]
 				}
 
-				KursClass = 'info';
-				KursText = Calculator.FormatKurs(Kurs);
-				KursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': Einzahlungen[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
+				LootKursClass = 'info';
+				LootKursText = Calculator.FormatKurs(Kurs);
+				LootKursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': Einzahlungen[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
 			}
 			else if (SaveStates[Rank] === 'NegativeProfit') {
 				ColClass_loot = 'bg-red';
@@ -835,19 +831,19 @@ let Calculator = {
 			else if (SaveStates[Rank] === 'Profit') {
 				ColClass_loot = 'bg-green';
 
-				KursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': SaveRankCosts[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
+				LootKursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': SaveRankCosts[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
 
 				Calculator.PlaySound();
 			}
 			else { // NotPossible/WorseProfit
 				ColClass_loot = 'text-grey';
 
-				EinsatzText = '-';
+				LootEinsatzText = '-';
 
-				GewinnText = '-';
-				GewinnTooltip = [];
+				LootGewinnText = '-';
+				LootGewinnTooltip = [];
 
-				KursText = '-';
+				LootKursText = '-';
 			}
 
 			hFordern.push('<tr>');
@@ -856,9 +852,9 @@ let Calculator = {
 			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(BPRewards[Rank]) + '</td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(MedalRewards[Rank]) + '</td>');
-			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + KursClass + ' td-tooltip" title="' + HTML.i18nTooltip(KursTooltip.join('<br>')) + '">' + KursText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + LootEinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(LootEinsatzTooltip.join('<br>')) + '">' + LootEinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + LootGewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(LootGewinnTooltip.join('<br>')) + '">' + LootGewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + LootKursClass + ' td-tooltip" title="' + HTML.i18nTooltip(LootKursTooltip.join('<br>')) + '">' + LootKursText + '</strong></td>');
 			hFordern.push('</tr>');
 			/* --- Preserve end Aggressive Investment--------------------------------------------- */ 
 		}
