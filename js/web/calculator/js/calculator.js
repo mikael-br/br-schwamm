@@ -631,7 +631,7 @@ let Calculator = {
 
 			// Fördern
 
-			let RowClass,
+			let ColClass,
 				RankClass,
 				RankText = Rank + 1, //Default: Rangnummer
 				RankTooltip = [],
@@ -662,7 +662,7 @@ let Calculator = {
 			}
 
 			if (ForderStates[Rank] === 'Self') {
-				RowClass = 'info-row';
+				ColClass_foerdern = 'info-row';
 
 				RankClass = 'info';
 
@@ -704,7 +704,7 @@ let Calculator = {
 				GewinnClass = 'info';
 			}
 			else if (ForderStates[Rank] === 'NegativeProfit') {
-				RowClass = 'bg-red';
+				ColClass_foerdern = 'bg-red';
 
 				RankClass = 'error';
 
@@ -713,7 +713,7 @@ let Calculator = {
 				GewinnClass = 'error';
 			}
 			else if (ForderStates[Rank] === 'LevelWarning') {
-				RowClass = 'bg-yellow';
+				ColClass_foerdern = 'bg-yellow';
 
 				RankClass = '';
 
@@ -729,14 +729,14 @@ let Calculator = {
 				GewinnClass = '';
 			}
 			else if (ForderStates[Rank] === 'Profit') {
-				RowClass = 'bg-green';
+				ColClass_foerdern = 'bg-green';
 
 				RankClass = 'success';
 
 				Calculator.PlaySound();
 			}
 			else {
-				RowClass = 'text-grey';
+				ColClass_foerdern = 'text-grey';
 
 				RankClass = '';
 
@@ -748,25 +748,25 @@ let Calculator = {
 
 			// BP+Meds
 
-			RowClass = '';
+			ColClass = '';
 
 			if (ForderStates[Rank] === 'NotPossible' && SaveStates[Rank] === 'NotPossible') {
-				RowClass = 'text-grey';
+				ColClass = 'text-grey';
 			}
 			else if (ForderStates[Rank] === 'WorseProfit' && SaveStates[Rank] === 'WorseProfit') {
-				RowClass = 'text-grey';
+				ColClass = 'text-grey';
 			}
 			else if (ForderStates[Rank] === 'Self' && SaveStates[Rank] === 'Self') {
-				RowClass = 'info-row';
+				ColClass = 'info-row';
 			}
 			else if (ForderStates[Rank] === 'NegativeProfit' && SaveStates[Rank] === 'NegativeProfit') {
-				RowClass = 'bg-red';
+				ColClass = 'bg-red';
 			}
 			else if (ForderStates[Rank] === 'LevelWarning' && SaveStates[Rank] === 'LevelWarning') {
-				RowClass = 'bg-yellow';
+				ColClass = 'bg-yellow';
 			}
 			else if (ForderStates[Rank] === 'Profit' && SaveStates[Rank] === 'Profit') {
-				RowClass = 'bg-green';
+				ColClass = 'bg-green';
 			}
 
 
@@ -795,7 +795,7 @@ let Calculator = {
 			}
 
 			if (SaveStates[Rank] === 'Self') {
-				RowClass = 'info-row';
+				ColClass_loot = 'info-row';
 
 				RankClass = 'info';
 
@@ -825,22 +825,22 @@ let Calculator = {
 				KursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': Einzahlungen[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
 			}
 			else if (SaveStates[Rank] === 'NegativeProfit') {
-				RowClass = 'bg-red';
+				ColClass_loot = 'bg-red';
 			}
 			else if (SaveStates[Rank] === 'LevelWarning') {
-				RowClass = 'bg-yellow';
+				ColClass_loot = 'bg-yellow';
 
 				EinsatzTooltip.push(i18n('Boxes.Calculator.LevelWarning'));
 			}
 			else if (SaveStates[Rank] === 'Profit') {
-				RowClass = 'bg-green';
+				ColClass_loot = 'bg-green';
 
 				KursTooltip.push(HTML.i18nReplacer(i18n('Boxes.Calculator.TTRate'), { 'costs': SaveRankCosts[Rank], 'nettoreward': FPNettoRewards[Rank], 'rate': Kurs }));
 
 				Calculator.PlaySound();
 			}
 			else { // NotPossible/WorseProfit
-				RowClass = 'text-grey';
+				ColClass_loot = 'text-grey';
 
 				EinsatzText = '-';
 
@@ -850,15 +850,15 @@ let Calculator = {
 				KursText = '-';
 			}
 
-			hFordern.push('<tr class="' + RowClass + '">');
-			hFordern.push('<td class="text-center"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
-			hFordern.push('<td class="text-center">' + HTML.Format(BPRewards[Rank]) + '</td>');
-			hFordern.push('<td class="text-center">' + HTML.Format(MedalRewards[Rank]) + '</td>');
-			hFordern.push('<td class="text-center"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
-			hFordern.push('<td class="text-center"><strong class="' + KursClass + ' td-tooltip" title="' + HTML.i18nTooltip(KursTooltip.join('<br>')) + '">' + KursText + '</strong></td>');
+			hFordern.push('<tr>');
+			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(BPRewards[Rank]) + '</td>');
+			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(MedalRewards[Rank]) + '</td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + KursClass + ' td-tooltip" title="' + HTML.i18nTooltip(KursTooltip.join('<br>')) + '">' + KursText + '</strong></td>');
 			hFordern.push('</tr>');
 			/* --- Preserve end Aggressive Investment--------------------------------------------- */ 
 		}
