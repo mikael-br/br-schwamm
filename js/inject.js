@@ -101,9 +101,15 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 		}, {capture: false, once: true, passive: true});
 	});
 
+	/* --- Preserve start --------------------------------------------- */ 
 	let m = chrome.runtime.getManifest();
 	const v = m.version + (loadBeta ? '-beta-'+ betaDate:'');
-	const vn = m.version_name;
+	let bv = m.version_name;
+	if (bv != '') {
+		bv = bv.match(/\((\d+\.\d+\.\d+\.\d+)\)/);
+		bv = bv != null ? bv = bv[1] : '';
+	}
+	/* --- Preserve end --------------------------------------------- */ 
 
 	let   lng = chrome.i18n.getUILanguage();
 	const uLng = localStorage.getItem('user-language');
@@ -167,7 +173,7 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 				extUrl: extUrl,
 				GuiLng: lng,
 				extVersion: v,
-				extVersionName: vn,
+				extBaseVersion: bv,
 				isRelease: true,
 				devMode: `${!('update_url' in chrome.runtime.getManifest())}`,
 				loadBeta: loadBeta

@@ -482,26 +482,52 @@ let IndexDB = {
      * @param updateDate
      * @returns {Promise<void>}
      */
-    addUserFromPlayerDictIfNotExists: async(playerId, updateDate) => {
-        const playerFromDB = await IndexDB.db.players.get(playerId);
-        if (!playerFromDB) {
-            let player = PlayerDict[playerId];
-            if (player) {
-                await IndexDB.db.players.add({
-                    id: playerId,
-                    name: player.PlayerName,
-                    clanId: player.ClanId || 0,
-                    clanName: player.ClanName,
-                    avatar: player.Avatar,
-                    era: 'unknown', // Era can be discovered when user is visited, not now
-                    date: MainParser.getCurrentDate(),
-                });
-            }
-        }
-        else if (updateDate) {
-            IndexDB.db.players.update(playerId, {
-                date: MainParser.getCurrentDate()
-            });
-        }
-    }
+	/* --- Preserve start --------------------------------------------- */
+    addUserFromPlayerDictIfNotExists: (playerId, updateDate) => {
+		let player = PlayerDict[playerId];
+		let promise = new Promise((resolve, reject)=>{});
+		return IndexDB.loadPlayer(playerId).then((playerFromDB) => {
+			if (!playerFromDB) {
+				if (player) {
+					promise = IndexDB.db.players.add({
+						id: playerId,
+						name: player.PlayerName,
+						clanId: player.ClanId || 0,
+						clanName: player.ClanName,
+						avatar: player.Avatar,
+						era: player.Era || 'unknown',
+						score: player.Score,
+						lastScoreChangeDate: player.ScoreDate,
+						lastScoreReceiveData:player.ScoreReceiveDate, 
+						wonBattles: player.WonBattles,
+						lastWonBattlesChangeDate: player.WonBattlesDate,
+						lastWonBattlesReceiveDate: player.WonBattlesReceiveDate,
+						date: MainParser.getCurrentDate(),
+					});
+				}
+			}
+			else if (updateDate) {
+				promise = IndexDB.db.players.update(playerId, {
+					era: player.Era,
+					score: player.Score,
+					lastScoreChangeDate: player.ScoreDate,
+					lastScoreReceiveData:player.ScoreReceiveDate, 
+					wonBattles: player.WonBattles,
+					lastWonBattlesChangeDate: player.WonBattlesDate,
+					lastWonBattlesReceiveDate: player.WonBattlesReceiveDate,
+					date: MainParser.getCurrentDate(),
+				});
+			}
+		}).catch((error) => {
+			promise.reject(error);
+		});
+		return promise;
+    },
+	
+	loadPlayer: (playerId) => {
+		return IndexDB.getDB().then(() => {
+			return IndexDB.db.players.get(playerId);
+		}); 
+	}
+	/* --- Preserve end --------------------------------------------- */
 };

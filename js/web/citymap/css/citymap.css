@@ -285,15 +285,15 @@
 }
 
 @-webkit-keyframes pulse {
-	0% { -webkit-transform: scale(1); opacity: 1; }
-	50% { -webkit-transform: scale(0.9); opacity: 0.5; }
-	100% { -webkit-transform: scale(1); opacity: 1; }
+	0% { -webkit-transform: scale(0.9); opacity: 0.7; }
+	50% { -webkit-transform: scale(1); opacity: 1; }
+	100% { -webkit-transform: scale(0.9); opacity: 0.7; }
 }
 
 @keyframes pulse {
-	0% { transform: scale(1); opacity: 1; }
-	50% { transform: scale(0.9); opacity: 0.5; }	
-	100% { -webkit-transform: scale(1); opacity: 1; }
+	0% { transform: scale(0.9); opacity: 0.7; }
+	50% { transform: scale(1); opacity: 1; }
+	100% { transform: scale(0.9); opacity: 0.7; }
 }
 
 .pulsate {

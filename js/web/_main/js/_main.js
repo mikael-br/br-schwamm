@@ -17,7 +17,7 @@ const extID = ExtbaseData.extID,
 	extUrl = ExtbaseData.extUrl,
 	GuiLng = ExtbaseData.GuiLng,
 	extVersion = ExtbaseData.extVersion,
-	extVersionName = ExtbaseData.extVersionName,    /* preserve: show in Version Box in settings.js*/
+	extBaseVersion = ExtbaseData.extBaseVersion,    /* preserve */
 	isRelease = ExtbaseData.isRelease,
 	devMode = ExtbaseData.devMode,
 	loadBeta = ExtbaseData.loadBeta;
@@ -415,6 +415,18 @@ GetFights = () =>{
 	FoEproxy.addHandler('OtherPlayerService', 'visitPlayer', (data, postData) => {
 		LastMapPlayerID = data.responseData['other_player']['player_id'];
 		MainParser.OtherPlayerCityMapData = Object.assign({}, ...data.responseData['city_map']['entities'].map((x) => ({ [x.id]: x })));
+
+		/* --- Preserve start --------------------------------------------- */ 
+		if (Settings.GetSetting('ShowPlayersAttDeffValues') || Settings.GetSetting('ShowNeighborsLootables')) {
+			Sabotage.OtherPlayersBuildings(data.responseData);
+			$('#sabotage-Btn').removeClass('hud-btn-red');
+			$('#sabotage-Btn-closed').remove();
+		}
+		else {
+			$('#sabotage-Btn').removeClass('hud-btn-red').addClass('hud-btn-red');
+			$('#sabotageInfo').remove();
+		}		
+		/* --- Preserve end --------------------------------------------- */ 
 	});
 
 
@@ -471,13 +483,18 @@ GetFights = () =>{
 		MainParser.UpdatePlayerDict(data.responseData, 'Conversation');
 	});
 
+	// PvPArena geöffnet
+	FoEproxy.addHandler('PVPArenaService', 'getOverview', (data, postData) => {
+		MainParser.UpdatePlayerDict(data.responseData, 'PvPArena');
+	});
+
 	FoEproxy.addHandler('BattlefieldService', 'startByBattleType', (data, postData) => {
 
 		// Kampf beendet
 		if (data.responseData["error_code"] === 901) {
 			return;
 		}
-		if (data.responseData["armyId"] === 1 || data.responseData["state"]["round"] === 1 || data.responseData["battleType"]["totalWaves"] === 1) {
+		if (data.responseData["armyId"] === 1 || data.responseData["state"]["round"] === 1 || data.responseData["battleType"]["totalWaves"] === 1) {  // ToDo:  Cannot read properties of undefined (reading 'round')
 			let units = data.responseData.state.unitsOrder;
 
 			for (let i = 0; i < units.length; i++) {
@@ -750,12 +767,9 @@ GetFights = () =>{
 
 			/* --- Preserve start --------------------------------------------- */ 
 			Calculator.DetailViewIsNewer = true;
-			/* --- Preserve end --------------------------------------------- */ 
 
-			// wenn schon offen, den Inhalt updaten
-			if ($('#costCalculator').length > 0) {
-				Calculator.Show();
-			}
+			Calculator.Open(false);
+			/* --- Preserve end --------------------------------------------- */ 
 		}
 
 	}
@@ -1338,7 +1352,7 @@ let MainParser = {
 
 		MainParser.sendExtMessage({
 			type: 'send2Api',
-			url: `${ApiURL}SelfPlayer/?player_id=${ExtPlayerID}&guild_id=${ExtGuildID}&world=${ExtWorld}&v=${extVersion}`,
+			url: `${ApiURL}SelfPlayer/?player_id=${ExtPlayerID}&guild_id=${ExtGuildID}&world=${ExtWorld}&v=${extBaseVersion}`,  /* preserve: version_name in manifest.js muss IMMER die FoE Helper Version sein!! */
 			data: JSON.stringify(data)
 		});
 	},
@@ -1364,7 +1378,7 @@ let MainParser = {
 
 		MainParser.sendExtMessage({
 			type: 'send2Api',
-			url: `${ApiURL}OwnLGData/?world=${ExtWorld}${MainParser.DebugMode ? '&debug' : ''}&v=${extVersion}`,
+			url: `${ApiURL}OwnLGData/?world=${ExtWorld}${MainParser.DebugMode ? '&debug' : ''}&v=${extBaseVersion}`,  /* preserve: version_name in manifest.js muss IMMER die FoE Helper Version sein!! */
 			data: JSON.stringify(realData)
 		});
 	},
@@ -1469,6 +1483,7 @@ let MainParser = {
 	 * @constructor
 	 */
 	UpdatePlayerDict: (d, Source, ListType = undefined) => {
+		let promise = Promise.resolve();  /* Preserve */
 		if (Source === 'Conversation') {
 			for (let i in d['messages']) {
 				if (!d['messages'].hasOwnProperty(i))
@@ -1477,13 +1492,13 @@ let MainParser = {
 				let Message = d['messages'][i];
 
 				if (Message.sender !== undefined) {
-					MainParser.UpdatePlayerDictCore(Message.sender);
+					promise = MainParser.UpdatePlayerDictCore(Message.sender);
 				}
 			}
 		}
 
 		else if (Source === 'LGOverview') {
-			MainParser.UpdatePlayerDictCore(d[0].player);
+			promise = MainParser.UpdatePlayerDictCore(d[0].player);
 		}
 
 		else if (Source === 'LGContributions') {
@@ -1491,7 +1506,7 @@ let MainParser = {
 				if (!d.hasOwnProperty(i))
 					continue;
 
-				MainParser.UpdatePlayerDictCore(d[i].player);
+				promise = MainParser.UpdatePlayerDictCore(d[i].player);
 			}
 		}
 
@@ -1500,7 +1515,7 @@ let MainParser = {
 				if (!d.hasOwnProperty(i))
 					continue;
 
-				MainParser.UpdatePlayerDictCore(d[i]);
+				promise = MainParser.UpdatePlayerDictCore(d[i]);
 			}
 
 			if (ListType === 'getNeighborList') {
@@ -1519,7 +1534,7 @@ let MainParser = {
 		}
 		/* --- Preserve start --------------------------------------------- */ 
 		else if (Source === 'PlayerVO') {
-			MainParser.UpdatePlayerDictCore(d);
+			promise = MainParser.UpdatePlayerDictCore(d);
 		}
 
 		else if (Source === 'Events') {
@@ -1531,15 +1546,17 @@ let MainParser = {
 		}
 
 		else if (Source === 'VisitPlayer') {
-			MainParser.UpdatePlayerDictCore(d.other_player);
+			promise = MainParser.UpdatePlayerDictCore(d.other_player);
 		}
 
 		else if (Source === 'PvPArena') {
 			for (let i in d['opponents']) {
 				if(!d['opponents'].hasOwnProperty(i)) continue;
-				MainParser.UpdatePlayerDictCore(d['opponents'][i].opposingPlayer.player);
+				promise = MainParser.UpdatePlayerDictCore(d['opponents'][i].opposingPlayer.player);
 			}
 		}
+
+		return promise;
 	},
 
 	loadPlayerIntoDict: (PlayerID) => {
@@ -1575,6 +1592,7 @@ let MainParser = {
 	 */
 	UpdatePlayerDictCore: (Player) => {
 
+		let promise = Promise.resolve();    /* preserve */
 		let PlayerID = Player['player_id'];
 
 		if (PlayerID !== undefined) {
@@ -1596,7 +1614,25 @@ let MainParser = {
 			if (Player['is_active'] !== undefined) PlayerDict[PlayerID]['IsActive'] = Player['is_active'];
 			if (Player['won_battles'] !== undefined) PlayerDict[PlayerID]['WonBattles'] = Player['won_battles'];
 			/* --- Preserve end --------------------------------------------- */ 
+
+			/* --- Preserve start --------------------------------------------- */
+			promise = IndexDB.loadPlayer(PlayerID).then((PlayerFromDB) => {
+				if (PlayerFromDB) {
+					PlayerDict[PlayerID]['WonBattlesReceiveDate'] = (PlayerDict[PlayerID]['WonBattles'] !== undefined ? MainParser.getCurrentDate() : PlayerFromDB.lastWonBattlesReceiveDate);
+					PlayerDict[PlayerID]['WonBattlesDate'] = (PlayerFromDB.wonBattles === undefined && PlayerDict[PlayerID]['WonBattles'] !== undefined  || PlayerFromDB.lastWonBattlesChangeDate === undefined || PlayerFromDB.wonBattles < PlayerDict[PlayerID]['WonBattles'] ? MainParser.getCurrentDate() : PlayerFromDB.lastWonBattlesChangeDate);
+					PlayerDict[PlayerID]['ScoreReceiveDate'] = (PlayerDict[PlayerID]['Score'] !== undefined ? MainParser.getCurrentDate() : PlayerFromDB.lastScoreReceiveDate);
+					PlayerDict[PlayerID]['ScoreDate'] = (PlayerFromDB.score === undefined && PlayerDict[PlayerID]['Score'] !== undefined || PlayerFromDB.lastScoreChangeDate === undefined || PlayerFromDB.score < PlayerDict[PlayerID]['Score'] ? MainParser.getCurrentDate() : PlayerFromDB.lastScoreChangeDate);
+				} else {
+					PlayerDict[PlayerID]['WonBattlesReceiveDate'] = (PlayerDict[PlayerID]['WonBattles'] !== undefined ? MainParser.getCurrentDate() : undefined);
+					PlayerDict[PlayerID]['WonBattlesDate'] = (PlayerDict[PlayerID]['WonBattles'] !== undefined ? MainParser.getCurrentDate() : undefined);
+					PlayerDict[PlayerID]['ScoreReceiveDate'] = (PlayerDict[PlayerID]['Score'] !== undefined ? MainParser.getCurrentDate() : undefined);
+					PlayerDict[PlayerID]['ScoreDate'] = (PlayerDict[PlayerID]['Score'] !== undefined ? MainParser.getCurrentDate() : undefined);
+				}
+				return IndexDB.addUserFromPlayerDictIfNotExists(PlayerID, true);
+			});
+			/* --- Preserve end --------------------------------------------- */
 		}
+		return promise;  /* preserve */
 	},
 
 

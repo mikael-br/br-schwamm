@@ -27,6 +27,7 @@ let CityMap = {
 	OccupiedArea: 0,
 	EfficiencyFactor: 0,
 	IsExtern: false,
+	ActiveEntityId : null,  /* preserve */
 
 
 	/**
@@ -36,8 +37,9 @@ let CityMap = {
 	 * @param event
 	 * @param Data The City data
 	 * @param Title Name of the city
+	 * @param Id of the active entity
 	 */
-	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...')=> {
+	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...', ActiveEntityId = null)=> {
 
 		if (Data === null) { // No data => own city
 			CityMap.IsExtern = false;
@@ -47,6 +49,8 @@ let CityMap = {
 		else {
 			CityMap.IsExtern = true;
 		}
+
+		CityMap.ActiveEntityId = ActiveEntityId;
 
 		CityMap.CityData = Object.values(Data).sort(function (X1, X2) {
 			if (X1.x < X2.x) return -1;
@@ -163,7 +167,7 @@ let CityMap = {
 
 			CityMap.SetBuildings(CityMap.CityData, false);
 
-			$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -280, top: -280}, easing: 'swing'});
+			CityMap.scrollToActiveElementOrCenter();   /* preserve */
 			$('.to-old-legends').hide();
 			$('.building-count-area').show();
 		});
@@ -232,8 +236,6 @@ let CityMap = {
 	SetBuildings: (Data = null)=> {
 
 		// https://foede.innogamescdn.com/assets/city/buildings/R_SS_MultiAge_SportBonus18i.png
-
-		let ActiveId = $('#grid-outer').find('.pulsate').data('entityid') || null;
 
 		// einmal komplett leer machen, wenn gewünscht
 		$('#grid-outer').find('.map-bg').remove();
@@ -315,7 +317,7 @@ let CityMap = {
 			}
 
 			// die Größe wurde geändert, wieder aktivieren
-			if (ActiveId !== null && ActiveId === CityMap.CityData[b]['id'])
+			if (CityMap.ActiveEntityId !== undefined && CityMap.ActiveEntityId !== null && CityMap.ActiveEntityId === CityMap.CityData[b]['id'])    /* preserve */
 			{
 				f.addClass('pulsate');
 			}
@@ -335,8 +337,18 @@ let CityMap = {
 		$('#grid-outer').draggable();
 
 		CityMap.getAreas();
+
+		CityMap.scrollToActiveElementOrCenter();  /* preserve */
 	},
 
+	/* --- Preserve start --------------------------------------------- */ 
+	/**
+	 * Scrollls the map to the active element
+	 */
+	scrollToActiveElementOrCenter: () => {
+		$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -280, top: -280}, easing: 'swing'});
+	},
+	/* --- Preserve end --------------------------------------------- */ 
 
 	/**
 	 * Statistiken in die rechte Sidebar

@@ -420,7 +420,15 @@ let Parts = {
 
 		// Restore Default settings
 		if (Parts.FirstCycle) {
-			let SavedArcPercents = localStorage.getItem(Parts.GetStorageKey('ArcPercents', null));
+			/* --- Preserve start --------------------------------------------- */ 
+			let SavedArcBonusForEachGB = localStorage.getItem(Parts.GetStorageKey('ArcBonusForEachGB', null));
+			if (SavedArcBonusForEachGB !== null) Parts.ArcBonusForEachGB = (SavedArcBonusForEachGB === 'true');
+
+			Parts.ArcPercents = Parts.DefaultArchPercents;
+
+			let SavedArcPercents = localStorage.getItem(Parts.GetStorageKey('ArcPercents', (Parts.ArcBonusForEachGB ? Parts.CityMapEntity['cityentity_id'] : null)));
+			/* --- Preserve end --------------------------------------------- */ 
+			
 			if (SavedArcPercents !== null) Parts.ArcPercents = JSON.parse(SavedArcPercents);
 
 			let SavedCopyOwnPlayerName = localStorage.getItem(Parts.GetStorageKey('CopyOwnPlayerName', null));
@@ -1600,7 +1608,11 @@ let Parts = {
 		c.push(nV);
 
 		c.push('<p><input id="copyformatpergb" class="copyformatpergb game-cursor" ' + (Parts.CopyFormatPerGB ? 'checked' : '') + ' type="checkbox"> ' + i18n('Boxes.OwnpartCalculator.CopyFormatPerGB'));
-		c.push('<br><input type="checkbox" id="openonaliengb" class="openonaliengb game-cursor" ' + ((allGB == 'true') ? 'checked' : '') + '> ' + i18n('Settings.ShowOwnPartOnAllGBs.Desc')) + '</p>';
+		c.push('<br><input type="checkbox" id="openonaliengb" class="openonaliengb game-cursor" ' + ((allGB == 'true') ? 'checked' : '') + '> ' + i18n('Settings.ShowOwnPartOnAllGBs.Desc'));
+
+		/* --- Preserve start --------------------------------------------- */ 
+		c.push('<br><input id="arcbonusforeachgb" class="arcbonusforeachgb game-cursor" ' + (Parts.ArcBonusForEachGB ? 'checked' : '') + ' type="checkbox"> ' + i18n('Boxes.OwnpartCalculator.ArcBonusForEachGB')) + '</p>';
+		/* --- Preserve end --------------------------------------------- */ 
 
 		// save button
 		c.push(`<p><button id="save-calculator-settings" class="btn btn-default" style="width:100%" onclick="Parts.SettingsSaveValues()">${i18n('Boxes.Calculator.Settings.Save')}</button></p>`);
@@ -1665,7 +1677,7 @@ let Parts = {
 
 			// reload box
 			/* --- Preserve start --------------------------------------------- */ 
-			if (Parts.CopyFormatPerGB !== OldCopyFormatPerGB || Parts.OneFPForNonFPPlace !== OldOneFPForNonFPPlace) Parts.FirstCycle = true;
+			if (Parts.CopyFormatPerGB !== OldCopyFormatPerGB) Parts.FirstCycle = true;
 			/* --- Preserve end --------------------------------------------- */ 
 			Parts.CalcBody();
 		});
