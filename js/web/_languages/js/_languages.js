@@ -13,6 +13,7 @@
 
 let Languages = {
 	PossibleLanguages: {
-		de: 'Deutsch'
+		de: 'Deutsch',
+		en: 'English'
 	},
 };

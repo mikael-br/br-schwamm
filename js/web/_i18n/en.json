@@ -1270,6 +1270,7 @@
     "Menu.unitsGex.Desc": "???",
     "Menu.unitsGex.Title": "???",
     "Quests.CounterTooltip.Content": "There is a limit of 2000 aborted quests per day.",
+    "RecurringQuests.NoContent":"No recurring quests yet.",
     "RecurringQuests.Table.Quest": "Quest name",
     "RecurringQuests.Warning": "This list shows for which of the quests the helper is sure you have already received diamonds - quests are listed here as open even if you have already received diamonds for that quest on another device or before this feature was activated. Since medals only show up as rewards if diamonds have been obtained before, the list will update after either diamonds or medals are obtained.",
     "Settings.About.Desc": "The FoE Helper is a free browser extension for Forge of Empires developed for players by players. The tool is not affiliated with InnoGames.",

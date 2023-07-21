@@ -88,12 +88,14 @@ let Recurring = {
         Recurring.SetCounter();
         if ($('#RecurringQuestsBox').length < 1) return;
         
-        if (Object.keys(Recurring.data.Questlist).length === 0) {
+		/* --- Preserve start --------------------------------------------- */ 
+        /*if (Object.keys(Recurring.data.Questlist).length === 0) {
             $('#RecurringQuestsBox').fadeOut('500', function() {
                 $(this).remove();
             });
         }
-        else 
+        else */
+		/* --- Preserve end --------------------------------------------- */ 
             Recurring.BuildBox();  
     },
 
@@ -116,22 +118,31 @@ let Recurring = {
 
         h.push('<tbody>');
 
-        for (let q of Recurring.data.filter) {
-            if (!Recurring.data.Questlist[q]) continue;
-            let quest=Recurring.data.Questlist[q]
+		/* --- Preserve start --------------------------------------------- */ 
+        if (Object.keys(Recurring.data.Questlist).length === 0) {
             h.push(`<tr>`);
-            h.push('<td >' + quest.title + '</td>');
-            h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
+            h.push('<td colspan="2">' + i18n('RecurringQuests.NoContent') + '</td>');
             h.push('</tr>');
         }
-        for (let q of Recurring.data.filter2) {
-            if (!Recurring.data.Questlist[q]) continue;
-            let quest=Recurring.data.Questlist[q]
-            h.push(`<tr>`);
-            h.push('<td >' + quest.title + '</td>');
-            h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
-            h.push('</tr>');
-        }
+        else {
+ 		/* --- Preserve end --------------------------------------------- */ 
+           for (let q of Recurring.data.filter) {
+                if (!Recurring.data.Questlist[q]) continue;
+                let quest=Recurring.data.Questlist[q]
+                h.push(`<tr>`);
+                h.push('<td >' + quest.title + '</td>');
+                h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
+                h.push('</tr>');
+            }
+            for (let q of Recurring.data.filter2) {
+                if (!Recurring.data.Questlist[q]) continue;
+                let quest=Recurring.data.Questlist[q]
+                h.push(`<tr>`);
+                h.push('<td >' + quest.title + '</td>');
+                h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
+                h.push('</tr>');
+            }
+        }  // preserve
         h.push('</tbody>');
         h.push('</table>');
 
