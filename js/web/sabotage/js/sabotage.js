@@ -450,7 +450,7 @@ let Sabotage = {
 	},
 	
 	UpdatePlayer: (ud) => {
-		if (ud.player_id == Sabotage.OtherPlayer.player_id) {
+		if (Sabotage.OtherPlayer != undefined && ud.player_id == Sabotage.OtherPlayer.player_id) {
 		
 			Sabotage.OtherPlayer = ud;
 

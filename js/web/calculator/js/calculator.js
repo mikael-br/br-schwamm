@@ -623,8 +623,8 @@ let Calculator = {
 			if (SaveStates[Rank] !== 'Self' && Kurs > 0) {
 				if (Kurs < BestKurs) {
 					BestKurs = Kurs;
-					let BestKursNettoFP = FPNettoRewards[Rank],
-						BestKursEinsatz = SaveRankCosts[Rank];
+					BestKursNettoFP = FPNettoRewards[Rank];
+					BestKursEinsatz = SaveRankCosts[Rank];
 				}
 			}
 
@@ -890,6 +890,8 @@ let Calculator = {
 		let CurrentGB = await IndexDB.db.greatbuildings
 			.where({ playerId: GreatBuilding['playerId'], name: GreatBuilding['name'] })
 			.first();
+
+		//console.log('RefreshGreatBuildingsDB playerID: '+GreatBuilding['playerId'] + ', GB name: ' + GreatBuilding['name'] + ', GB in IndexDB: ' + CurrentGB);
 
 		if (CurrentGB === undefined) {
 			await IndexDB.db.greatbuildings.add({
@@ -1158,7 +1160,9 @@ let Calculator = {
 					MaxProgress = Calculator.Overview[i]['max_progress'],
 					Rank = Calculator.Overview[i]['rank'];
 
-				let Gewinn = undefined,
+				let BestKursNettoFP = undefined,
+					BestKursEinsatz = undefined,
+					Gewinn = undefined,
 					BestKurs = undefined,
 					StrongClass;
 
@@ -1229,8 +1233,14 @@ let Calculator = {
 		}
 
 		// Gibt was zu holen
-		if (! LGFound)
+		if (LGFound)
 		{
+			Calculator.PlaySound();
+			
+		}
+
+		// gibt nichts zu holen
+		else {
 				h.push('<tr>');
 			h.push('<td colspan="5" class="text-center no-investments-possible" style="padding:2px 0 3px;"><strong>');
 

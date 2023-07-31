@@ -440,9 +440,19 @@ let IndexDB = {
             .and((item)=>{ return item.expireTime < moment().unix() })
             .delete();
 
-        await IndexDB.db.pvpActions.clear();
-        await IndexDB.db.players.clear();
-        await IndexDB.db.greatbuildings.clear();
+	/* --- Preserve start --------------------------------------------- */
+        await IndexDB.db.players
+            .where('date').below(neighborhoodAttackExpiryTime)
+            .delete();
+
+        let LeftPlayers = await IndexDB.db.players
+            .where('id').above(0)
+            .keys();
+
+        await IndexDB.db.greatbuildings
+            .where('playerId').noneOf(LeftPlayers)
+            .delete();
+	/* --- Preserve end --------------------------------------------- */
 
         for (const table of ['statsRewards', 'statsUnitsD', 'statsTreasurePlayerD', 'statsTreasureClanD']) {
             await IndexDB.db[table].where('date').below(daylyExpiryTime).delete();
