@@ -1,5 +1,36 @@
 ## Changelog - Extension
 
+##### 1.25.5.0
+**Verbesserungen**
+- Englische Übersetzung
+- Sprachwechsel jetzt möglich
+- Wiederkehrende Quests werden mit einer Info angezeigt, wenn noch keine Wiederkehrenden vorhanden sind
+
+**Bugfixes**
+- LG Rechner: Bonus wird wieder berechnet; Vorabscan von LGs zeigt möglichen Gewinn wieder an
+- Ereignisse: zukünftige Ereignisse werden wieder angezeigt
+- Fixes in der deutschen Sprachdatei
+- Sabotage: Fängt Fehler ab, wenn anderer Spieler noch nicht besucht wurde
+- IndexDB: Daten von Spielern und LGs älter als einen Tag werden gelöscht (nicht mehr Alle)
+
+##### 1.25.0.0
+
+**Verbesserungen**
+  - LB Rechner
+    - Eine Tabelle im Popup des Rechners (statt bisher drei für FPs, Meds und Gewinn)
+  - Settings
+    - Anzeige der FoE Helfer Version ("Version name")
+
+**FoE-Helfer**
+  - Alle Änderungen und Bugfixes bis einschließlich Version 3.2.6.0 migriert
+  
+**Bugfixes:**
+- Fenster bewegen Symbol wieder im Sprite
+- Sabotage Button beim Besuch anderer Spieler wieder da
+- IndexDB.loadPlayer wieder eingefügt
+- Citymap: pulsieren funktioniert nur mit Übergabe der ActiveID des Gebäudes für die Toolbox!
+- LG Rechner: Hintergrundfarben funktionieren wieder,
+
 ##### 1.24.0.0
 **Bugfix**
 - Allgemein

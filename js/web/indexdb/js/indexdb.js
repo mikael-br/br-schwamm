@@ -419,8 +419,7 @@ let IndexDB = {
     * @returns {Promise<void>}
     */
     GarbageCollector: async () => {
-        const neighborhoodAttackExpiryTime = moment().subtract(1, 'years').toDate();
-		// Expiry time for db with 1 record per day
+        // Expiry time for db with 1 record per day
         const daylyExpiryTime = moment().subtract(1, 'years').toDate();
 
         // Expiry time for db with 1 record per hour
@@ -429,9 +428,11 @@ let IndexDB = {
         // Keep logs for guild battlegrounds for 2 weeks
         const gbgExpiryTime = moment().subtract(2, 'weeks').toDate();
 
-        await IndexDB.getDB(); 
+        await IndexDB.getDB();
+        await IndexDB.db.pvpActions.clear();
+	/* --- Preserve start --------------------------------------------- */
         await IndexDB.db.neighborhoodAttacks
-            .where('date').below(neighborhoodAttackExpiryTime)
+            .where('date').below(daylyExpiryTime)
             .delete();
 
         // Remove expired city shields
@@ -440,7 +441,6 @@ let IndexDB = {
             .and((item)=>{ return item.expireTime < moment().unix() })
             .delete();
 
-	/* --- Preserve start --------------------------------------------- */
         await IndexDB.db.players
             .where('date').below(neighborhoodAttackExpiryTime)
             .delete();
