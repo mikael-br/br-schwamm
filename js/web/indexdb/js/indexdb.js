@@ -442,7 +442,7 @@ let IndexDB = {
             .delete();
 
         await IndexDB.db.players
-            .where('date').below(neighborhoodAttackExpiryTime)
+            .where('date').below(daylyExpiryTime)
             .delete();
 
         let LeftPlayers = await IndexDB.db.players
