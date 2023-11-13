@@ -520,7 +520,7 @@ const FoEproxy = (function () {
 					}
 				}
 
-				for (let entry of d) {  
+				for (let entry of d) {
 					if (!(entry['requestClass'] === 'StartupService' && entry['requestMethod'] === 'getData')) {
 						proxyAction(entry.requestClass, entry.requestMethod, entry, requestData, d);     /* preserve */
 					}

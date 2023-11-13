@@ -66,6 +66,17 @@ let _menu_bottom = {
 
 
 	/**
+	* Fügt ein MenüItem ein
+	*
+	* @param MenuItem
+	*/
+	InsertMenuItem: (MenuItem) => {
+		$('#foe-helper-hud-slider').append(MenuItem);
+	},
+
+
+
+	/**
 	 * Sammelfunktion
 	 *
 	 * @param reset

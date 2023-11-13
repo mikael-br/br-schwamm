@@ -589,17 +589,22 @@ let Info = {
                 continue;
             }
 
+            let provLabel = Infoboard.GbgProvShortNameFl ? prov['short'] : prov['name'];
+
             if (color) {
                 let tc = colors['highlight'], sc = color['highlight'],
                     ts = colors['shadow'], ss = color['shadow'];
 
-                t += '<span style="color:' + tc + ';text-shadow: 0 1px 1px ' + ts + '">' + p['clan']['name'] + '</span> ⚔ <span style="color:' + sc + ';text-shadow: 0 1px 1px ' + ss + '">' + prov['name'] + '</span> (<strong>' + d['progress'] + '</strong>/<strong>' + d['maxProgress'] + '</strong>)<br>';
+                t += '<span style="color:' + tc + ';text-shadow: 0 1px 1px ' + ts + '">' + p['clan']['name'] + '</span>'
+                  + ' ⚔ <span style="color:' + sc + ';text-shadow: 0 1px 1px ' + ss + '">' + provLabel + '</span>'
+                  + ' (<strong>' + d['progress'] + '</strong>/<strong>' + d['maxProgress'] + '</strong>)<br>';
             }
             else {
                 let tc = colors['highlight'],
                     ts = colors['shadow'];
 
-                t += '<span style="color:' + tc + ';text-shadow: 0 1px 1px ' + ts + '">' + p['clan']['name'] + '</span> ⚔ ' + prov['name'] + ' (<strong>' + d['progress'] + '</strong>/<strong>' + d['maxProgress'] + '</strong>)<br>';
+                t += '<span style="color:' + tc + ';text-shadow: 0 1px 1px ' + ts + '">' + p['clan']['name'] + '</span>'
+                  + ' ⚔ ' + provLabel + ' (<strong>' + d['progress'] + '</strong>/<strong>' + d['maxProgress'] + '</strong>)<br>';
 
             }
 

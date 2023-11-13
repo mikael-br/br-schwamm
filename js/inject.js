@@ -145,7 +145,7 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 			let cssFiles = [
 				'variables',
 				'goods',
-				cssname,	
+				cssname,
 				'boxes'
 			];
 

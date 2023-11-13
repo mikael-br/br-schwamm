@@ -13,10 +13,6 @@
 
 FoEproxy.addHandler('QuestService', 'getUpdates', (data, postData) => {
     
-    if (Recurring.data.currentEra < CurrentEraID) {
-        Recurring.data.Questlist = {};
-        Recurring.data.currentEra = CurrentEraID;
-    }
     if (!data.responseData) return;
     for (let q in data.responseData) {
         if (!data.responseData.hasOwnProperty(q)) continue;
@@ -24,12 +20,16 @@ FoEproxy.addHandler('QuestService', 'getUpdates', (data, postData) => {
         if (quest.id >= 900000 && quest.id < 1000000) {
             if (quest.genericRewards?.length > 0) {
                 if (!Recurring.data.Questlist[quest.id] && quest.genericRewards[0].flags.includes('random')) {
-                Recurring.data.Questlist[quest.id] = {'title':quest.title, 'diamonds': false};
+                    Recurring.data.Questlist[quest.id] = {'title':quest.title, 'diamonds': false};
                 }
                 if (quest.genericRewards[0].subType == "medals" || quest.genericRewards[0].subType == "premium") {
                     Recurring.data.Questlist[quest.id].diamonds = true;
                 }
                 if (!Recurring.data.Questlist[quest.id].era) Recurring.data.Questlist[quest.id].era = CurrentEraID;
+                if (!Recurring.data.Questlist[quest.id].conditions) {
+                    Recurring.data.Questlist[quest.id].conditions = quest.successConditions;
+                    Recurring.data.Questlist[quest.id].groups = quest.successConditionGroups;
+                }
             }
         }
     }
@@ -55,8 +55,8 @@ FoEproxy.addHandler('QuestService', 'getUpdates', (data, postData) => {
 });
 
 let Recurring = {
-    data: JSON.parse(localStorage.getItem('Recurring')) || {"Questlist": {}, "currentEra": 0, "count":0, "showCounter": false},
-   
+    data: JSON.parse(localStorage.getItem('Recurring')) || {"Questlist": {}, "count":0, "showCounter": false,"hideTasks":true},
+    
 	/**
 	 * Box in den DOM
 	 */
@@ -68,7 +68,6 @@ let Recurring = {
             HTML.Box({
                 'id': 'RecurringQuestsBox',
                 'title': i18n('Boxes.RecurringQuests.Title'),
-                //'ask': i18n('Boxes.RecurringQuests.HelpLink'),
                 'auto_close': true,
                 'dragdrop': true,
                 'minimize': true,
@@ -105,44 +104,38 @@ let Recurring = {
 	 */
     BuildBox: () => {
         let h = [];
-        h.push(`<div>${i18n('RecurringQuests.Warning')}</div>`);
+        h.push(`<div>${i18n('Boxes.RecurringQuests.Warning')}</div>`);
 
-        h.push('<table class="foe-table">');
+        h.push(`<table id="recurringTable" class="foe-table${!!Recurring.data.hideTasks?' hideTasks':''}">`);
 
         h.push('<thead>');
         h.push('<tr>');
-        h.push('<th>' + i18n('RecurringQuests.Table.Quest') + '</th>');
+        h.push(`<th onclick="Recurring.hideTasks()">${i18n('Boxes.RecurringQuests.Table.Quest')} ⇋</th>`);
+        h.push(`<th onclick="Recurring.hideTasks()">${i18n('Boxes.RecurringQuests.Table.Tasks')} ⇋</th>`);
         h.push('<th><img src="' + srcLinks.get("/shared/icons/premium.png", true) + '" alt="" width="20px" height="20px">?</th>');
         h.push('</tr>');
         h.push('</thead>');
 
         h.push('<tbody>');
 
-		/* --- Preserve start --------------------------------------------- */ 
-        if (Object.keys(Recurring.data.Questlist).length === 0) {
+        for (let q of Recurring.data.filter) {
+            if (!Recurring.data.Questlist[q]) continue;
+            let quest=Recurring.data.Questlist[q]
             h.push(`<tr>`);
-            h.push('<td colspan="2">' + i18n('RecurringQuests.NoContent') + '</td>');
+            h.push(`<td title="${Recurring.getTasks(quest.groups,quest.conditions)}">${quest.title}</td>`);
+            h.push(`<td title="${Recurring.getTasks(quest.groups,quest.conditions)}">${Recurring.getTasks(quest.groups,quest.conditions,false)}</td>`);
+            h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
             h.push('</tr>');
         }
-        else {
- 		/* --- Preserve end --------------------------------------------- */ 
-           for (let q of Recurring.data.filter) {
-                if (!Recurring.data.Questlist[q]) continue;
-                let quest=Recurring.data.Questlist[q]
-                h.push(`<tr>`);
-                h.push('<td >' + quest.title + '</td>');
-                h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
-                h.push('</tr>');
-            }
-            for (let q of Recurring.data.filter2) {
-                if (!Recurring.data.Questlist[q]) continue;
-                let quest=Recurring.data.Questlist[q]
-                h.push(`<tr>`);
-                h.push('<td >' + quest.title + '</td>');
-                h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
-                h.push('</tr>');
-            }
-        }  // preserve
+        for (let q of Recurring.data.filter2) {
+            if (!Recurring.data.Questlist[q]) continue;
+            let quest=Recurring.data.Questlist[q]
+            h.push(`<tr>`);
+            h.push(`<td title="${Recurring.getTasks(quest.groups,quest.conditions)}">${quest.title}</td>`);
+            h.push(`<td title="${Recurring.getTasks(quest.groups,quest.conditions)}">${Recurring.getTasks(quest.groups,quest.conditions,false)}</td>`);
+            h.push(quest.diamonds ? '<td class="check">✓</td>' : '<td>?</td>');
+            h.push('</tr>');
+        }
         h.push('</tbody>');
         h.push('</table>');
 
@@ -166,8 +159,29 @@ let Recurring = {
     SaveSettings: (show=Recurring.data.showCounter) => {
         Recurring.data.showCounter = show;
         localStorage.setItem('Recurring', JSON.stringify(Recurring.data));
-        Recurring.SetCounter()
+        Recurring.SetCounter();
     },
-
+    getTasks: (groups,conditions,title=true) =>{
+        let t = '';
+        let tAnd = '';
+        for (let x in groups) {
+            if (!groups[x]) continue;
+            t += tAnd;
+            tAnd = (title ? `\n-------\n` : `<br>`) + `${i18n('Boxes.RecurringQuests.AND')} `;
+            let tOr= '';
+            for (let c of groups[x].conditionIds) {
+                let d= conditions.find(item => item.id==c).description;
+                let img= srcLinks.getQuest(conditions.find(item => item.id==c).iconType);
+                t += tOr + (title ? d: (`<img src="${img}">` + d.substring(0,20) + (d.length>20 ?'...':'')));
+                tOr = (title ? `\n`:`<br><pre style="display:inline">&emsp;</pre>`) +`${i18n('Boxes.RecurringQuests.OR')} `;
+            }
+        }
+        return t;
+    },
+    hideTasks: () => {
+        $('#recurringTable').toggleClass('hideTasks'); 
+        Recurring.data["hideTasks"]=!Recurring.data.hideTasks;
+        Recurring.SaveSettings();
+    }
 
 };

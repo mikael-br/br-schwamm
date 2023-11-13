@@ -354,20 +354,22 @@ alertsDB.version(1).stores({
 		};
 	})();
 
-	function InstallConfirm() {
-		if (confirm('Die FoE-Toolbox wurde aktualisiert.\n\nSoll das Spiel jetzt neu geladen werden, damit die neuen Features sofort verfügbar sind?'))
-			window.location.reload();
-	}
-	
+
 	browser.runtime.onInstalled.addListener(() => {
 		"use strict";
-		const version = browser.runtime.getManifest().version;
-		console.log(browser);
-		browser.tabs.query({url: ['https://*.forgeofempires.com/game/index', 'https://*.forgeofempires.com/game/index?*']}).then((tabs)=> {
-			for (const tab of tabs) {
-				browser.tabs.update(tab.id, {active: true});
-				browser.scripting.executeScript({target: {tabId: tab.id}, func: InstallConfirm}).then(() => console.log('reload executed'));
-			}
+		//const version = browser.runtime.getManifest().version;
+		let lng = browser.i18n.getUILanguage();
+
+		// Fallback to "de"
+		if(lng !== 'de' && lng !== 'en'){
+			lng = 'de';
+		}
+
+		// @ts-ignore
+		//const askText = ask[lng];
+		
+		if(!isDevMode() ) browser.tabs.create({
+			url: `https://foe-helper.com/extension/update?lang=${lng}`
 		});
 	});
 

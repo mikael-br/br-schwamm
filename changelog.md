@@ -1,5 +1,16 @@
 ## Changelog - Extension
 
+##### 1.26.0.0
+
+**FoE-Helfer**
+  - Alle Änderungen und Bugfixes bis einschließlich Version *3.3.0.0* migriert:
+     - Card Game (Hallowwen Event)
+     - Wenn ein beschränktes Gebäude verfällt, wird nun ein Alarm ausgegeben
+     - Fragmente Tab in Produktionen - hier werden alle Fragmente angezeigt die aktuell produziert werden
+    -  Idle Game: wenn der Markt (Festival/Bankett) eine höhere Produktion hat als die anderen Gebäude, wird nun in einem Tooltip über der Zeit für die Produktion der Upgrade-Kosten die Zeit angegeben unter der Annahme, dass kein Engpass vorliegt (z.B. wenn an den Zwischenlagern genug Vorrat anliegt)
+     - Wiederkehrende Quests: man kann nun zwischen dem Titel der Quest und den Aufgaben der Quest hin und her schalten (Spaltenkopf klicken - Shuffle-Pfeile)
+
+
 ##### 1.25.5.0
 **Verbesserungen**
 - Englische Übersetzung

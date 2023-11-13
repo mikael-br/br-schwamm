@@ -40,11 +40,14 @@ let srcLinks = {
     },
 
     readHX: (HXscript) => {
+
         let startString = "baseUrl,";
         let start = HXscript.indexOf(startString) + startString.length;
         HXscript = HXscript.substring(start);
+
         let end = HXscript.indexOf("}")+1;
         HXscript = HXscript.substring(0, end);
+
         try {
             srcLinks.FileList = JSON.parse(HXscript);
         } 
@@ -75,11 +78,13 @@ let srcLinks = {
         return CSfilename;
     },
 
+
     GetPortrait: (id)=> {
         let file = MainParser.PlayerPortraits[id] || 'portrait_433';
 
         return srcLinks.get('/shared/avatars/' + file + '.jpg', true);
     },
+
 
     getReward:(icon) => {
         let url1 = srcLinks.get(`/shared/icons/reward_icons/reward_icon_${icon}.png`,true, true);
@@ -90,6 +95,18 @@ let srcLinks = {
         }
 
         return url2;
+    },
+
+
+    getQuest:(icon) => {
+        let url1 = srcLinks.get(`/shared/icons/quest_icons/${icon}.png`,true, true);
+        let url2 = srcLinks.get(`/shared/icons/${icon}.png`,true, true);
+        
+        if (url1.indexOf("undefined") > -1) {
+            return url2;
+        }
+
+        return url1;
     }
 }
 

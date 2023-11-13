@@ -158,48 +158,9 @@ GetFights = () =>{
 
 			let CityEntity = MainParser.CityEntities[i];
 			if (!CityEntity.type) CityEntity.type = CityEntity?.components?.AllAge?.tags?.tags?.find(value => value.hasOwnProperty('buildingType')).buildingType;
-		}
-		/* --- Preserve start --------------------------------------------- */ 
-		Object.values(MainParser.CityEntities).forEach(
-			e => {
-				e.is_motivatable = (e.abilities !== undefined && e.abilities.find(a => a.__class__ === 'MotivatableAbility' || e.__class__ == 'GenericCityEntity'));
-				e.is_polishable = (e.abilities !== undefined && e.abilities.find(a => a.__class__ === 'PolishableAbility'));
-				e.chainId = '';
-				e.is_chainBuilding = false;
-				e.is_chainStartBuilding = false;
-				e.bonus_multiplier = 1;
-				e.is_outpostBuilding = (e.abilities !== undefined && e.abilities.find(a => a.gridId !== undefined && a.gridId !== 'main') !== undefined);
-					
-				if (e.abilities !== undefined) {
-					let chaninAbility = e.abilities.find(a => a.chainId !== undefined);
-					if (chaninAbility) {
-						e.chainId = chaninAbility.chainId;
-						e.is_chainBuilding = e.chainId !== undefined;
-					}
-					e.is_chainStartBuilding = e.abilities.find(a => a.__class__ === 'ChainStartAbility') !== undefined;
-					e.abilities.forEach( a => {
-						if (a.chainId !== undefined && a.linkPositions !== undefined) {
-							e.bonus_multiplier = a.linkPositions.length;
-						}
-					});
-				}
-				
-				e.is_plunderable = (
-					!e.is_outpostBuilding && (
-						e.type =='production' || e.type == 'goods' || (
-							(e.type == 'residential' || e.type == 'clan_power_production' || (e.type === undefined && e.__class__ == 'GenericCityEntity')) && (
-								e.abilities === undefined || (
-									e.abilities.find(a => a.__class__ === 'AddResourcesToGuildTreasuryAbility') === undefined &&
-									e.abilities.find(a => a.__class__ === 'RandomChestRewardAbility') === undefined &&
-									e.abilities.find(a => a.__class__ === 'NotPlunderableAbility') === undefined
-								)
-							)
-						)
-					)					
-				);
-			}
-		);
-		/* --- Preserve end --------------------------------------------- */ 
+        }
+		MainParser.checkPlunderability();
+		MainParser.checkInactives();
 	});
 
 	// Building-Upgrades
@@ -810,9 +771,7 @@ GetFights = () =>{
 		
 		MainParser.setLanguage();
 
-		Quests.init();
-	
-	
+		Quests.init();	
 	});
 
 
@@ -1019,7 +978,7 @@ let MainParser = {
 		});
 
 		if (typeof response !== 'object' || typeof response.ok !== 'boolean') {
-			console.log({data: data, response: response});
+			// console.log({data: data, response: response});
 			throw new Error('invalid response from Extension-API call');
 		}
 
@@ -1244,16 +1203,13 @@ let MainParser = {
 	 * @param forceSend
 	 */
 	send2Server: (data, ep, successCallback, forceSend = false)=> {
-		const pID = ExtPlayerID;
-		const cW = ExtWorld;
-		const gID = ExtGuildID;
 
 		if (!Settings.GetSetting('GlobalSend') && !forceSend) {
 			return;
 		}
 
 		let req = fetch(
-			ApiURL + ep + '/?player_id=' + pID + '&guild_id=' + gID + '&world=' + cW,
+			ApiURL + ep + '/?player_id=' + ExtPlayerID + '&guild_id=' + ExtGuildID + '&world=' + ExtWorld,
 			{
 				method: 'POST',
 				headers: {
@@ -1885,7 +1841,124 @@ let MainParser = {
 			a.click();
 			document.body.removeChild(a);
 		}
+	},
+
+	checkPlunderability: () => {
+		/* --- Preserve start --------------------------------------------- */ 
+		Object.values(MainParser.CityEntities).forEach(
+			e => {
+				e.is_motivatable = (e.abilities !== undefined && e.abilities.find(a => a.__class__ === 'MotivatableAbility' || e.__class__ == 'GenericCityEntity'));
+				e.is_polishable = (e.abilities !== undefined && e.abilities.find(a => a.__class__ === 'PolishableAbility'));
+				e.chainId = '';
+				e.is_chainBuilding = false;
+				e.is_chainStartBuilding = false;
+				e.bonus_multiplier = 1;
+				e.is_outpostBuilding = (e.abilities !== undefined && e.abilities.find(a => a.gridId !== undefined && a.gridId !== 'main') !== undefined);
+					
+				if (e.abilities !== undefined) {
+					let chaninAbility = e.abilities.find(a => a.chainId !== undefined);
+					if (chaninAbility) {
+						e.chainId = chaninAbility.chainId;
+						e.is_chainBuilding = e.chainId !== undefined;
+					}
+					e.is_chainStartBuilding = e.abilities.find(a => a.__class__ === 'ChainStartAbility') !== undefined;
+					e.abilities.forEach( a => {
+						if (a.chainId !== undefined && a.linkPositions !== undefined) {
+							e.bonus_multiplier = a.linkPositions.length;
+						}
+					});
+				}
+				
+				e.is_plunderable = (
+					!e.is_outpostBuilding && (
+						e.type =='production' || e.type == 'goods' || (
+							(e.type == 'residential' || e.type == 'clan_power_production' || (e.type === undefined && e.__class__ == 'GenericCityEntity')) && (
+								e.abilities === undefined || (
+									e.abilities.find(a => a.__class__ === 'AddResourcesToGuildTreasuryAbility') === undefined &&
+									e.abilities.find(a => a.__class__ === 'RandomChestRewardAbility') === undefined &&
+									e.abilities.find(a => a.__class__ === 'NotPlunderableAbility') === undefined
+								)
+							)
+						)
+					)					
+				);
+			}
+		);
+		/* --- Preserve end --------------------------------------------- */ 
+	},
+
+	checkInactives: () => {
+		//get list of buildings for which an alert is already set
+		let LB = JSON.parse(localStorage.getItem("LimitedBuildingsAlertSet")||'{}')
+		
+		//get list of expired limited buildings in city
+		let inactives = Object.values(MainParser.CityMapData).filter(value => !!value.decayedFromCityEntityId).map(value => MainParser.CityEntities[value.cityentity_id].name)
+		
+		//remove buildings that were already tracked
+		for (let i = inactives.length-1;i>=0;i--) {
+			if (LB[inactives[i]]) {
+				inactives.splice(i,1)
+			}
+		}
+		//remove tracked buildings if time ran out
+		for (let x in LB) {
+			if (!LB[x]) continue;
+			if (LB[x]<GameTime*1000-GameTimeOffset) delete LB[x];
+			localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
+		}
+		
+		//create instant alert for currently expired buildings		
+		if (inactives.length > 0) {
+				const data = {
+				title: i18n("InactiveBuildingsAlert.title"),
+				body: inactives.join("\n"),
+				expires: moment().add(1,"seconds").valueOf(),
+				repeat: -1,
+				persistent: true,
+				tag: '',
+				category: 'event',
+				vibrate: false,
+				actions: [{title:"OK"}]
+			};
+	
+			MainParser.sendExtMessage({
+				type: 'alerts',
+				playerId: ExtPlayerID,
+				action: 'create',
+				data: data,
+			})
+		}
+		let buildings = Object.values(MainParser.CityMapData)
+		for (let building of buildings) {
+			// set alerts for limited buildings that will run out in the future and that have no alert yet
+			if (!LB[building.id] && MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime) {
+				const data = {
+					title: i18n("InactiveBuildingsAlert.title"),
+					body: MainParser.CityEntities[MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.targetCityEntityId].name,
+					expires: (MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset,
+					repeat: -1,
+					persistent: true,
+					tag: '',
+					category: 'event',
+					vibrate: false,
+					actions: [{title:"OK"}]
+				};
+		
+				MainParser.sendExtMessage({
+					type: 'alerts',
+					playerId: ExtPlayerID,
+					action: 'create',
+					data: data,
+				}).then((aId) => {
+					LB[building.id]=(MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset;
+					localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
+				})
+			}
+		}
+
+
 	}
+
 };
 
 if (window.foeHelperBgApiHandler !== undefined && window.foeHelperBgApiHandler instanceof Function) {

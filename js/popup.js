@@ -22,6 +22,13 @@ let i18n = {
 		'desc' : "Dir gefällt diese kleine kostenlose Extension?<br> Jede kleine Spende ist immer gern gesehen.",
 		'thanks' : 'Vielen Dank!'
 	},
+	'en' : {
+		'title' : 'FoE Helfer',
+		'intro' : "An unofficial browser extension for Forge of Empires.",
+		'donate' : 'Donate',
+		'desc' : "Like this free extension? Every little donation is always welcome.",
+		'thanks' : 'Thank you so much!'
+	},
 };
 
 $(function(){
