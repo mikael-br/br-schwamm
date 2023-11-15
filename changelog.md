@@ -1,5 +1,9 @@
 ## Changelog - Extension
 
+### 1.26.0.1
+**Bugfix**
+  Fehler in Deutscher Übersetzung korrigiert
+  
 ##### 1.26.0.0
 
 **FoE-Helfer**
