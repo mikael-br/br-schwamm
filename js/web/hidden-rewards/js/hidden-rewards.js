@@ -287,3 +287,4 @@ let HiddenRewards = {
         HiddenRewards.SetCounter();
     },
 };
+

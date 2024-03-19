@@ -154,7 +154,12 @@ let IndexDB = {
 
         const db = IndexDB.db = new Dexie(primaryDBName);
         IndexDB._applyIndexSchema(db);
-        db.open();
+        db.open().catch((e) => {
+            //console.error(e);
+            setTimeout(() => {
+                IndexDB.Init(playerId);
+            }, 100);
+        });
 
         try {
             if (isNewDB) {
@@ -174,6 +179,7 @@ let IndexDB = {
     _applyIndexSchema(db) {
         db.version(1).stores({
             players: 'id,date',
+            pvpActions: '++id,playerId,date,type',
             neighborhoodAttacks: '++id,playerId,date,type',
             greatbuildings: '++id,playerId,name,&[playerId+name],level,currentFp,bestRateNettoFp,bestRateCosts,date',
             forgeStats: '++id,type,amount,date', // FP Collector

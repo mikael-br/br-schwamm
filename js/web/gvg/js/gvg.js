@@ -13,22 +13,6 @@
  *
  */
 
-/* --- Preserve start --------------------------------------------- */ 
-$(document).keydown(function(event){
-	if( event.which === 65 && event.ctrlKey && event.altKey ){
-		GvG.FlipFightOverlay();
-	}
-
-	if( event.which === 68 && event.ctrlKey && event.altKey ){
-		GvG.FlipIdealSpotOverlay();
-	}
-
-	if( event.which === 83 && event.ctrlKey && event.altKey ){
-		GvG.FlipManualFightOverlay();
-	}
-}); 
-/* --- Preserve end --------------------------------------------- */ 
-
 FoEproxy.addHandler('ClanBattleService', 'grantIndependence', (data, postData) => {
 	GvG.AddCount(data.responseData.__class__, postData[0]['requestMethod']);
 });
@@ -42,7 +26,6 @@ FoEproxy.addHandler('ClanBattleService', 'deployDefendingArmy', (data, postData)
 });
 
 FoEproxy.addHandler('ClanBattleService', 'getContinent', (data, postData) => { // map overview
-	GvG.IsContinent = true;   /* preserve */
 	GvG.initActions();
 	GvGMap.OnloadData = null;
 	GvGMap.Map = {
@@ -62,15 +45,12 @@ FoEproxy.addHandler('ClanBattleService', 'getContinent', (data, postData) => { /
 	if ($('#GvGMapWrap').length > 0) {
 		GvGMap.showOverview();
 	}
-	GvG.HideFightOverlay();    /* preserve */
 });
 
 FoEproxy.addHandler('ClanBattleService', 'getProvinceDetailed', (data, postData) => {	
 	GvGMap.initData(data.responseData);
 	GvGMap.saveMapData(data.responseData.province_detailed);
 	GvGMap.saveGuildData(data.responseData.province_detailed.clans);
-	GvG.IsContinent = false;   /* preserve */
-	GvG.ReloadFightOverlay();  /* preserve */
 	if ($('#GvGMapWrap').length > 0) {
 		GvGMap.show();
 	}
@@ -78,7 +58,6 @@ FoEproxy.addHandler('ClanBattleService', 'getProvinceDetailed', (data, postData)
 
 FoEproxy.addHandler('AnnouncementsService', 'fetchAllAnnouncements', (data, postData) => {
 	GvG.HideGvgHud();
-	GvG.HideFightOverlay();  /* preserve */
 });
 
 FoEproxy.addWsHandler('UpdateService', 'finishDailyCalculation', (data, postData) => {	
@@ -103,9 +82,6 @@ FoEproxy.addWsHandler('ClanBattleService', 'changeProvince', (data, postData) =>
 let GvG = {
 	Actions: undefined,
 	Init: false,
-	IsContinent: true,                      /* preserve */
-	manualFightOverlayEnabled: false,       /* preserve */
-	showIdealSpotInsteadOfAutoAndOk: true,  /* preserve */
 
 	initActions: () => {
 		let Actions = JSON.parse(localStorage.getItem('GvGActions'));
@@ -141,17 +117,7 @@ let GvG = {
 			$('body').append(div).promise().done(function() {
 				div.append('<div class="independences">'+GvG.Actions.Independences+'/4</div>')
 					.append('<button class="btn-default mapbutton" onclick="GvGMap.show()"></button>') // hier
-
-				/* --- Preserve start --------------------------------------------- */ 
-				if (Settings.GetSetting('ShowGvGFightHud')) {
-					div.append('<button class="btn-default fightbutton" onclick="GvG.FlipFightOverlay()"></button>')
-				}
-				/* --- Preserve end --------------------------------------------- */ 
-
-
-				div.attr('title', i18n('GvG.Independences.Tooltip') + '<br><em>' + i18n('GvG.Independences.Tooltip.Warning') + '</em>')
-
-
+					.attr('title', i18n('GvG.Independences.Tooltip') + '<br><em>' + i18n('GvG.Independences.Tooltip.Warning') + '</em>')
 					.tooltip(
 						{
 							useFoEHelperSkin: true,
@@ -177,82 +143,6 @@ let GvG = {
 			});
 		}
 	},
-
-/* --- Preserve start --------------------------------------------- */ 
-	/**
-	 * Build HUD
-	 */
-	 FlipManualFightOverlay: () => {
-		GvG.manualFightOverlayEnabled = !GvG.manualFightOverlayEnabled;
-		GvG.ReloadFightOverlay();
-	},
-	
-
-	/**
-	 * Build HUD
-	 */
-	FlipFightOverlay: () => {
-		if ($('#gvgfight-hud').length === 0) {
-			GvG.ShowFightOverlay();
-		} else {
-			GvG.HideFightOverlay();
-		}
-	},
-
-	FlipIdealSpotOverlay: () => {
-		GvG.showIdealSpotInsteadOfAutoAndOk = !GvG.showIdealSpotInsteadOfAutoAndOk;
-		GvG.ReloadFightOverlay();
-	},
-
-	/**
-	 * Build HUD
-	 */
-	ReloadFightOverlay: () => {
-		if ($('#gvgfight-hud').length !== 0) {
-			GvG.HideFightOverlay();
-			GvG.ShowFightOverlay();
-		}
-	},
-
-	/**
-	 * Build HUD
-	 */
-	ShowFightOverlay: () => {
-		if ($('#gvgfight-hud').length === 0 && !GvG.IsContinent) {
-			HTML.AddCssFile('gvg');
-			let div = $('<div />');
-
-			div.attr({
-				id: 'gvgfight-hud',
-				class: 'game-cursor'
-			});
-
-			$('body').append(div).promise().done(function() {
-				
-				if (GvG.manualFightOverlayEnabled) {
-					div.append('<div class="gvgfight-hud-manual">Angreifen</div>');
-				}
-				if (GvG.showIdealSpotInsteadOfAutoAndOk) {
-					div.append('<div class="gvgfight-hud-idealspot"></div>');
-				} else {
-					div.append('<div class="gvgfight-hud-auto">Auto-Kampf</div>');
-					div.append('<div class="gvgfight-hud-ok">OK</div>');
-				}
-				div.append('<div class="gvgfight-hud-siegearmy">BA</div>');
-				div.append(`<div class="gvgfight-hud-placesiegearmy${GvGMap.Map.Era == 'AllAge' ? '-allage' : ''}">Bezahlen und Platzieren</div>`);
-			});
-		}
-	},
-
-    /**
-	 * Hide HUD
-	 */
-	HideFightOverlay: () => {
-		if ($('#gvgfight-hud').length > 0) {
-			$('#gvgfight-hud').remove();
-		}
-	},
-/* --- Preserve end --------------------------------------------- */ 
 
 	/**
 	 * 

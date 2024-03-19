@@ -40,12 +40,18 @@
 	},
 	{
 		"name": "ShowOwnPartOnAllGBs",
-		"status": false,
+		"status": true,
 		"group": "Boxes",
 		"sort": 5
 	},
 	{
 		"name": "ShowEventChest",
+		"status": true,
+		"group": "Boxes",
+		"sort": 6
+	},
+	{
+		"name": "ShowBuildingsExpired",
 		"status": true,
 		"group": "Boxes",
 		"sort": 6
@@ -58,6 +64,12 @@
 	},
 	{
 		"name": "ShowArmyAdvice",
+		"status": false,
+		"group": "Boxes",
+		"sort": 7
+	},
+	{
+		"name": "ShowGBGBuildings",
 		"status": false,
 		"group": "Boxes",
 		"sort": 7
@@ -135,16 +147,22 @@
 		"sort": 18
 	},
 	{
-		"preserve": true,
+		"name": "ShowPvPArena",
+		"status": true,
+		"group": "Boxes",
+		"sort": 19
+	},
+	{
 		"name": "ShowNeighborsLootables",
+		"preserve": true,
 		"status": false,
 		"doubleoptin": true,
 		"group": "Boxes",
 		"sort": 21
 	},
 	{
-		"preserve": true,
 		"name": "ShowPlayersAttDeffValues",
+		"preserve": true,
 		"status": true,
 		"doubleoptin": true,
 		"group": "Boxes",
@@ -157,13 +175,6 @@
 		"doubleoptin": true,
 		"group": "Boxes",
 		"sort": 23
-	},
-	{
-		"preserve": true,
-		"name": "ShowGvGFightHud",
-		"status": false,
-		"group": "Boxes",
-		"sort": 24
 	},
 	{
 		"name": "ChangeLanguage",

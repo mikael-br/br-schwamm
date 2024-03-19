@@ -892,10 +892,6 @@ let Productions = {
 	 */
 	showBox: () => {
 
-		String.prototype.cleanup = function () {
-			return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '');
-		};
-
 		if ($('#Productions').length > 0){
 			HTML.CloseOpenBox('Productions');
 
@@ -986,10 +982,10 @@ let Productions = {
 						countAllDone += (buildings[i]['at'] * 1000 < MainParser.getCurrentDateTime() ? ProductCount : 0);
 
 						rowA.push('<tr>');
-						rowA.push('<td data-text="' + buildings[i]['name'].cleanup() + '">' + buildings[i]['name'] + '</td>');
+						rowA.push('<td data-text="' + helper.str.cleanup(buildings[i]['name']) + '">' + buildings[i]['name'] + '</td>');
 						
 						if (type === 'fragments')
-							rowA.push('<td data-text="' + buildings[i]['products']['fragments'].cleanup + '">' + buildings[i]['products']['fragments'] + '</td>');
+							rowA.push('<td data-text="' + helper.str.cleanup(buildings[i]['products']['fragments']) + '">' + buildings[i]['products']['fragments'] + '</td>');
 						else
 							rowA.push('<td class="text-right is-number" data-number="' + MotivatedProductCount + '">' + HTML.Format(ProductCount) + (ProductCount !== MotivatedProductCount ? '/' + HTML.Format(MotivatedProductCount) : '') + '</td>');
 						
@@ -1050,7 +1046,7 @@ let Productions = {
 					// nur Gebäude mit Gütern
 					else {
 
-						let tds = '<td data-text="' + buildings[i]['name'].cleanup() + '">' + buildings[i]['name'] + '</td>';
+						let tds = '<td data-text="' + helper.str.cleanup(buildings[i]['name']) + '">' + buildings[i]['name'] + '</td>';
 
 						let pA = [],
 							CurrentBuildingCount = 0,
@@ -1131,7 +1127,7 @@ let Productions = {
 									
 						let tds = '<tr>' +
 							'<td class="text-right is-number" data-number="' + groups[i]['count'] + '">' + groups[i]['count'] + 'x </td>' +
-							'<td colspan="3" data-text="' + groups[i]['name'].cleanup() + '">' + groups[i]['name'] + '</td>' +
+							'<td colspan="3" data-text="' + helper.str.cleanup(groups[i]['name']) + '">' + groups[i]['name'] + '</td>' +
 							'<td class="is-number" data-number="' + MotivatedProductCount + '">' + HTML.Format(ProductCount) + (ProductCount !== MotivatedProductCount ? '/' + HTML.Format(MotivatedProductCount) : '') + '</td>' +
 							'<td class="text-right is-number addon-info" data-number="' + (size*groups[i]['count']) + '">' + (size*groups[i]['count']) + '</td>'+
 							'<td class="text-right is-number addon-info" data-number="' + efficiency + '">' + EfficiencyString + '</td>'+
@@ -1625,15 +1621,16 @@ let Productions = {
 
 		CityMap.init(MainParser.CityMapData);
 
-		$('[data-entityid]').removeClass('pulsate');
+		$('#grid-outer').removeClass('desaturate');
+		$('[data-entityid]').removeClass('highlighted');
 
 		setTimeout(() => {
+			$('#grid-outer').addClass('desaturate');
 			for (let i = 0; i < IDArray.length; i++) {
 				let target = $('[data-entityid="' + IDArray[i] + '"]');
 
 				if(i === 0) $('#map-container').scrollTo(target, 800, { offset: { left: -280, top: -280 }, easing: 'swing' });
-
-				target.addClass('pulsate');
+				target.addClass('highlighted');
             }		
 		}, 500);
 	},
@@ -1700,10 +1697,10 @@ let Productions = {
 	 * Ermittelt die täglichen Güter, falls die Option ShowDaily gesetzt ist
 	 *
 	 * */
-	GetDaily: (Amount, dailyfactor, type) => {
+	GetDaily: (Amount, daily_factor, type) => {
 		let Factor;
 		if (Productions.ShowDaily && Productions.TypeHasProduction(type)) {
-			Factor = dailyfactor;
+			Factor = daily_factor;
 		}
 		else {
 			Factor = 1;
@@ -1815,10 +1812,9 @@ let Productions = {
 		Productions.CalcRatingBody();
 	},
 
+
 	CalcRatingBody: () => {
 		let h = [];
-
-		if (!Productions.RatingCurrentTab) CurrentTab = 'Settings';
 
 		h.push('<div class="tabs">');
 		h.push('<ul class="horizontal dark-bg">');
@@ -1898,8 +1894,8 @@ let Productions = {
 					if (SkipBuilding) continue;
 				}
 
-				//Keine LGs, keine Straßen, keine Millitärgebäude
-				if (Entity['type'] === 'greatbuilding' || Entity['type'] === 'street' || Entity['type'] === 'military') continue;
+				//keine Straßen, keine Millitärgebäude
+				if (Entity['type'] === 'street' || Entity['type'] === 'military') continue;
 
 				let Production = Productions.readType(Building);
 				//let Score = 0;
@@ -2022,7 +2018,7 @@ let Productions = {
 
 				let ScorePercent = Math.round(GroupStat['Score'] * 100);
 
-				h.push('<td><strong class="' + (ScorePercent >= 100 ? 'success' : 'error') + '">' + (ScorePercent > 0 ? ScorePercent + '%' : 'N/A') + '</strong></td>');
+				h.push('<td><strong class="' + (ScorePercent >= 100 ? 'success' : 'error') + '">' + ScorePercent + '%</strong></td>');//(ScorePercent > 0 ? ScorePercent + '%' : 'N/A') + '</strong></td>');
 				h.push('<td class="text-right"><span class="show-entity" data-id="' + GroupStat['GroupType'] + '=' + GroupStat['ID'] + '"><img class="game-cursor" src="' + extUrl + 'css/images/hud/open-eye.png"></span></td>');
 				h.push('</tr>');
             }
@@ -2038,6 +2034,7 @@ let Productions = {
 		$('#ProductionsRatingBody').html(h.join(''));
     },
 
+
 	GetDefaultProdPerTile: (Type) => {
 		if (Type === 'strategy_points') return 0.2;
 		if (Type === 'money') return 0;
@@ -2045,7 +2042,7 @@ let Productions = {
 		if (Type === 'medals') return 0;
 		if (Type === 'units') return 0.2;
 		if (Type === 'clan_power') {
-			let Entity = MainParser.CityEntities['Z_MultiAge_CupBonus1b'] //Hall of fame lvl2
+			let Entity = MainParser.CityEntities['Z_MultiAge_CupBonus1b'], //Hall of fame lvl2
 				Level = CurrentEraID - 1;
 
 			if (!Entity || !Entity['entity_levels'] || !Entity['entity_levels'][Level] || !Entity['entity_levels'][Level]['clan_power']) return 0;

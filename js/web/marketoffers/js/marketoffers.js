@@ -1,6 +1,7 @@
 /*
- * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * *************************************************************************************
+ *
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -8,7 +9,7 @@
  * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
  * for full license details.
  *
- * **************************************************************************************
+ * *************************************************************************************
  */
 
 // Market
@@ -134,14 +135,14 @@ let MarketOffers = {
         h.push('<table id="MarketOffersTable" class="foe-table sortable-table exportable">');
         h.push('<tbody class="MarketOffers">');
         h.push('<tr class="sorter-header" data-type="MarketOffers">');
-        h.push('<th columnname="Era" class="is-number ascending" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Era') + '</th>')
+        h.push('<th data-export="Era" class="is-number ascending" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Era') + '</th>')
         h.push('<th></th>');
-        h.push('<th columnname2="Good" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Good') + '</th>');
-        h.push('<th columnname="Inventory" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Inventory') + '</th>');
-        h.push('<th columnname="OfferSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.OfferSum') + '</th>');
-        h.push('<th columnname="NeedSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.NeedSum') + '</th>');
-        h.push('<th columnname="InventoryOfferSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.InventoryOfferSum') + '</th>');
-        h.push('<th columnname="InventoryNeedSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.InventoryNeedSum') + '</th>');
+        h.push('<th data-export2="Good" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Good') + '</th>');
+        h.push('<th data-export="Inventory" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.Inventory') + '</th>');
+        h.push('<th data-export="OfferSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.OfferSum') + '</th>');
+        h.push('<th data-export="NeedSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.NeedSum') + '</th>');
+        h.push('<th data-export="InventoryOfferSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.InventoryOfferSum') + '</th>');
+        h.push('<th data-export="InventoryNeedSum" class="is-number" data-type="MarketOffers">' + i18n('Boxes.MarketOffers.InventoryNeedSum') + '</th>');
         h.push('</tr>');
 
         for (let i = 0; i < GoodsList.length; i++) {
@@ -157,7 +158,7 @@ let MarketOffers = {
             h.push('<tr>');
             h.push('<td class="is-number" data-number="' + i + '">' + i18n('Eras.' + Era) + '</td>');
             h.push('<td class="goods-image"><span class="goods-sprite-50 sm ' + GoodID + '"></span></td>');
-            h.push('<td data-text="' + CurrentGood['name'].toLowerCase().replace(/[\W_ ]+/g, "") + '"><strong>' + CurrentGood['name'] + '</strong></td>');
+            h.push('<td data-text="' + helper.str.cleanup(CurrentGood['name']) + '"><strong>' + CurrentGood['name'] + '</strong></td>');
             h.push('<td class="is-number" data-number="' + Inventory + '">' + HTML.Format(Inventory) + '</td>');
             h.push('<td class="is-number" data-number="' + OfferSum + '">' + (OfferCount > 0 ? '<button class="btn btn-default btn-filter-offer" data-value="' + i + '" style="white-space:nowrap">' + HTML.Format(OfferSum) + ' (' + OfferCount + ')' + '</button>' : '-') + '</td>');
             h.push('<td class="is-number" data-number="' + NeedSum + '">' + (NeedCount > 0 ? '<button class="btn btn-default btn-filter-need" data-value="' + i + '" style="white-space:nowrap">' + HTML.Format(NeedSum) + ' (' + NeedCount + ')' + '</button>' : '-') + '</td>');
@@ -298,18 +299,18 @@ let MarketOffers = {
 
         h.push('<tbody class="MarketOffersEvents">');
         h.push('<tr class="sorter-header" data-type="MarketOffersEvents">');
-        h.push('<th columnname="Date" class="is-number descending" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Date') + '</th>');
+        h.push('<th data-export="Date" class="is-number descending" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Date') + '</th>');
 
         h.push('<th></th>');
-        h.push('<th columnname="Offered goods" data-type="MarketOffersEvents">' + i18n('Boxes.Market.OfferColumn') + '</th>');
-        h.push('<th columnname="Offered amount" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Count') + '</th>');
+        h.push('<th data-export="Offered goods" data-type="MarketOffersEvents">' + i18n('Boxes.Market.OfferColumn') + '</th>');
+        h.push('<th data-export="Offered amount" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Count') + '</th>');
 
         h.push('<th></th>');
-        h.push('<th columnname="Requested goods" data-type="MarketOffersEvents">' + i18n('Boxes.Market.NeedColumn') + '</th>');
-        h.push('<th columnname="Requested amount" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Count') + '</th>');
+        h.push('<th data-export="Requested goods" data-type="MarketOffersEvents">' + i18n('Boxes.Market.NeedColumn') + '</th>');
+        h.push('<th data-export="Requested amount" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.MarketOffersEvents.Count') + '</th>');
 
-        h.push('<th columnname="Rate" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.Market.RateColumn') + '</th>');
-        if (MarketOffers.CurrentEventsTab === 'accepted') h.push('<th columnname="Player" data-type="MarketOffersEvents">' + i18n('Boxes.Market.PlayerColumn') + '</th>');
+        h.push('<th data-export="Rate" class="is-number" data-type="MarketOffersEvents">' + i18n('Boxes.Market.RateColumn') + '</th>');
+        if (MarketOffers.CurrentEventsTab === 'accepted') h.push('<th data-export="Player" data-type="MarketOffersEvents">' + i18n('Boxes.Market.PlayerColumn') + '</th>');
         h.push('</tr>');
 
         for (let i = 0; i < EventList.length; i++) {
@@ -332,15 +333,15 @@ let MarketOffers = {
             h.push('<td class="is-number" data-number="' + (Event['date'].getTime()) + '">' + (Event['date'] ? moment.unix(Event['date'] / 1000).format(i18n('DateTime')) : i18n('Boxes.MarketOffersEvents.DateNA')) + '</td>');
 
             h.push('<td class="goods-image"><span class="goods-sprite-50 sm ' + GoodsData[OfferGoodID]['id'] + '"></span></td>');
-            h.push('<td data-text="' + GoodsData[OfferGoodID]['name'].toLowerCase().replace(/[\W_ ]+/g, "") + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(OfferTT) + '">' + GoodsData[OfferGoodID]['name'] + '</strong></td>');
+            h.push('<td data-text="' + helper.str.cleanup(GoodsData[OfferGoodID]['name']) + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(OfferTT) + '">' + GoodsData[OfferGoodID]['name'] + '</strong></td>');
             h.push('<td class="is-number" data-number="' + Event['offer']['value'] + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(OfferTT) + '">' + Event['offer']['value'] + '</strong></td>');
 
             h.push('<td class="goods-image"><span class="goods-sprite-50 sm ' + GoodsData[NeedGoodID]['id'] + '"></span></td>');
-            h.push('<td data-text="' + GoodsData[NeedGoodID]['name'].toLowerCase().replace(/[\W_ ]+/g, "") + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(NeedTT) + '">' + GoodsData[NeedGoodID]['name'] + '</strong></td>');
+            h.push('<td data-text="' + helper.str.cleanup(GoodsData[NeedGoodID]['name']) + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(NeedTT) + '">' + GoodsData[NeedGoodID]['name'] + '</strong></td>');
             h.push('<td class="is-number" data-number="' + Event['need']['value'] + '"><strong class="td-tooltip" title="' + HTML.i18nTooltip(NeedTT) + '">' + Event['need']['value'] + '</strong></td>');
 
             h.push('<td class="text-center" data-number="' + Event['offer']['value'] / Event['need']['value'] + '">' + HTML.Format(MainParser.round(Event['offer']['value'] / Event['need']['value'] * 100) / 100) + '</td>');
-            if (MarketOffers.CurrentEventsTab === 'accepted') h.push('<td data-text="' + PlayerName.toLowerCase().replace(/[\W_ ]+/g, "") + '">' + MainParser.GetPlayerLink(PlayerID, PlayerName) + '</td>');
+            if (MarketOffers.CurrentEventsTab === 'accepted') h.push('<td data-text="' + helper.str.cleanup(PlayerName) + '">' + MainParser.GetPlayerLink(PlayerID, PlayerName) + '</td>');
             h.push('</tr>');
         }
 

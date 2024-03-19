@@ -1,7 +1,7 @@
 ﻿/*
  * *************************************************************************************
  *
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -508,29 +508,29 @@ let EventHandler = {
 			return b['Score'] - a['Score'];
 		});
 
-		h.push('<tbody class="moppelhelper">');
+		h.push('<thead>');
 		h.push('<tr class="sorter-header">');
-		h.push('<th columnname="Rank" class="is-number ascending" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Rank') + '</th>');
+		h.push('<th data-export="Rank" class="is-number ascending" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Rank') + '</th>');
 		h.push('<th></th>');
-		h.push('<th columnname="Name" data-type="moppelhelper" class="name-col">' + i18n('Boxes.MoppelHelper.Name') + '</th>');
-		if (EventHandler.CurrentPlayerGroup != 'Guild' && EventHandler.ShowHideColumns.GuildName) {
-			h.push('<th columnname="GuildName" data-type="moppelhelper" class="name-col">' + i18n('General.Guild') + '</th>');
+		h.push('<th data-export="Name" data-type="moppelhelper" class="name-col">' + i18n('Boxes.MoppelHelper.Name') + '</th>');
+		if (EventHandler.CurrentPlayerGroup !== 'Guild' && EventHandler.ShowHideColumns.GuildName) {
+			h.push('<th data-export="GuildName" data-type="moppelhelper" class="name-col">' + i18n('General.Guild') + '</th>');
 		}
 		if (EventHandler.ShowHideColumns.Era) {
-			h.push('<th columnname="Era" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Era') + '</th>');
+			h.push('<th class="is-number" data-export="Era" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Era') + '</th>');
 		}
 		if (EventHandler.ShowHideColumns.Points) {
-			h.push('<th columnname="Points" class="is-number" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Points') + '</th>');
+			h.push('<th data-export="Points" class="is-number" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Points') + '</th>');
 		}
 
 		for (let i = 0; i < EventHandler.MaxVisitCount; i++)
 		{
-			h.push('<th columnname="Event'+ (i+1) +'" class="is-number" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Event') + (i + 1) + '</th>');
+			h.push('<th data-export="Event'+ (i+1) +'" class="is-number" data-type="moppelhelper">' + i18n('Boxes.MoppelHelper.Event') + (i + 1) + '</th>');
 		}
 
-		h.push('</tr>');
+		h.push('</tr></thead>');
 
-		let HasGuildPermission = ((ExtGuildPermission & GuildMemberStat.GuildPermission_Leader) > 0 || (ExtGuildPermission & GuildMemberStat.GuildPermission_Founder) > 0);
+		h.push('<tbody class="moppelhelper">');
 		let pImage = `<img style="max-width: 22px" src="${srcLinks.get('/shared/gui/tavern/shop/tavern_shop_boost_shield1_icon.png', true)}" title="${i18n('Boxes.MoppelHelper.CityProtected')}" alt="${i18n('Boxes.MoppelHelper.CityProtected')}"></img>`
 		for (let i = 0; i < PlayerList.length; i++)
 		{
@@ -579,16 +579,14 @@ let EventHandler = {
 			h.push(`<td><img style="max-width: 22px" src="${srcLinks.GetPortrait(Player['Avatar'])}" alt="${Player['PlayerName']}"></td>`);
 			
 			// Player Name column
-			h.push('<td style="white-space:nowrap;text-align:left;" data-text="' + Player['PlayerName'].toLowerCase().replace(/[\W_ ]+/g, "") + '">');
+			h.push('<td style="white-space:nowrap;text-align:left;" data-text="' + helper.str.cleanup(Player['PlayerName']) + '">');
 
-			if (EventHandler.CurrentPlayerGroup === 'Friends' || (EventHandler.CurrentPlayerGroup === 'Guild' && HasGuildPermission)) {
-				h.push(`<span class="activity activity_${Player['Activity']}"></span> `);
-            }
+			h.push(`<span class="activity activity_${Player['Activity']}"></span> `);
 			h.push(MainParser.GetPlayerLink(Player['PlayerID'], Player['PlayerName']));
 
 			// Guild name column
 			if (EventHandler.CurrentPlayerGroup != 'Guild' && EventHandler.ShowHideColumns.GuildName) {
-				h.push('<td style="white-space:nowrap;text-align:left;" data-text="' + (Player['ClanName']?.toLowerCase().replace(/[\W_ ]+/g, "") || "has_no_guild") + '">');
+				h.push('<td style="white-space:nowrap;text-align:left;" data-text="' + (helper.str.cleanup(Player['ClanName'] || "")) + '">');
 				h.push(Player['ClanName'] ? MainParser.GetGuildLink(Player['ClanId'], Player['ClanName']) : "");
 			}
 
@@ -596,7 +594,7 @@ let EventHandler = {
 			if (EventHandler.ShowHideColumns.Era) {
 				let pTime = EventHandler.isProtected[Player['PlayerID']] | 0;
 				let pImg = (EventHandler.CurrentPlayerGroup === 'Neighbors' && (pTime == -1 || pTime * 1000 > MainParser.getCurrentDateTime())) ? pImage : '';
-				h.push(`<td data-text="${i18n('Eras.' + Technologies.Eras[Player['Era']])}">${pImg + i18n('Eras.' + Technologies.Eras[Player['Era']]) + pImg}</td>`);
+				h.push(`<td data-number="${Technologies.Eras[Player['Era']]}" exportvalue="${i18n('Eras.' + Technologies.Eras[Player['Era']])}">${pImg + i18n('Eras.' + Technologies.Eras[Player['Era']]) + pImg}</td>`);
 			}
 
 			// Player points column
