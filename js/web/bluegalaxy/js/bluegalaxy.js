@@ -132,6 +132,7 @@ let BlueGalaxy = {
 
             if (CityEntity.state.production) {
                 let FP = 0;
+                let Diamonds = 0;     /* preserve */
                 let GoodsSum = 0;
                 let GuildGoodsSum = 0;
                 let Fragments = [];
