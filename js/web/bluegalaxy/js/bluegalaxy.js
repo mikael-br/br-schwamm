@@ -147,6 +147,14 @@ let BlueGalaxy = {
                     else if (product.type == "genericReward" && product.resources?.type == "forgepoint_package")
                         FP += parseInt(product.resources.subType)
 
+                    /* preserve start */
+                    if (product.resources?.premium)
+                        Diamonds += product.resources.premium
+                    else if (product.type == "genericReward" && product.resources?.subType == "premium")
+                        Diamonds += product.resources.amount;
+                    /* preserve end */
+
+
                     if (product.type == "resources" || product.type == "guildResources")
                         for (let j = 0; j < GoodsList.length; j++) {
                             let GoodID = GoodsList[j]['id'];
@@ -228,7 +236,7 @@ let BlueGalaxy = {
             '<th class="no-sort" data-type="bg-group">' + i18n('Boxes.BlueGalaxy.Building') + '</th>' +
             (showBGFragments ? '<th class="is-number icon fragments ' + (BlueGalaxy.sort.col=="FragmentAmount" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.BlueGalaxy.Fragments') + '" data-type="bg-group" data-colname="FragmentAmount"><span></span></th>' : '') +
             '<th class="is-number icon fp ' + (BlueGalaxy.sort.col=="FP" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.BlueGalaxy.FP') + '" data-type="bg-group" data-colname="FP"><span></span></th>' +
-            '<th class="is-number icon diamonds ' + (BlueGalaxy.sort.col=="FP" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.BlueGalaxy.Diamonds') + '" data-type="bg-group" data-colname="Diamonds"><span></span></th>' +   /* preserve */
+            '<th class="is-number icon diamonds ' + (BlueGalaxy.sort.col=="Diamonds" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.BlueGalaxy.Diamonds') + '" data-type="bg-group" data-colname="Diamonds"><span></span></th>' +   /* preserve */
             '<th class="is-number icon goods ' + (BlueGalaxy.sort.col=="Goods" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.BlueGalaxy.Goods') + '" data-type="bg-group" data-colname="Goods"><span></span></th>' +
             '<th class="is-number icon guildgoods ' + (BlueGalaxy.sort.col=="GuildGoods" ? BlueGalaxy.sort.order : "") + '" title="' + i18n('Boxes.GuildMemberStat.GuildGoods') + '" data-type="bg-group" data-colname="GuildGoods"><span></span></th>' +
             '<th colspan="2" class="case-sensitive no-sort" data-type="bg-group">' + i18n('Boxes.BlueGalaxy.DoneIn') + '</th>' +

@@ -651,7 +651,7 @@ let Calculator = {
 
 			// Fördern
 
-			let RowClass,
+			let ColClass_Foerdern, /* preserve */
 				RankClass,
 				RankText = Rank + 1, //Default: Rangnummer
 				RankTooltip = [],
@@ -676,7 +676,7 @@ let Calculator = {
 			}
 
 			if (ForderStates[Rank] === 'Self') {
-				RowClass = 'info-row';
+				ColClass_Foerdern = 'info-row';
 
 				RankClass = 'info';
 
@@ -718,7 +718,7 @@ let Calculator = {
 				GewinnClass = 'info';
 			}
 			else if (ForderStates[Rank] === 'NegativeProfit') {
-				RowClass = 'bg-red';
+				ColClass_Foerdern = 'bg-red';
 
 				RankClass = 'error';
 
@@ -727,7 +727,7 @@ let Calculator = {
 				GewinnClass = 'error';
 			}
 			else if (ForderStates[Rank] === 'LevelWarning') {
-				RowClass = 'bg-yellow';
+				ColClass_Foerdern = 'bg-yellow';
 
 				RankClass = '';
 
@@ -743,14 +743,14 @@ let Calculator = {
 				GewinnClass = '';
 			}
 			else if (ForderStates[Rank] === 'Profit') {
-				RowClass = 'bg-green';
+				ColClass_Foerdern = 'bg-green';
 
 				RankClass = 'success';
 
 				Calculator.PlaySound();
 			}
 			else {
-				RowClass = 'text-grey';
+				ColClass_Foerdern = 'text-grey';
 
 				RankClass = '';
 
@@ -762,25 +762,25 @@ let Calculator = {
 
 			// BP+Meds
 
-			RowClass = '';
+			ColClass = '';
 
 			if (ForderStates[Rank] === 'NotPossible' && SaveStates[Rank] === 'NotPossible') {
-				RowClass = 'text-grey';
+				ColClass = 'text-grey';
 			}
 			else if (ForderStates[Rank] === 'WorseProfit' && SaveStates[Rank] === 'WorseProfit') {
-				RowClass = 'text-grey';
+				ColClass = 'text-grey';
 			}
 			else if (ForderStates[Rank] === 'Self' && SaveStates[Rank] === 'Self') {
-				RowClass = 'info-row';
+				ColClass = 'info-row';
 			}
 			else if (ForderStates[Rank] === 'NegativeProfit' && SaveStates[Rank] === 'NegativeProfit') {
-				RowClass = 'bg-red';
+				ColClass = 'bg-red';
 			}
 			else if (ForderStates[Rank] === 'LevelWarning' && SaveStates[Rank] === 'LevelWarning') {
-				RowClass = 'bg-yellow';
+				ColClass = 'bg-yellow';
 			}
 			else if (ForderStates[Rank] === 'Profit' && SaveStates[Rank] === 'Profit') {
-				RowClass = 'bg-green';
+				ColClass = 'bg-green';
 			}
 
 
@@ -866,10 +866,10 @@ let Calculator = {
 				LootKursText = '-';
 			}
 
-			hFordern.push('<tr class="' + RowClass + '">');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<tr>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(BPRewards[Rank]) + '</td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(MedalRewards[Rank]) + '</td>');
 			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + LootEinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(LootEinsatzTooltip.join('<br>')) + '">' + LootEinsatzText + '</strong></td>');
