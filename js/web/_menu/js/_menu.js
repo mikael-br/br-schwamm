@@ -347,7 +347,10 @@ let _menu = {
 
 		/* --- Preserve start --------------------------------------------- */ 
 		let btn_Calc = $('<span />').bind('click', function () {
-			Calculator.Open(true);
+			// Preserve? Calculator.Open(true);
+			if (Calculator.CityMapEntity) {
+				Calculator.Show('menu');
+			}
 		});
 		/* --- Preserve end --------------------------------------------- */ 
 

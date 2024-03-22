@@ -1,6 +1,7 @@
 /*
- * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * *************************************************************************************
+ *
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -8,7 +9,7 @@
  * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
  * for full license details.
  *
- * **************************************************************************************
+ * *************************************************************************************
  */
 
 FoEproxy.addMetaHandler('research', (xhr, postData) => {
@@ -109,6 +110,33 @@ let Technologies = {
         NextEra:23,
     },
 
+    // need this for cityentities
+    InnoEras: {
+        StoneAge: 0,
+        BronzeAge: 1,
+        IronAge: 2,
+        EarlyMiddleAge: 3,
+        HighMiddleAge: 4,
+        LateMiddleAge: 5,
+        ColonialAge: 6,
+        IndustrialAge: 7,
+        ProgressiveEra: 8,
+        ModernEra: 9,
+        PostModernEra: 10,
+        ContemporaryEra: 11,
+        TomorrowEra: 12,
+        FutureEra: 13,
+        ArcticFuture: 14,
+        OceanicFuture: 15,
+        VirtualFuture: 16,
+        SpaceAgeMars: 17,
+        SpaceAgeAsteroidBelt: 18,
+        SpaceAgeVenus: 19,
+        SpaceAgeJupiterMoon: 20,
+        SpaceAgeTitan: 21,
+        NextEra:22,
+    },
+
 
     EraNames: {
         0: 'NoAge',
@@ -134,6 +162,40 @@ let Technologies = {
         20: 'SpaceAgeVenus',
         21: 'SpaceAgeJupiterMoon',
         22: 'SpaceAgeTitan'
+    },
+
+    // need this for cityentities
+    InnoEraNames: {
+        0: 'StoneAge',
+        1: 'BronzeAge',
+        2: 'IronAge',
+        3: 'EarlyMiddleAge',
+        4: 'HighMiddleAge',
+        5: 'LateMiddleAge',
+        6: 'ColonialAge',
+        7: 'IndustrialAge',
+        8: 'ProgressiveEra',
+        9: 'ModernEra',
+        10: 'PostModernEra',
+        11: 'ContemporaryEra',
+        12: 'TomorrowEra',
+        13: 'FutureEra',
+        14: 'ArcticFuture',
+        15: 'OceanicFuture',
+        16: 'VirtualFuture',
+        17: 'SpaceAgeMars',
+        18: 'SpaceAgeAsteroidBelt',
+        19: 'SpaceAgeVenus',
+        20: 'SpaceAgeJupiterMoon',
+        21: 'SpaceAgeTitan'
+    },
+
+
+    getEraName: (entityId, level) => {
+        let eraName = entityId.split('_')[1]
+        if (eraName == 'MultiAge')
+            return Technologies.InnoEraNames[level]
+        return eraName
     },
 
 
@@ -288,10 +350,10 @@ let Technologies = {
 
         h.push('<thead>' +
             '<tr>' +
-            '<th colspan="2" columnname2="resource">' + i18n('Boxes.Technologies.Resource') + '</th>' +
-            '<th columnname="required">' + i18n('Boxes.Technologies.DescRequired') + '</th>' +
-            '<th columnname="instock">' + i18n('Boxes.Technologies.DescInStock') + '</th>' +
-            '<th columnname="remaining" class="text-right">' + i18n('Boxes.Technologies.DescStillMissing') + '</th>' +
+            '<th colspan="2" data-export2="resource">' + i18n('Boxes.Technologies.Resource') + '</th>' +
+            '<th data-export="required">' + i18n('Boxes.Technologies.DescRequired') + '</th>' +
+            '<th data-export="instock">' + i18n('Boxes.Technologies.DescInStock') + '</th>' +
+            '<th data-export="remaining" class="text-right">' + i18n('Boxes.Technologies.DescStillMissing') + '</th>' +
             '</tr>' +
             '</thead>');
 

@@ -213,6 +213,8 @@ let Calculator = {
 			// CSS in den DOM prügeln
 			HTML.AddCssFile('calculator');
 
+			Calculator.CurrentPlayer = parseInt(localStorage.getItem('current_player_id'));
+
 			// schnell zwischen den Prozenten wechseln
 			$('#costCalculator').on('click', '.btn-toggle-arc', function () {
 				Calculator.ForderBonus = parseFloat($(this).data('value'));
@@ -265,20 +267,38 @@ let Calculator = {
 				}
 			}
 
-		let h = [];
+		let PlayerID = Calculator.CityMapEntity['player_id'],
+            h = [];
 
-        // BuildingName konnte nicht aus der BuildingInfo geladen werden
+        // If the player has changed, then reset BuildingName/PlayerName
+		if (Calculator.CityMapEntity['player_id'] !== Calculator.LastPlayerID) {
+			Calculator.PlayerName = undefined;
+			Calculator.ClanId = undefined;
+			Calculator.ClanName = undefined;
+		}
+
+		if (Calculator.PlayerName === undefined && PlayerDict[Calculator.CityMapEntity['player_id']] !== undefined) {
+			Calculator.PlayerName = PlayerDict[PlayerID]['PlayerName'];
+		}
+		if (PlayerDict[PlayerID] !== undefined && PlayerDict[PlayerID]['ClanName'] !== undefined) {
+			Calculator.ClanId = PlayerDict[PlayerID]['ClanId'];
+			Calculator.ClanName = PlayerDict[PlayerID]['ClanName'];
+		}
+
+        // BuildingName could not be loaded from the BuildingInfo
 		let BuildingName = MainParser.CityEntities[Calculator.CityMapEntity['cityentity_id']]['name'];
 		let Level = (Calculator.CityMapEntity['level'] !== undefined ? Calculator.CityMapEntity['level'] : 0);
 		let MaxLevel = (Calculator.CityMapEntity['max_level'] !== undefined ? Calculator.CityMapEntity['max_level'] : 0);
 
         h.push('<div class="text-center dark-bg" style="padding:5px 0 3px;">');
 
-        // LG - Daten + Spielername
+        // BG - Data + player name
 		h.push('<div class="header"><strong><span class="building-name">' + BuildingName + '</span>');
 
 		if (Calculator.PlayerName) {
-			h.push('<span class="player-name">' + MainParser.GetPlayerLink(Calculator.PlayerID, Calculator.PlayerName));
+			h.push('<span class="player-name">' 
+				+ `<span class="activity activity_${PlayerDict[PlayerID]['Activity']}"></span> `
+				+ MainParser.GetPlayerLink(PlayerID, Calculator.PlayerName));
 
 			if (Calculator.ClanName) {
 				h.push(`<br>[${MainParser.GetGuildLink(Calculator.ClanId, Calculator.ClanName)}]`);
@@ -623,15 +643,15 @@ let Calculator = {
 			if (SaveStates[Rank] !== 'Self' && Kurs > 0) {
 				if (Kurs < BestKurs) {
 					BestKurs = Kurs;
-					BestKursNettoFP = FPNettoRewards[Rank];
-					BestKursEinsatz = SaveRankCosts[Rank];
+					let BestKursNettoFP = FPNettoRewards[Rank],
+						BestKursEinsatz = SaveRankCosts[Rank];
 				}
 			}
 
 
 			// Fördern
 
-			let ColClass_foerdern,
+			let ColClass_Foerdern, /* preserve */
 				RankClass,
 				RankText = Rank + 1, //Default: Rangnummer
 				RankTooltip = [],
@@ -656,7 +676,7 @@ let Calculator = {
 			}
 
 			if (ForderStates[Rank] === 'Self') {
-				ColClass_foerdern = 'info-row';
+				ColClass_Foerdern = 'info-row';
 
 				RankClass = 'info';
 
@@ -698,7 +718,7 @@ let Calculator = {
 				GewinnClass = 'info';
 			}
 			else if (ForderStates[Rank] === 'NegativeProfit') {
-				ColClass_foerdern = 'bg-red';
+				ColClass_Foerdern = 'bg-red';
 
 				RankClass = 'error';
 
@@ -707,7 +727,7 @@ let Calculator = {
 				GewinnClass = 'error';
 			}
 			else if (ForderStates[Rank] === 'LevelWarning') {
-				ColClass_foerdern = 'bg-yellow';
+				ColClass_Foerdern = 'bg-yellow';
 
 				RankClass = '';
 
@@ -723,14 +743,14 @@ let Calculator = {
 				GewinnClass = '';
 			}
 			else if (ForderStates[Rank] === 'Profit') {
-				ColClass_foerdern = 'bg-green';
+				ColClass_Foerdern = 'bg-green';
 
 				RankClass = 'success';
 
 				Calculator.PlaySound();
 			}
 			else {
-				ColClass_foerdern = 'text-grey';
+				ColClass_Foerdern = 'text-grey';
 
 				RankClass = '';
 
@@ -847,9 +867,9 @@ let Calculator = {
 			}
 
 			hFordern.push('<tr>');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
-			hFordern.push('<td class="text-center ' + ColClass_foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + RankClass + ' td-tooltip" title="' + HTML.i18nTooltip(RankTooltip.join('<br>')) + '">' + RankText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + EinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(EinsatzTooltip.join('<br>')) + '">' + EinsatzText + '</strong></td>');
+			hFordern.push('<td class="text-center ' + ColClass_Foerdern + '"><strong class="' + GewinnClass + ' td-tooltip" title="' + HTML.i18nTooltip(GewinnTooltip.join('<br>')) + '">' + GewinnText + '</strong></td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(BPRewards[Rank]) + '</td>');
 			hFordern.push('<td class="text-center ' + ColClass + '">' + HTML.Format(MedalRewards[Rank]) + '</td>');
 			hFordern.push('<td class="text-center ' + ColClass_loot + '"><strong class="' + LootEinsatzClass + ' td-tooltip" title="' + HTML.i18nTooltip(LootEinsatzTooltip.join('<br>')) + '">' + LootEinsatzText + '</strong></td>');

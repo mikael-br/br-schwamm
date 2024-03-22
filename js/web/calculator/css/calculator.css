@@ -139,19 +139,19 @@
 	color: var(--text-info);
 }
 
-#costCalculator #costCalculatorBody tr.info-row,td.info-row {
+#costCalculator #costCalculatorBody tr.info-row {
 	background-color: var(--background-table-info);
 }
 
-#costCalculator #costCalculatorBody tr.bg-green,td.bg-green {
+#costCalculator #costCalculatorBody tr.bg-green {
 	background-color: var(--background-table-success);
 }
 
-#costCalculator #costCalculatorBody tr.bg-red,td.bg-red {
+#costCalculator #costCalculatorBody tr.bg-red {
 	background-color: var(--background-table-error);
 }
 
-#costCalculator #costCalculatorBody tr.bg-yellow,td.bg-yellow {
+#costCalculator #costCalculatorBody tr.bg-yellow {
 	background-color: var(--background-table-bright);
 }
 

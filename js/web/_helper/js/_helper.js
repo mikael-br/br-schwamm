@@ -1,16 +1,15 @@
 /*
+ * *************************************************************************************
  *
- *  * **************************************************************************************
- *  * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
- *  * You may use, distribute and modify this code under the
- *  * terms of the AGPL license.
- *  *
- *  * See file LICENSE.md or go to
- *  * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
- *  * for full license details.
- *  *
- *  * **************************************************************************************
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
+ * You may use, distribute and modify this code under the
+ * terms of the AGPL license.
  *
+ * See file LICENSE.md or go to
+ * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
+ * for full license details.
+ *
+ * *************************************************************************************
  */
 
 /*
@@ -61,7 +60,9 @@ helper.str = {
 		copyFrom.select();
 		document.execCommand('copy');
 		copyFrom.remove();
-    },
+	},
+
+	cleanup: (textToCleanup) => textToCleanup.toLowerCase().replace(/[\W_ ]+/g, ''),
 };
 
 helper.arr = {
@@ -440,39 +441,20 @@ let HTML = {
 	 *
 	 * @param el
 	 * @param save
-	 * @param toggle
 	 */
-	DragBox: (el, save = true, toggle = false) => {
+	DragBox: (el, save = true) => {
 
 		document.getElementById(el.id + "Header").removeEventListener("pointerdown", dragMouseDown);
 
-		let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, top = 0, left = 0, id, draggable;
-		toggle = !!toggle;
+		let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, top = 0, left = 0, id;			
 
 		id = el.id;
 
-		draggable = JSON.parse(localStorage.getItem(el.id + 'Draggable'));
-		if (draggable == null) { draggable = true; }
-		if (!!toggle) { draggable = !draggable;	}
-		
-		if (draggable) {
 		if (document.getElementById(el.id + "Header")) {
 			document.getElementById(el.id + "Header").onpointerdown = dragMouseDown;
 		} else {
 			el.onpointerdown = dragMouseDown;
 		}
-		} else {
-			if (document.getElementById(el.id + "Header")) {
-				document.getElementById(el.id + "Header").onpointerdown = null;
-			} else {
-				el.onpointerdown = null;
-			}
-		}
-
-		if (toggle) {
-			localStorage.setItem(id + 'Draggable', JSON.stringify(draggable));
-		}
-
 
 		function dragMouseDown(e) {
 			e = e || window.event;
@@ -903,11 +885,11 @@ let HTML = {
                 }
 
 				if (ColumnCount === 1) {
-					ColumnNames.push($(this).attr('columnname'))
+					ColumnNames.push($(this).data('export'))
 				}
 				else {
 					for (let i = 0; i < ColumnCount; i++) {
-						ColumnNames.push($(this).attr('columnname' + (i + 1)));
+						ColumnNames.push($(this).data('export' + (i + 1)));
 					}
                 }
 			});

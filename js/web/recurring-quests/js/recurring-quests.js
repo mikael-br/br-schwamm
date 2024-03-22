@@ -87,14 +87,12 @@ let Recurring = {
         Recurring.SetCounter();
         if ($('#RecurringQuestsBox').length < 1) return;
         
-		/* --- Preserve start --------------------------------------------- */ 
-        /*if (Object.keys(Recurring.data.Questlist).length === 0) {
+        if (Object.keys(Recurring.data.Questlist).length === 0) {
             $('#RecurringQuestsBox').fadeOut('500', function() {
                 $(this).remove();
             });
         }
-        else */
-		/* --- Preserve end --------------------------------------------- */ 
+        else 
             Recurring.BuildBox();  
     },
 

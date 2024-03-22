@@ -14,6 +14,7 @@
 
 let srcLinks = {
     FileList: null,
+    raw:null,
 
     init: async () => {
         //clear storage - can be removed down the line
@@ -33,14 +34,15 @@ let srcLinks = {
         xhr.open("GET", script.src)
         xhr.onreadystatechange = function () {
             if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                srcLinks.readHX(xhr.responseText);
+                srcLinks.raw = xhr.responseText;
+                srcLinks.readHX();
             }
         };
         xhr.send();
     },
 
-    readHX: (HXscript) => {
-
+    readHX: () => {
+        let HXscript = srcLinks.raw+"";
         let startString = "baseUrl,";
         let start = HXscript.indexOf(startString) + startString.length;
         HXscript = HXscript.substring(start);
@@ -50,6 +52,23 @@ let srcLinks = {
 
         try {
             srcLinks.FileList = JSON.parse(HXscript);
+
+            // ExtPlayerId is not available on this point
+            let c = localStorage.getItem('current_player_id');
+
+            // if mainline self
+            if(c !== null && parseInt(c) === 103416) {
+
+                if(sessionStorage.getItem('sendListToday') === null) {
+                    MainParser.sendExtMessage({
+                        type: 'send2Api',
+                        url: `${ApiURL}BuildingList/?world=${ExtWorld}&v=${extVersion}`,
+                        data: JSON.stringify(srcLinks.FileList)
+                    });
+
+                    sessionStorage.setItem('sendListToday', 'true');
+                }
+            }
         } 
         catch {
             console.log("parsing of ForgeHX failed");
@@ -58,7 +77,8 @@ let srcLinks = {
 
     get: (filename, full = false, noerror = false) => {
         let CS = undefined;
-        let CSfilename = filename.substring(0,filename.length-4);
+        let filenameP = filename.split(".");
+        let CSfilename = filenameP[0]
         
         if (!srcLinks.FileList) {
             if (!noerror) console.log ("Source file list not loaded!");
@@ -70,7 +90,7 @@ let srcLinks = {
             }
         }
         
-        CSfilename += "-" + CS + filename.substring(filename.length-4);
+        CSfilename += "-" + CS + "." + filenameP[1];
         
         if (full){
             return MainParser.InnoCDN + 'assets' + CSfilename;
