@@ -1,6 +1,6 @@
 [	
 	{
-		"udate": "Anniversary 2024 (11 Feb 2024)"
+		"udate": "Summer Event 2024 (16 May 2024)"
 	},
 	{
 		"groupname": "Events"
@@ -300,6 +300,33 @@
 		]
 	},
 	{
+		"name": "Dragons_Breath",
+		"link": "Dragon%27s_Breath",
+		"buildings": [
+			{"first": "W_MultiAge_SUM24A1"}
+		]
+	},
+	{
+		"name": "Golden_Dragon_Gong",
+		"buildings": [
+			{"first": "W_MultiAge_SUM24B1"}
+		]
+	},
+	{
+		"name": "Zhengs_Golden_Bell",
+		"link": "Zheng%27s_Golden_Bell",
+		"buildings": [
+			{"first": "W_MultiAge_SUM24C1"}
+		]
+	},
+	{
+		"name": "Sailmakers Workshop",
+		"link": "Sailmaker%27s_Workshop",
+		"buildings": [
+			{"first": "W_MultiAge_SUM24F1"}
+		]
+	},
+	{
 		"name": "Privateers_Boathouse",
 		"link": "Privateer%27s_Boathouse",
 		"buildings": [
@@ -469,6 +496,36 @@
 		]
 	},
 	{
+		"name": "Ascendant_Grove_Sanctuary",
+		"buildings": [
+			{"first": "W_MultiAge_HERO24A1"}
+		]
+	},
+	{
+		"name": "Lilac_Garden",
+		"buildings": [
+			{"first": "W_MultiAge_HERO24B1"}
+		]
+	},
+	{
+		"name": "Ethereal_Fountain",
+		"buildings": [
+			{"first": "W_MultiAge_HERO24C1"}
+		]
+	},
+	{
+		"name": "Fromage_Pavilion",
+		"buildings": [
+			{"first": "W_MultiAge_HERO24D1"}
+		]
+	},
+	{
+		"name": "Mortar_Garrison",
+		"buildings": [
+			{"first": "W_MultiAge_HERO24H1"}
+		]
+	},
+	{
 		"name": "Classical_Garden_Set",
 		"buildings": [
 			{"first": "R_MultiAge_SportBonusSet18"},
@@ -589,7 +646,7 @@
 	{
 		"name": "Yggdrasil",
 		"buildings": [
-			{"first": "R_MultiAge_CulturalBuilding1a"}
+			{"first": "W_MultiAge_COP24A1"}
 		]
 	},
 	{
@@ -601,7 +658,7 @@
 	{
 		"name": "Shinto_Temple",
 		"buildings": [
-			{"first": "R_MultiAge_CulturalBuilding3a"}
+			{"first": "W_MultiAge_COP24B1"}
 		]
 	},
 	{
@@ -613,7 +670,7 @@
 	{
 		"name": "Royal_Bathhouse",
 		"buildings": [
-			{"first": "R_MultiAge_CulturalBuilding6a"}
+			{"first": "W_MultiAge_COP24C1"}
 		]
 	},
 	{
@@ -625,7 +682,7 @@
 	{
 		"name": "Sun_Temple",
 		"buildings": [
-			{"first": "R_MultiAge_CulturalBuilding7a"}
+			{"first": "W_MultiAge_COP24D1"}
 		]
 	},
 	{
@@ -638,13 +695,25 @@
 		"name": "Mughals_Temple",
 		"link": "Mughal%27s_Temple",
 		"buildings": [
-			{"first": "R_MultiAge_CulturalBuilding9a"}
+			{"first": "W_MultiAge_COP24E1"}
 		]
 	},
 	{
 		"name": "Minaret",
 		"buildings": [
 			{"first": "R_MultiAge_CulturalBuilding10a"}
+		]
+	},
+	{
+		"name": "Hut_of_the_Sacred_Instruments",
+		"buildings": [
+			{"first": "W_MultiAge_COP24J1"}
+		]
+	},
+	{
+		"name": "Great_Dance_Stage",
+		"buildings": [
+			{"first": "W_MultiAge_COP24JB1"}
 		]
 	},
 	{
@@ -693,6 +762,18 @@
 		]
 	},
 	{
+		"name": "Thunderdrake_Citadel",
+		"buildings": [
+			{"first": "W_MultiAge_GBG24C1"}
+		]
+	},
+	{
+		"name": "Thunderdrake_Siegeshop",
+		"buildings": [
+			{"first": "W_MultiAge_GBG24D1"}
+		]
+	},
+	{
 		"groupname": "Quantum_Incursion"
 	},
 	{
@@ -704,10 +785,7 @@
 	{
 		"name": "Neo_Winners_Plaza",
 		"buildings": [
-			{
-				"first": "W_MultiAge_GR23B1"
-
-			}
+			{"first": "W_MultiAge_GR23B1"}
 		]
 	},
 	{
@@ -720,6 +798,19 @@
 		"name": "Neo_Botanical_Rotunda",
 		"buildings": [
 			{"first": "W_MultiAge_GR23D1"}
+		]
+	},
+	{
+		"name": "Neo_Sentinel_Outpost",
+		"buildings": [
+			{"first": "W_MultiAge_GR24B1"}
+		]
+	},
+	{
+		"name": "Neo_Tacticians_Tower",
+		"link": "Neo_Tactician%27s_Tower",
+		"buildings": [
+			{"first": "W_MultiAge_GR24A1"}
 		]
 	},
 	{

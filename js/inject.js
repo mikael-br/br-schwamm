@@ -63,7 +63,6 @@ function inject (loadBeta = false, extUrl = chrome.runtime.getURL(''), betaDate=
 				resolve();
 			});
 			sc.addEventListener('error', function() {
-				console.error('error loading script '+src);
 				this.remove();
 				reject();
 			});

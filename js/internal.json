@@ -17,9 +17,9 @@
 	"alerts",
 	"looting",
 	"guildfights",
-	"gvg",
 	"stats",
 	"campagnemap",
+	"combat_power",
 	"bonus-service",
 	"technologies",
 	"negotiation",
@@ -33,7 +33,6 @@
 	"hidden-rewards",
 	"greatbuildings",
 	"notice",
-	"inventory-tracker",
 	"treasury",
 	"market",
 	"marketoffers",
@@ -62,5 +61,6 @@
 	"mergergame",
 	"cardgame",
 	"gbgbuildings",
-	"pvparena"
+	"pvparena",
+	"qimap"
 ]

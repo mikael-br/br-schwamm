@@ -15,7 +15,6 @@
 /**
  * CityMap class
  *
- * @type {{highlightOldBuildings: CityMap.highlightOldBuildings, EfficiencyFactor: number, init: CityMap.init, UnlockedAreas: null, BlockedAreas: null, SubmitData: CityMap.SubmitData, SetBuildings: CityMap.SetBuildings, CityData: null, ScaleUnit: number, CityView: string, CityEntities: null, hashCode: (function(*): *), OccupiedArea: number, IsExtern: boolean, showSubmitBox: CityMap.showSubmitBox, getAreas: CityMap.getAreas, PrepareBox: CityMap.PrepareBox, GetBuildingSize: (function(*): {}), BuildGrid: CityMap.BuildGrid, copyMetaInfos: CityMap.copyMetaInfos}, GetBuildingEra: (function(*): {})}
  */
 let CityMap = {
 	CityData: null,
@@ -28,7 +27,14 @@ let CityMap = {
 	OccupiedArea: 0,
 	EfficiencyFactor: 0,
 	IsExtern: false,
-	ActiveEntityId : null,  /* preserve */
+	OutpostScaleUnit: 100,
+	CulturalOutpostData: {},
+	CulturalOutpostAreas: [],
+	EraOutpostData: null,
+	EraOutpostAreas: [],
+	QIData: null,
+	QIStats: null,
+	QIAreas: [],
 
 
 	/**
@@ -36,21 +42,26 @@ let CityMap = {
 	 * @param event
 	 * @param Data The City data
 	 * @param Title Name of the city
-	 * @param Id of the active entity
 	 */
-	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...', ActiveEntityId = null)=> {
+	init: (event, Data = null, Title = i18n('Boxes.CityMap.YourCity') + '...')=> {
 
 		if (Data === null) { // No data => own city
 			CityMap.IsExtern = false
 			Data = MainParser.CityMapData
 			CityMap.OwnCityData = MainParser.NewCityMapData
+			if (ActiveMap === "cultural_outpost") {
+				Data = CityMap.CulturalOutpostData
+			}
+			else if (ActiveMap === "era_outpost") {
+				Data = CityMap.EraOutpostData
+			}
+			else if (ActiveMap === "guild_raids") {
+				Data = CityMap.QIData
+			}
 		}
-		// Neighbor or other modul
-		else {
+		else { // Neighbor or other modul
 			CityMap.IsExtern = true;
 		}
-
-		CityMap.ActiveEntityId = ActiveEntityId;
 
 		CityMap.CityData = Object.values(Data).sort(function (X1, X2) {
 			if (X1.x < X2.x) return -1;
@@ -58,18 +69,20 @@ let CityMap = {
 		});
 
 		let scale = localStorage.getItem('CityMapScale'),
+			outpostScale = localStorage.getItem('OutpostMapScale'),
 			view = localStorage.getItem('CityMapView');
 
-		// a scaling has already been set?
-		if(null !== scale){
+		if(null !== scale) { // scaling has already been set?
 			CityMap.ScaleUnit = parseInt(scale);
 		}
 
-		// a view has already been set?
-		if(null !== view){
+		if(null !== view) { // view has already been set?
 			CityMap.CityView = view;
 		}
 
+		if(null !== outpostScale) { // scaling has already been set?
+			CityMap.OutpostScaleUnit = parseInt(outpostScale);
+		}
 
 		if( $('#city-map-overlay').length < 1 )
 		{
@@ -97,13 +110,10 @@ let CityMap = {
 		}
 
 		setTimeout(()=>{
-
 			// separate city
-			if(Data === false)
-			{
-				setTimeout(()=>{
+			if(Data === false) {
+				setTimeout(()=> {
 					CityMap.SetBuildings();
-
 				}, 100);
 
 			} else {
@@ -137,6 +147,10 @@ let CityMap = {
 
 		$('#city-map-overlayHeader > .title').attr('id', 'map' + CityMap.hashCode(Title));
 
+		if (ActiveMap === "cultural_outpost" || ActiveMap === "era_outpost" || ActiveMap === "guild_raids") {
+			oB.addClass('outpost').addClass(ActiveMap)
+		}
+
 		let menu = $('<div />').attr('id', 'city-map-menu');
 
 		/* Ansicht wechseln */
@@ -155,14 +169,18 @@ let CityMap = {
 
 
 		/* Scalierung wechseln */
+		let scaleUnit = CityMap.ScaleUnit;
+		if (ActiveMap == "cultural_outpost" || ActiveMap === "era_outpost" || ActiveMap === "guild_raids") {
+			scaleUnit = CityMap.OutpostScaleUnit;
+		}
 		let scaleView = $('<select />').attr('id', 'scale-view').addClass('game-cursor')
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 60).attr('data-scale', 60).text('60%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 80).attr('data-scale', 80).text('80%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 100).attr('data-scale', 100).text('100%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 120).attr('data-scale', 120).text('120%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 140).attr('data-scale', 140).text('140%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 160).attr('data-scale', 160).text('160%').addClass('game-cursor') )
-			.append( $('<option />').prop('selected', CityMap.ScaleUnit === 180).attr('data-scale', 180).text('180%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 60).attr('data-scale', 60).text('60%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 80).attr('data-scale', 80).text('80%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 100).attr('data-scale', 100).text('100%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 120).attr('data-scale', 120).text('120%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 140).attr('data-scale', 140).text('140%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 160).attr('data-scale', 160).text('160%').addClass('game-cursor') )
+			.append( $('<option />').prop('selected', scaleUnit === 180).attr('data-scale', 180).text('180%').addClass('game-cursor') )
 		;
 
 		menu.append(scaleView);
@@ -171,22 +189,27 @@ let CityMap = {
 			let unit = parseInt($('#scale-view option:selected').data('scale'));
 			$('#highlight-old-buildings')[0].checked=false;
 			$('#show-nostreet-buildings')[0].checked=false;
-			
-			CityMap.ScaleUnit = unit;
 
 			$('#grid-outer').attr('data-unit', unit);
-			localStorage.setItem('CityMapScale', unit);
+
+			if (ActiveMap == "cultural_outpost" || ActiveMap === "era_outpost" || ActiveMap === "guild_raids") {
+				localStorage.setItem('OutpostMapScale', unit);
+				CityMap.OutpostScaleUnit = unit;
+			}
+			else {
+				localStorage.setItem('CityMapScale', unit);
+				CityMap.ScaleUnit = unit;	
+			}
 
 			CityMap.SetBuildings(CityMap.CityData, false);
 
-			// CityMap.scrollToActiveElementOrCenter();   /* preserve? */
 			$('#map-container').scrollTo( $('.highlighted') , 800, {offset: {left: -280, top: -280}, easing: 'swing'});
 			$('.to-old-legends').hide();
 			$('.building-count-area').show();
 		});
 
 		// Button for submit Box
-		if (CityMap.IsExtern === false) {
+		if (CityMap.IsExtern === false && ActiveMap === 'main') {
 			menu.append($('<input type="text" id="BuildingsFilter" placeholder="'+ i18n('Boxes.CityMap.FilterBuildings') +'" oninput="CityMap.filterBuildings(this.value)">'));
 			menu.append(
 				$('<div />').addClass('btn-group')
@@ -205,20 +228,41 @@ let CityMap = {
 				);
 		}
 
+		oB.append(wrapper)
+		$('#citymap-wrapper').append(menu)
 
-		/* In das Menü "schieben" */
-		oB.append(wrapper);
-		$('#citymap-wrapper').append(menu);
+		if (ActiveMap === "guild_raids") {
+			$("#sidebar").append(CityMap.showQIStats())
+			$("#sidebar").append(CityMap.showQIBuildings())
+		}
+
 	},
 
 
 	/**
 	 * Erzeugt ein Raster für den Hintergrund
-	 *
 	 */
 	BuildGrid:()=> {
-
 		let ua = CityMap.UnlockedAreas;
+		let xOffset = 0;
+		let yOffset = 0;
+		let scaleUnit = CityMap.ScaleUnit;
+		if (ActiveMap === "cultural_outpost") {
+			ua = CityMap.CulturalOutpostAreas;
+			xOffset = 500;
+			scaleUnit = CityMap.OutpostScaleUnit;
+		}
+		else if (ActiveMap === "era_outpost") {
+			ua = CityMap.EraOutpostAreas;
+			yOffset = 500;
+			scaleUnit = CityMap.OutpostScaleUnit;
+		}
+		else if (ActiveMap === "guild_raids") {
+			ua = CityMap.QIAreas;
+			yOffset = 500;
+			xOffset = 500;
+			scaleUnit = CityMap.OutpostScaleUnit;
+		}
 
 		for(let i in ua)
 		{
@@ -226,24 +270,23 @@ let CityMap = {
 				break;
 			}
 
-			let w = ((ua[i]['width'] * CityMap.ScaleUnit) / 100 ),
-				h = ((ua[i]['length'] * CityMap.ScaleUnit) / 100 ),
-				x = ((ua[i]['x'] * CityMap.ScaleUnit) / 100 ),
-				y = ((ua[i]['y'] * CityMap.ScaleUnit) / 100 ),
+			let w = ((ua[i]['width'] * scaleUnit) / 100 ),
+				h = ((ua[i]['length'] * scaleUnit) / 100 ),
+				x = (((ua[i]['x']-xOffset) * scaleUnit) / 100 ),
+				y = (((ua[i]['y']-yOffset) * scaleUnit) / 100 ),
+				G = $('#map-grid')
 
-				G = $('#map-grid'),
-
-				a = $('<span />')
-					.addClass('map-bg')
-					.css({
-						width: w + 'em',
-						height: h + 'em',
-						left: x + 'em',
-						top: y + 'em',
-					});
+			let a = $('<span />')
+				.addClass('map-bg')
+				.css({
+					width: w + 'em',
+					height: h + 'em',
+					left: x + 'em',
+					top: y + 'em',
+				});
 
 			// Ist es das Startfeld?
-			if(ua[i]['width'] === 16 && ua[i]['length'] === 16){
+			if(ua[i]['width'] === 16 && ua[i]['length'] === 16) {
 				a.addClass('startmap');
 			}
 
@@ -257,8 +300,224 @@ let CityMap = {
 	 *
 	 * @param Data
 	 */
-	SetBuildings: (Data = null)=> {
+	SetOutpostBuildings: ()=> {
+		// einmal komplett leer machen, wenn gewünscht
+		$('#grid-outer').find('.map-bg').remove();
+		$('#grid-outer').find('.entity').remove();
 
+		CityMap.BuildGrid()
+
+		let buildings = CityMap.CulturalOutpostData
+		let xOffset = 0, yOffset = 0
+		if (ActiveMap == "era_outpost") {
+			buildings = CityMap.EraOutpostData
+			yOffset = 500
+		}
+		else if (ActiveMap == "cultural_outpost") {
+			xOffset = 500
+		}
+		else if (ActiveMap == "guild_raids") {
+			buildings = CityMap.QIData
+			xOffset = 500
+			yOffset = 500
+		}
+
+		for (let b in buildings) {
+			let x = (buildings[b]['x'] || 0) - xOffset
+			let y = (buildings[b]['y'] || 0) - yOffset
+			let CityMapEntity = buildings[b],
+				d = MainParser.CityEntities[CityMapEntity['cityentity_id']],
+				BuildingSize = CityMap.GetBuildingSize(CityMapEntity),
+
+				xx = (parseInt(x) * CityMap.OutpostScaleUnit) / 100,
+				yy = (parseInt(y) * CityMap.OutpostScaleUnit) / 100,
+				xsize = ((parseInt(BuildingSize['xsize']) * CityMap.OutpostScaleUnit) / 100),
+				ysize = ((parseInt(BuildingSize['ysize']) * CityMap.OutpostScaleUnit) / 100)
+				
+				f = $('<span />').addClass('entity ' + d['type']).css({
+					width: xsize + 'em',
+					height: ysize + 'em',
+					left: xx + 'em',
+					top: yy + 'em'
+				})
+				.attr('title', d['name'] + ', ' + BuildingSize['xsize']+ 'x' +BuildingSize['ysize'])
+				.attr('data-entityid', CityMapEntity['id']);
+
+			$('#grid-outer').append( f );
+		}
+
+		$('.entity').tooltip({
+			container: '#city-map-overlayBody',
+			html: true
+		});
+
+		$('#grid-outer').draggable();
+	},
+
+
+	showQIStats: () => {
+		let buildings = Object.values(CityMap.QIData)
+		let population = 0, totalPopulation = 0, euphoria = 0, euphoriaBoost = 0, supplies = 0, money = 0, att_def_boost_attacker = 0, att_def_boost_defender = 0, actions = 0
+		for (let b in buildings) {
+			let building = CityMap.setQIBuilding(MainParser.CityEntities[buildings[b]['cityentity_id']])
+			if (building.type !== "impediment" && building.type !== "street") {
+				population += building.population
+				euphoria += building.euphoria
+				totalPopulation += (building.population > 0 ? building.population : 0)
+				
+				if (building.boosts !== null) {
+					for (let i in building.boosts) {
+						let boost = building.boosts[i]
+						if (boost.type === "att_def_boost_attacker")
+							att_def_boost_attacker += boost.value 
+						if (boost.type === "att_def_boost_defender")
+							att_def_boost_defender += boost.value 
+						if (boost.type === "guild_raids_action_points_collection")
+							actions += boost.value 
+					}
+				}
+				if (building.production !== null) {
+					if (building.type !== "military" && building.type !== "goods" && building.type !== "main_building") {
+						if (building.production.guild_raids_supplies)
+							supplies += building.production.guild_raids_supplies
+						if (building.production.guild_raids_money)
+							money += building.production.guild_raids_money
+					}
+				}
+			}
+		}
+		let euphoriaFactor = euphoria/totalPopulation
+		if (euphoriaFactor < 0.2)
+			euphoriaBoost = 0.2
+		else if (euphoriaFactor > 0.20 && euphoriaFactor <= 0.60)
+			euphoriaBoost = 0.6
+		else if (euphoriaFactor > 0.60 && euphoriaFactor <= 0.80)
+			euphoriaBoost = 0.8
+		else if (euphoriaFactor > 0.80 && euphoriaFactor <= 1.20)
+			euphoriaBoost = 1
+		else if (euphoriaFactor > 1.20 && euphoriaFactor <= 1.40)
+			euphoriaBoost = 1.1
+		else if (euphoriaFactor > 1.40 && euphoriaFactor < 2.0)
+			euphoriaBoost = 1.2
+		else 
+			euphoriaBoost = 1.5
+
+		CityMap.QIStats = {
+			population: population,
+			totalPopulation: totalPopulation,
+			euphoria: euphoria,
+			euphoriaBoost: euphoriaBoost,
+			money: money*euphoriaBoost,
+			supplies: supplies*euphoriaBoost,
+			att_def_boost_attacker: att_def_boost_attacker,
+			att_def_boost_defender: att_def_boost_defender,
+			actions:actions,
+		}
+
+		out = '<div class="text-center" style="padding-bottom: 10px">'
+		out += '<p><i>'+i18n('Boxes.CityMap.QIHint')+'</i></p>'
+		out += '<span class="prod population">'+CityMap.QIStats.population+'/'+CityMap.QIStats.totalPopulation+'</span> '
+		out += '<span class="prod happiness">'+CityMap.QIStats.euphoriaBoost*100+'%</span> <br>'
+		out += '<span class="prod guild_raids_money">'+HTML.Format(CityMap.QIStats.money)+'</span> + '
+		out += '<span class="prod guild_raids_supplies">'+HTML.Format(CityMap.QIStats.supplies)+'</span> '+i18n('Boxes.CityMap.QICycle')+'<br>'
+		out += '<span class="prod guild_raids_action_points_collection">'+'+'+CityMap.QIStats.actions+'</span> '+i18n('Boxes.CityMap.QIActionRechargeCycle')+'<br>'
+		out += '<span class="prod att_def_boost_attacker">'+CityMap.QIStats.att_def_boost_attacker+'</span> '
+		out += '<span class="prod att_def_boost_defender">'+CityMap.QIStats.att_def_boost_defender+'</span> '
+		
+		out += "<div>"
+		return out
+	},
+
+
+	showQIBuildings: () => {
+		let buildings = Object.values(CityMap.QIData)
+		buildings.sort((a, b) => {
+			const nameA = a.cityentity_id; 
+			const nameB = b.cityentity_id;
+			if (nameA < nameB) {
+			  return -1
+			}
+			if (nameA > nameB) {
+			  return 1
+			}
+			return 0
+		})
+
+		let out = '<table class="foe-table">'
+		out += '<thead><tr><th>'+i18n('Boxes.CityMap.Building')+'</th><th class="population textright"></th><th class="happiness textright"></th><th>'+i18n('Boxes.CityMap.Boosts')+'</th></tr></thead>'
+		out += "<tbody>"
+		for (let b in buildings) {
+			let building = CityMap.setQIBuilding(MainParser.CityEntities[buildings[b]['cityentity_id']])
+
+			if (building.type !== "impediment" && building.type !== "street") {
+				out += "<tr><td>" + building.name + "</td>"
+				out += '<td class="textright">' + building.population + "</td>"
+				out += '<td class="textright">' + building.euphoria + "</td>"
+				out += "<td>"
+				if (building.production !== null) {
+					if (building.type === "goods" || building.type === "military") {
+						out += (building.type === "goods" ? "+20 = " : "+10 = ")
+						out += (building.production.guild_raids_supplies ? '<span class="prod guild_raids_supplies">'+HTML.Format(building.production.guild_raids_supplies*-1.0)+'</span> ' : " ")
+						out += (building.production.guild_raids_money ? '<span class="prod guild_raids_money">'+HTML.Format(building.production.guild_raids_money*-1.0)+'</span> ' : "")	
+					}
+					else {
+						let eBoost = (building.type === "main_building" ? 1.0 : CityMap.QIStats.euphoriaBoost)
+						out += (building.production.guild_raids_supplies ? '<span class="prod guild_raids_supplies">'+HTML.Format(building.production.guild_raids_supplies*eBoost)+'</span> ' : " ")
+						out += (building.production.guild_raids_money ? '<span class="prod guild_raids_money">'+HTML.Format(building.production.guild_raids_money*eBoost)+'</span> ' : "")
+					}
+				}
+				if (building.boosts !== null) {
+					for (let i in building.boosts) {
+						let boost = building.boosts[i]
+						out += '<span class="prod '+boost.type+'">' + boost.value + '</span> '
+					}
+				}
+				out += "</td></tr>"
+			}
+		}
+		out += "</tbody></table>"
+		return out
+	},
+
+
+	setQIBuilding: (data) => {
+		let production = data.components?.AllAge?.production?.options
+		if (production !== undefined && production.length === 1) // goods and units have multiple production options, rest has one
+			production = data.components?.AllAge?.production?.options[0]?.products[0]?.playerResources?.resources
+		else if (production !== undefined && production.length > 1) 
+			production = data.components?.AllAge?.production?.options[3]?.products[0]?.requirements?.resources
+		if (data.type === "main_building")
+			production = data.available_products[0].product.resources
+
+		let euphoria = data.components?.AllAge?.staticResources?.resources?.resources?.guild_raids_happiness
+		let boosts = data.components?.AllAge?.boosts?.boosts
+		let population = data.components?.AllAge?.staticResources?.resources?.resources.guild_raids_population
+
+		let building = {
+			name: data.name,
+			boosts: boosts || null,
+			euphoria: euphoria || 0,
+			population: population || 0,
+			production: production || null,
+			type: data.type
+		}
+
+		return building
+	},
+
+
+	/**
+	 * Container gemäß den Koordianten zusammensetzen
+	 *
+	 * @param Data
+	 */
+	SetBuildings: (Data = null)=> {
+		
+		if (ActiveMap === "cultural_outpost" || ActiveMap === "era_outpost" || ActiveMap === "guild_raids") {
+			CityMap.SetOutpostBuildings()
+			return
+		}
+		
 		// https://foede.innogamescdn.com/assets/city/buildings/R_SS_MultiAge_SportBonus18i.png
 
 		let ActiveId = $('#grid-outer').find('.highlighted').data('entityid') || null;
@@ -321,7 +580,7 @@ let CityMap = {
 
 			if(era){
 				f.attr({
-					title: `${d['name']}<br><em>${i18n('Eras.' + era )}</em>`
+					title: `${d['name']}, ${BuildingSize['ysize']}x${BuildingSize['xsize']}<br><em>${i18n('Eras.' + era )}</em>`
 				})
 
 				if (era < CurrentEraID) {
@@ -350,7 +609,7 @@ let CityMap = {
 			}
 
 			// die Größe wurde geändert, wieder aktivieren
-			if (CityMap.ActiveEntityId !== undefined && CityMap.ActiveEntityId !== null && CityMap.ActiveEntityId === CityMap.CityData[b]['id'])    /* preserve */
+			if (ActiveId !== null && ActiveId === CityMap.CityData[b]['id'])
 			{
 				f.addClass('highlighted');
 			}
@@ -370,18 +629,8 @@ let CityMap = {
 		$('#grid-outer').draggable();
 
 		CityMap.getAreas();
-
-		CityMap.scrollToActiveElementOrCenter();  /* preserve */
 	},
 
-	/* --- Preserve start --------------------------------------------- */ 
-	/**
-	 * Scrollls the map to the active element
-	 */
-	scrollToActiveElementOrCenter: () => {
-		$('#map-container').scrollTo( $('.pulsate') , 800, {offset: {left: -280, top: -280}, easing: 'swing'});
-	},
-	/* --- Preserve end --------------------------------------------- */ 
 
 	/**
 	 * Statistiken in die rechte Sidebar
@@ -518,6 +767,21 @@ let CityMap = {
 			return;
 		}
 		/* --- Preserve end --------------------------------------------- */ 
+		let apiToken = localStorage.getItem('ApiToken');
+
+		if(apiToken === null) {
+			HTML.ShowToastMsg({
+				head: i18n('Boxes.CityMap.MissingApiKeyErrorHeader'),
+				text: [
+					i18n('Boxes.CityMap.MissingApiKeySubmitError'),
+					`<a target="_blank" href="${i18n('Settings.ApiTokenUrl')}">${i18n('Settings.ApiTokenUrl')}</a>`
+				],
+				type: 'error',
+				hideAfter: 10000,
+			});
+
+			return;
+		}
 
 		let currentDate = new Date(),
 			d = {
@@ -526,8 +790,10 @@ let CityMap = {
 					name: ExtPlayerName,
 					id: ExtPlayerID,
 					world: ExtWorld,
-					avatar: ExtPlayerAvatar
+					avatar: ExtPlayerAvatar,
+					avatarUrl: srcLinks.GetPortrait(ExtPlayerAvatar)
 				},
+				apiToken: apiToken,
 				eras: Technologies.Eras,
 				entities: MainParser.CityMapData,
 				areas: CityMap.UnlockedAreas,
@@ -556,10 +822,7 @@ let CityMap = {
 			else {
 				HTML.ShowToastMsg({
 					head: i18n('Boxes.CityMap.SubmitErrorHeader'),
-					text: [
-						i18n('Boxes.CityMap.SubmitError'),
-						'<a href="https://github.com/mainIine/foe-helfer-extension/issues" target="_blank">Github</a>'
-					],
+					text: resp['msg'],
 					type: 'error',
 					hideAfter: 10000,
 				});
@@ -600,7 +863,7 @@ let CityMap = {
 			Ret['xsize'] = CityEntity['width'];
 			Ret['ysize'] = CityEntity['length'];
 
-			if (CityEntity['type'] !== 'street') {
+			if (!['street','main_building'].includes(CityEntity['type'])) {
 				Ret['streets_required'] = CityEntity['requirements']['street_connection_level'] | 0;
 			}
 			else {
@@ -898,7 +1161,7 @@ let CityMap = {
 	needsStreet(ceData, data) {
 		let needsStreet = 0;
 		if (data.type != "generic_building") {
-			if (data.type != "tower" && data.type != "decoration") 
+			if (ceData.requirements?.street_connection_level) 
 				needsStreet = ceData.requirements.street_connection_level
 		}
 		else {
@@ -997,6 +1260,7 @@ let CityMap = {
 									resources: { "random": ability.amount },
 									type: "unit",
 								}
+								// console.log(ceData.name, production.resources)
 								productions.push(production)
 							}
 						})
@@ -1014,15 +1278,16 @@ let CityMap = {
 							resource.resources = production.playerResources.resources
 						else if (production.type == "guildResources")
 							resource.resources = production.guildResources.resources
-						else if (production.type == "unit") 
+						else if (production.type == "unit") {
 							resource.resources = this.getUnitReward(production)
+							//console.log(ceData.name, resource.resources)
+						}
 						else if (production.type == "genericReward") {
 							let reward = this.getGenericReward(production, ceData, data, era)
-							if (reward.type !== 'unit' && reward.subType !== 'unit')
-								resource.resources = reward
-							else {
-								resource.resources = this.getUnitReward(production)
+							resource.resources = reward
+							if (reward.type == undefined) { // genericReward can also return a unit reward, change type
 								resource.type = 'unit'
+								// console.log(ceData.name, reward)
 							}
 						}
 						else
@@ -1038,6 +1303,7 @@ let CityMap = {
 		return undefined
 	},
 	
+	// returns a generic reward or a unit reward
 	getGenericReward(product, ceData, data, era) {
 		let amount = 0
 
@@ -1080,14 +1346,14 @@ let CityMap = {
 			name = "DEFINE NAME"
 		}
 		
-		// random units
-		if (lookupData.type == "chest" && lookupData.id.search("genb_random_unit_chest") != -1) {
-			lookupData.subType = "unit"
-			amount = parseInt(lookupData.id.replace("genb_random_unit_chest","")) || 1 // no number = one unit
-			return { "random": parseInt(amount) }
+		// units
+		if (lookupData?.type == "chest" && lookupData.id.search("genb_random_unit_chest") != -1 || lookupData?.type == "unit") {
+			let units = this.getUnitReward(product)
+			//console.log(ceData.name, units)
+			return units
 		}
 		// trees of patience
-		if (lookupData.type == "set") {
+		if (lookupData?.type == "set") {
 			lookupData.type = "consumable"
 			lookupData.subType = lookupData.rewards[0].subType
 			amount = lookupData.totalAmount
@@ -1096,22 +1362,30 @@ let CityMap = {
 		let reward = {
 			id: product.reward.id,
 			name: name,
-			type: lookupData.type,
-			subType: lookupData.subType,
+			type: lookupData?.type || "consumable",
+			subType: lookupData?.subType,
 			amount: amount, // amount can be undefined for blueprints or units if buiilding is not motivated
-			icon: lookupData.iconAssetName
+			icon: lookupData?.iconAssetName
 		}
 		return reward;
 	},
 
+	// returns { unit_type: amount } 
+	// unit_type can be: random, rogue, light_melee, heavy_melee, short_ranged, long_ranged, fast, next#light_melee -> next# for next era units
 	getUnitReward(product) {
 		let amount, type
 		if (product.type == 'genericReward') {
-			amount = product.reward.amount
-			if (product.reward.iconAssetName !== "")
-				type = product.reward.iconAssetName // data: fast_unit, ranged_unit, light_unit, etc
-			else 
-				type = product.reward.subType // data: rogue
+			let amountFromString = product.reward.id.match(/\d+$/)
+			amount = parseInt(amountFromString ? amountFromString[0] : 1) 	// if its only one unit, there is no number in the string
+			type = product.reward.id.replace("unit_","").replace(/\d+/,"") 	// grabs e.g. "heavy_melee" from unit_heavy_melee3 or rogue from unit_rogue3 
+			if (type.search("random") != -1) type = "random"
+			if (product.reward.id.search("#") != -1) { // era_unit#light_melee#NextEra#1
+				let prefix = ""
+				if (product.reward.id.search("NextEra") != -1) {
+					prefix = "next#"
+				}
+				type = prefix + product.reward.id.split("#")[1]
+			}
 		}
 		else if (product.type == 'unit') {
 			amount = product.amount
@@ -1128,8 +1402,18 @@ let CityMap = {
 			name = lookupData.rewards[0].name 
 		else if (lookupData.subType == "speedup_item" || lookupData.subType == "reward_item" || lookupData.type == "chest" || lookupData.subType == "boost_item" || lookupData.type == "forgepoint_package" || lookupData.type == "resource" || lookupData.type == "blueprint") 
 			name = lookupData.name
-		else if (lookupData.type == "unit")
-			name = lookupData.unit.unitTypeId
+		else if (lookupData.type == "unit") {
+			if (lookupData.id.search("#") != -1) { // era_unit#light_melee#NextEra#1
+				let prefix = ""
+				if (lookupData.id.search("NextEra") != -1) {
+					prefix = "next_"
+				}
+				name = prefix + lookupData.id.split("#")[1]
+			}
+			else {
+				name = lookupData.id.replace("unit_","").replace(/\d+/,"")
+			}
+		}
 		else if (lookupData.subType == "self_aid_kit")
 			name = lookupData.name
 		else {
@@ -1182,6 +1466,7 @@ let CityMap = {
 			})
 			resource.resources = rewards
 		}
+		// wunschbrunnen
 
 		let multiAgeProduct = {}
 		let allAgeProduct = {}
@@ -1252,12 +1537,12 @@ let CityMap = {
 					}
 					else if (product.type == "genericReward") {
 						resource.resources = this.getGenericReward(product, ceData, data, era) 
-						if (resource.resources.random !== undefined) {
+						if (resource.resources.type === undefined)  // genericReward can also return a unit reward, change type
 							resource.type = "unit"
-						}
 					}
 					else if (product.type == "unit") {
 						resource.resources = this.getUnitReward(product)
+						//console.log(ceData.name, resource.resources)
 					}
 					else if (product.type == "random") {
 						let rewards = [];
@@ -1344,7 +1629,7 @@ let CityMap = {
 			level: (data.type == "greatbuilding" ? data.level : undefined), // level also includes eraId in raw data, we do not like that
 			max_level: (data.type == "greatbuilding" ? data.max_level : undefined)
 		}
-		//if (entity.type == 'greatbuilding')
+		//if (entity.type == 'random_production')
 		//	console.log('entity ',entity.name, entity, ceData, data)
 		return entity
 	},

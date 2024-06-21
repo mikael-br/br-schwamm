@@ -22,12 +22,28 @@ FoEproxy.addHandler('TimedSpecialRewardService', 'getTimedSpecial', (data, postD
 	}
 });
 
-// - GG reward after fight [2,5,10]FP or PvP reward
-// - diplomaticGift or spoilsOfWar or shards
-// - hiddenreward from mainmap
-// - Event reward or Event leagueReward
-// - Daily reward box castle system
-// - personal rank gain chest Truhe PvP-Arena
+// - QI 
+FoEproxy.addHandler('RewardService', 'collectRewardSet', (data, postData) => {
+	const d = data.responseData;
+	let event = null, 
+		notes = null;
+
+	if (d.context.toLowerCase().includes("guild_raids")) {
+		event = d.context.toLowerCase()
+	}
+
+	for (const reward of d.reward.rewards) {
+		if (reward.subType !== 'strategy_points') continue;
+
+		StrategyPoints.insertIntoDB({
+			event: event,
+			notes: notes ? notes : '',
+			amount: reward.amount,
+			date: moment(MainParser.getCurrentDate()).format('YYYY-MM-DD')
+		});
+	}
+});
+
 FoEproxy.addHandler('RewardService', 'collectReward', (data, postData) => {
 	const d = data.responseData[0][0];
 	let eventCheck = data.responseData[1],
@@ -54,6 +70,10 @@ FoEproxy.addHandler('RewardService', 'collectReward', (data, postData) => {
 		if (eventCheck.includes("reward_calendar")) {
 			event = FPCollector.currentEvent;
 			notes = i18n('Boxes.FPCollector.reward_calendar');
+		}
+		if (eventCheck.toLowerCase().includes("collectRewardSet")) {
+			event = FPCollector.currentEvent;
+			notes = i18n('Boxes.FPCollector.grand_prize');
 		}
 		if (eventCheck.toLowerCase().includes("grandprize") || eventCheck.includes("grand_prize") || d['type'].includes("grand_prize") || eventCheck.includes("event_pass") ) {
 			event = FPCollector.currentEvent;
@@ -303,7 +323,7 @@ let FPCollector = {
 	 * @constructor
 	 */
 	ShowFPCollectorBox: async ()=> {
-		moment.locale(i18n('Local'));
+		//moment.locale(18n('Local'));
 
 		if ( $('#fp-collector').length < 1 )
 		{

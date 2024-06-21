@@ -173,7 +173,7 @@ let Outposts = {
 		;
 
 		/** @type {number} */
-		const current4HProductionRate = buildings.reduce(
+		const current5HProductionRate = buildings.reduce(
 			/** @type {(acc: number, building: FoE_JSON_CityMapEntity) => number} */
 			(acc, building) => {
 				const state = building.state;
@@ -186,12 +186,12 @@ let Outposts = {
 				if (production.__class__ === 'CityEntityProductionProduct') {
 					const amount = production.product.resources[primaryResourceId];
 					if (amount != null) {
-						return acc + amount*(60*60*4/* 4h */)/production.production_time;
+						return acc + amount/production.production_time*(60*60*5 /* 5h */);
 					}
 				} else if (production.__class__ === 'CityEntityResourcesWithRequirementsProduct') {
 					const amount = production.resources.resources[primaryResourceId];
 					if (amount != null) {
-						return acc + amount*(60*60*4/* 4h */)/production.production_time;
+						return acc + amount/production.production_time*(60*60*5 /* 5h */);
 					}
 				}
 				return acc;
@@ -234,8 +234,8 @@ let Outposts = {
 			'</span><span><strong>'
 			+ GoodsData[primaryResourceId].name + ': ' + HTML.Format(ResourceStock[primaryResourceId]||0)
 			+ '</strong> (+ '
-			+ (current4HProductionRate > 0 ? HTML.Format(MainParser.round(current4HProductionRate)) : '???')
-			+ '/4h)'
+			+ (current5HProductionRate > 0 ? HTML.Format(MainParser.round(current5HProductionRate)) : '???')
+			+ `/5h)`
 			+ '</span>'
 		);
 		t.push('</p>');
@@ -648,6 +648,19 @@ let Outposts = {
 
 
 	SubmitData: () => {
+		let apiToken = localStorage.getItem('ApiToken');
+
+		if(apiToken === null) {
+			HTML.ShowToastMsg({
+				head: i18n('Boxes.CityMap.MissingApiKeyErrorHeader'),
+				text: i18n('Boxes.CityMap.MissingApiKeySubmitError'),
+				type: 'error',
+				hideAfter: 10000,
+			});
+
+			return;
+		}
+
 		let currentDate = new Date(),
 			d = {
 				time: currentDate.toISOString().split('T')[0] + ' ' + currentDate.getHours() + ':' + currentDate.getMinutes() + ':' + currentDate.getSeconds(),
@@ -657,6 +670,7 @@ let Outposts = {
 					world: ExtWorld,
 					avatar: ExtPlayerAvatar
 				},
+				apiToken: apiToken,
 				type: localStorage.getItem('OutpostType'),
 				eras: Technologies.Eras,
 				entities: Outposts.CityMap['entities'],
@@ -682,10 +696,7 @@ let Outposts = {
 			else {
 				HTML.ShowToastMsg({
 					head: i18n('Boxes.CityMap.SubmitErrorHeader'),
-					text: [
-						i18n('Boxes.CityMap.SubmitError'),
-						'<a href="https://github.com/mainIine/foe-helfer-extension/issues" target="_blank">Github</a>'
-					],
+					text: resp['msg'],
 					type: 'error',
 					hideAfter: 10000,
 				});

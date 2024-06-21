@@ -62,7 +62,7 @@
 	border-top: 1px solid var(--border-table-top);
 }
 
-#kits #kits-triplestate-button {
+#kits #kits-triplestate-button, #kits #kits-showFavourites {
 	min-width: 150px;
 }
 
@@ -152,6 +152,14 @@
 	background-position: -52px 0;
 }
 
+#kits .upgrades .ascended {
+	color: #ffae33e0;
+}
+
+#kits .upgrades .ascended::after {
+	background-position: -92px 0;
+}
+
 #kits .item-kits {
 	padding: 5px;
 }
@@ -238,4 +246,11 @@
 
 #kits .chain-set-ico {
 	margin: -7px 0 -3px;
+}
+
+#kits .FavStar {
+	width: 1em;
+	height: 1em;
+	display: inline-block;
+    background-size: 1em;
 }

@@ -61,7 +61,6 @@ FoEproxy.addHandler('GuildBattlegroundService', 'getBattleground', (data, postDa
 	}
 
 	GuildFights.MapData = data['responseData'];
-	ActiveMap = 'gg';
 
 	$('#gildFight-Btn').removeClass('hud-btn-red');
 	$('#selectorCalc-Btn-closed').remove();
@@ -138,7 +137,7 @@ let GuildFights = {
 
 	init: () => {
 		// moment.js global set
-		moment.locale(MainParser.Language);
+		//moment.locale(MainParser.Language);
 
 		GuildFights.GetAlerts();
 
@@ -538,7 +537,7 @@ let GuildFights = {
 		if ($('#GildPlayers').length === 0)
 		{
 
-			moment.locale(MainParser.Language);
+			//moment.locale(MainParser.Language);
 
 			HTML.Box({
 				id: 'GildPlayers',
@@ -891,7 +890,7 @@ let GuildFights = {
 
 
 			h.push('<div class="pname dark-bg text-center">' + playerName + ': ' + moment.unix(gbground).subtract(11, 'd').format(i18n('DateShort')) + ` - ` + moment.unix(gbground).format(i18n('Date')) + '</div>');
-
+			h.push('<p class="dark-bg" style="padding:5px;margin:0;">' + i18n('Boxes.GuildFights.SnapShotLogDisclaimer') + '</p>')
 			h.push('<table id="gbgPlayerLogTable" class="foe-table gbglog"><thead>');
 			h.push('<tr class="sorter-header">');
 			h.push('<th class="is-number" data-type="gbg-playerlog-group">' + i18n('Boxes.GuildFights.Date') + '</th>');

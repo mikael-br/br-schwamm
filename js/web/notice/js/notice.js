@@ -12,7 +12,7 @@
  */
 
 /**
- * @type {{ActualGrp: number, init: Notice.init, notes: null, Listener: Notice.Listener, SetHeights: Notice.SetHeights, buildBox: Notice.buildBox, BuildSettingButtons: Notice.BuildSettingButtons, prepareContent: Notice.prepareContent, ActiveTab: number, ShowModal: Notice.ShowModal, ShowPlayerModal: Notice.ShowPlayerModal, SavePlayerToGroup: (function(*): (undefined)), SaveContent: Notice.SaveContent, EditMode: boolean, SaveModal: (function(*=, *=): (undefined)), SaveItemModal: (function(*=): (undefined)), DeleteElement: Notice.DeleteElement, ActiveSubTab: number, Players: {}}}
+ * @type {{ActualGrp: number, init: Notice.init, notes: null, Listener: Notice.Listener, SetHeights: Notice.SetHeights, buildBox: Notice.buildBox, BuildSettingButtons: Notice.BuildSettingButtons, prepareContent: Notice.prepareContent, ActiveTab: number, ShowModal: Notice.ShowModal, ShowPlayerModal: Notice.ShowPlayerModal, SavePlayerToGroup: Notice.SavePlayerToGroup, SaveContent: Notice.SaveContent, EditMode: boolean, ApiToken: null, SaveModal: Notice.SaveModal, SaveItemModal: Notice.SaveItemModal, DeleteElement: Notice.DeleteElement, ActiveSubTab: number, Players: {}}}
  */
 let Notice = {
 
@@ -32,23 +32,53 @@ let Notice = {
 
 	ActiveTab: 1,
 	ActiveSubTab: 1,
-	Banned: false,    /* preserve */
+
+	ApiToken: null,
+
+	initDone:false,
 
 	/**
 	 * On init get the content
 	 */
 	init: ()=> {
-		if(Notice.notes === null && Settings.GetSetting('GlobalSend') === true) {  /* preserve */
-			MainParser.send2Server({isEmpty:true}, 'Notice/get',(resp)=>{
-				/* --- Preserve start --------------------------------------------- */ 
-				if (resp.status == 'OK' && resp.notice === undefined) {
-					Notice.Banned = true;
-				}
-				/* --- Preserve start --------------------------------------------- */ 
-				
-				Notice.notes = resp.notice;
 
-				Notice.buildBox(false);
+		let apiToken = localStorage.getItem('ApiToken');
+
+		if(apiToken === null) {
+			HTML.ShowToastMsg({
+				head: i18n('Boxes.CityMap.MissingApiKeyErrorHeader'),
+				text: [
+					i18n('Boxes.CityMap.MissingApiKeySubmitError'),
+					`<a target="_blank" href="${i18n('Settings.ApiTokenUrl')}">${i18n('Settings.ApiTokenUrl')}</a>`
+				],
+				type: 'error',
+				hideAfter: 10000,
+			});
+
+			return;
+		}
+
+		Notice.ApiToken = apiToken;
+
+		if(Notice.notes === null && Settings.GetSetting('GlobalSend') === true) {  /* preserve */
+			MainParser.send2Server({apiToken:apiToken}, 'Notice/get',(resp)=>{
+				/* --- Preserve start --------------------------------------------- */ 
+				if (resp['status'] == 'OK' && resp['notice'] === undefined) {
+					Notice.Banned = true;
+				} else 
+				if(resp['status'] === 'ERROR') {
+					HTML.ShowToastMsg({
+						head: 'Error',
+						text: resp['msg'],
+						type: 'error',
+						hideAfter: 10000,
+					});
+				}
+				else {
+						Notice.notes = resp['notice'];
+
+					Notice.buildBox(false);
+				}
 			});
 
 		} else {
@@ -125,7 +155,7 @@ let Notice = {
 				if(n['player_group']){
 					switch (n['player_group']){
 						case 'guild': tabName = `🛡 ${i18n('Boxes.Notice.SelectPlayerGroupGuild')}`; break;
-						case 'friend': tabName = `👩🏼‍🤝‍🧑 ${i18n('Boxes.Notice.SelectPlayerGroupFriend')}`; break;
+						case 'friend': tabName = `👩🏼🤝🧑 ${i18n('Boxes.Notice.SelectPlayerGroupFriend')}`; break;
 						case 'neighbor': tabName = `⚔ ${i18n('Boxes.Notice.SelectPlayerGroupNeighbor')}`; break;
 					}
 
@@ -155,9 +185,7 @@ let Notice = {
 											<span class="clan-name"><em>#${player['PlayerID']}</em> ${player['ClanName'] ? '[' + player['ClanName'] + ']' : '&nbsp;'}</span>
 										</div>
 										<div class="info-text">
-											${i18n('Boxes.Notice.ContentHeadIsGuild')}: ${player['IsGuildMember']}<br>
-											${i18n('Boxes.Notice.ContentHeadIsFriend')}: ${player['IsFriend']}<br>
-											${i18n('Boxes.Notice.ContentHeadIsNeighbor')}: ${player['IsFriend']}<br>
+											
 										</div>
 									</div>`);
 
@@ -166,7 +194,7 @@ let Notice = {
 					}
 
 
-					subdiv.push(`<div class="content-text" contenteditable="true">${itm['content']}</div>
+					subdiv.push(`<div class="content-text" contenteditable="true">${itm['content'] || ''}</div>
 								</div>`);
 				}
 
@@ -260,21 +288,6 @@ let Notice = {
 			Notice.ShowModal('itm', $(this).data('id'));
 		});
 
-		$('body').on('click', '.btn-delete', function(){
-			Notice.DeleteElement($(this).data('type'), $(this).data('id'));
-		});
-
-		$('body').on('click', '#notices-modalclose, #notices-modal-playersclose', function(){
-			$('.foe-helper-overlay').remove();
-		});
-
-		// save content when close box
-		$('body').on('click', '#noticesclose', function(){
-			let $this = $('.sub-tab:visible');
-
-			Notice.SaveContent($this);
-		});
-
 		// toggle edit buttons
 		$('#notices').on('click', '#notices-settings', function(){
 			if(!Notice.EditMode){
@@ -303,9 +316,20 @@ let Notice = {
 				return false;
 			}
 		});
+		if (Notice.initDone) return;
+		$('body').on('click', '.btn-delete', function(){
+			Notice.DeleteElement($(this).data('type'), $(this).data('id'));
+		});
 
-		$('body').on('click', '.custom-option-noticePlayers', function(){
-			Notice.SavePlayerToGroup($(this).data('value'));
+		$('body').on('click', '#notices-modalclose, #notices-modal-playersclose', function(){
+			$('.foe-helper-overlay').remove();
+		});
+
+		// save content when close box
+		$('body').on('click', '#noticesclose', function(){
+			let $this = $('.sub-tab:visible');
+			if ($this.length == 0) return;
+			Notice.SaveContent($this);
 		});
 
 		// check if user changes the box size
@@ -315,6 +339,7 @@ let Notice = {
 			clearTimeout(id);
 			id = setTimeout(Notice.SetHeights(), 150);
 		});
+		Notice.initDone = true;
 	},
 
 
@@ -367,7 +392,7 @@ let Notice = {
 				class: `btn-default save-${type}-name`,
 				'data-id': id,
 				'data-type': type,
-				onclick: (type === 'itm' ? `Notice.SaveItemModal(${(id === 'new' ? "'new'" : id)})` : `Notice.SaveModal('${type}', ${(id === 'new' ? "'new'" : id)})`)
+				onclick: (type === 'itm' ? `Notice.SaveItemModal('${(id === 'new' ? "new" : id)}')` : `Notice.SaveModal('${type}', '${(id === 'new' ? "new" : id)}')`)
 			})
 			.text(i18n('Boxes.Notice.Save'))
 			.wrap('<div class="text-right" />');
@@ -395,7 +420,7 @@ let Notice = {
 			let sort = $('<input />').attr({
 				type: 'number',
 				class: `inp-${type}-sort`,
-				placeholder: i18n('Boxes.Notice.Sorting'),
+				placeholder: i18n('Boxes.Notice.Sorting')
 			});
 
 			sort.wrap('<div />').insertAfter(`.inp-${type}-name`);
@@ -403,7 +428,6 @@ let Notice = {
 
 		if(type === 'grp' && id === 'new'){
 			$('#notices-modalBody').append(
-				$('<hr>'),
 				$('<p />').append(
 					$('<select />').attr({
 						id: 'player-grp',
@@ -445,11 +469,14 @@ let Notice = {
 			data = {
 				id: id,
 				type: type,
-				name: txt
-			}
+				name: txt,
+				sort: $(`.inp-grp-sort`).val() || 1,
+				apiToken: Notice.ApiToken
+			},
+			grpSel = $('#player-grp option:selected');
 
-		if( $('#player-grp option:selected').data('value') !== -1 ){
-			data['player_group'] = $('#player-grp option:selected').data('value');
+		if( grpSel.data('value') !== -1 ){
+			data['player_group'] = grpSel.data('value');
 
 		} else if(txt === '') {
 			return;
@@ -459,23 +486,33 @@ let Notice = {
 		}
 
 		MainParser.send2Server(data, 'Notice/set', (resp)=>{
-			Notice.notes = resp['notice'];
-
-			if(id === 'new'){
-				Notice.ActiveTab = Notice.notes[Notice.notes.length -1];
-
-			} else {
-				Notice.ActiveTab = Notice.notes.findIndex(idx => (idx.id === id)) +1;
+			if(resp['status'] === 'ERROR') {
+				HTML.ShowToastMsg({
+					head: 'Error',
+					text: resp['msg'],
+					type: 'error',
+					hideAfter: 10000,
+				});
 			}
+			else {
+				Notice.notes = resp['notice'];
 
-			$('#notices-modal').fadeToggle('fast', function(){
-				$(this).remove();
+				if(id === 'new'){
+					Notice.ActiveTab = Notice.notes[Notice.notes.length -1];
 
-				$('.foe-helper-overlay').remove();
-			});
+				} else {
+					Notice.ActiveTab = Notice.notes.findIndex(idx => (idx.id === id)) +1;
+				}
 
-			Notice.EditMode = false;
-			Notice.buildBox();
+				$('#notices-modal').fadeToggle('fast', function(){
+					$(this).remove();
+
+					$('.foe-helper-overlay').remove();
+				});
+
+				Notice.EditMode = false;
+				Notice.buildBox();
+			}
 		});
 	},
 
@@ -489,8 +526,8 @@ let Notice = {
 	SaveItemModal: (id)=> {
 		let nN = $('.inp-itm-name').val(),
 			txt = nN.trim(),
-			grp = parseInt($('ul.horizontal').find('li.active a').data('id')),
-			sortVal = !$(`inp-itm-sort`).val() || ($(`#tab-${grp}`).find('ul.vertical li').length +1);
+			grp = $('ul.horizontal').find('li.active a').data('id'),
+			sortVal = !$(`.inp-itm-sort`).val() || ($(`#tab-${grp}`).find('ul.vertical li').length +1);
 
 		if(txt === ''){
 			return;
@@ -498,27 +535,37 @@ let Notice = {
 
 		txt = MainParser.ClearText(txt);
 
-		MainParser.send2Server({id:id,type:'itm',name:txt,grp:grp,sort:sortVal}, 'Notice/set', (resp)=>{
-			Notice.notes = resp['notice'];
-
-			const group = Notice.notes.find(e => (e.id === grp));
-			Notice.ActiveTab = Notice.notes.findIndex(idx => (idx.id === grp)) +1;
-
-			if(id === 'new'){
-				Notice.ActiveSubTab = group.items.length +1;
-
-			} else {
-				Notice.ActiveSubTab = group.items.findIndex(i => (i.id === id)) +1;
+		MainParser.send2Server({id:id,type:'itm',name:txt,grp:grp,sort:sortVal,apiToken:Notice.ApiToken}, 'Notice/set', (resp)=>{
+			if(resp['status'] === 'ERROR') {
+				HTML.ShowToastMsg({
+					head: 'Error',
+					text: resp['msg'],
+					type: 'error',
+					hideAfter: 10000,
+				});
 			}
+			else {
+				Notice.notes = resp['notice'];
 
-			$('#notices-modal').fadeToggle('fast', function(){
-				$(this).remove();
+				const group = Notice.notes.find(e => (e.id === grp));
+				Notice.ActiveTab = Notice.notes.findIndex(idx => (idx.id === grp)) +1;
 
-				$('.foe-helper-overlay').remove();
-			});
+				if(id === 'new'){
+					Notice.ActiveSubTab = group.items.length +1;
 
-			Notice.EditMode = false;
-			Notice.buildBox();
+				} else {
+					Notice.ActiveSubTab = group.items.findIndex(i => (i.id === id)) +1;
+				}
+
+				$('#notices-modal').fadeToggle('fast', function(){
+					$(this).remove();
+
+					$('.foe-helper-overlay').remove();
+				});
+
+				Notice.EditMode = false;
+				Notice.buildBox();
+			}
 		});
 	},
 
@@ -530,26 +577,36 @@ let Notice = {
 	 * @constructor
 	 */
 	SaveContent: ($this)=> {
-		if (Settings.GetSetting('GlobalSend') === true) {
-			return;
-		}
-
-		let itmID = parseInt($this.data('id')),
-			grpID = parseInt($this.data('parent')),
+		let itmID = $this.data('id'),
+			grpID = $this.data('parent'),
 			head = $this.find('.content-head').html(),
 			cont = $this.find('.content-text').html();
 
+		if(cont === null) {
+			return;
+		}
+
 		// send content changes to server und change local object
-		MainParser.send2Server({id:itmID,grp:grpID,type:'cnt',head:head,cont:cont,}, 'Notice/set', (resp)=>{
+		MainParser.send2Server({id:itmID,grp:grpID,type:'cnt',head:head,cont:cont,apiToken:Notice.ApiToken}, 'Notice/set', (resp)=>{
 
-			let grpIdx = Notice.notes.findIndex(g => g.id === grpID),
-				itmIdx = Notice.notes[grpIdx].items.findIndex(i => i.id === itmID);
+			if(resp['status'] === 'ERROR') {
+				HTML.ShowToastMsg({
+					head: 'Error',
+					text: resp['msg'],
+					type: 'error',
+					hideAfter: 10000,
+				});
+			}
+			else {
+				let grpIdx = Notice.notes.findIndex(g => g.id === grpID),
+					itmIdx = Notice.notes[grpIdx].items.findIndex(i => i.id === itmID);
 
-			Notice.notes[grpIdx].items[itmIdx]['title'] = head;
-			Notice.notes[grpIdx].items[itmIdx]['content'] = cont;
+				Notice.notes[grpIdx].items[itmIdx]['title'] = head;
+				Notice.notes[grpIdx].items[itmIdx]['content'] = cont;
 
-			Notice.ActiveTab = (grpIdx + 1);
-			Notice.ActiveSubTab = (itmIdx + 1);
+				Notice.ActiveTab = (grpIdx + 1);
+				Notice.ActiveSubTab = (itmIdx + 1);
+			}
 		});
 	},
 
@@ -599,7 +656,7 @@ let Notice = {
 			const p = players[i],
 				a = srcLinks.GetPortrait(p['Avatar']);
 
-			content += `<span class="custom-option custom-option-noticePlayers" data-value="${p['PlayerID']}"><span class="avatar" style="background-image:url("${a}")"></span>${p['PlayerName']}</span>`;
+			content += `<span class="custom-option" onclick="Notice.SavePlayerToGroup(${p['PlayerID']})" data-value="${p['PlayerID']}"><span class="avatar" style="background-image:url('${a}')"></span>${p['PlayerName']}</span>`;
 		}
 
 		content +=		`</div>
@@ -618,7 +675,8 @@ let Notice = {
 			type: 'itm',
 			name: PlayerDict[id]['PlayerName'],
 			grp: Notice.ActualGrp,
-			player: JSON.stringify(PlayerDict[id])
+			player: JSON.stringify(PlayerDict[id]),
+			apiToken: Notice.ApiToken
 		};
 
 		// check if not double
@@ -634,15 +692,27 @@ let Notice = {
 		Notice.ActiveTab = Notice.notes.findIndex(idx => idx.id === Notice.ActualGrp) + 1;
 
 		MainParser.send2Server(data, 'Notice/set', (resp)=>{
-			Notice.notes = resp['notice'];
+			if(resp['status'] === 'ERROR') {
+				HTML.ShowToastMsg({
+					head: 'Error',
+					text: resp['msg'],
+					type: 'error',
+					hideAfter: 10000,
+				});
+			}
+			else {
+				Notice.notes = resp['notice'];
 
-			$('#notices-modal-players').fadeToggle('fast', function(){
-				$(this).remove();
+				$('#notices-modal-players').fadeToggle('fast', function(){
+					$(this).remove();
 
-				$('.foe-helper-overlay').remove();
-			});
+					$('.foe-helper-overlay').remove();
+				});
 
-			Notice.buildBox();
+				Notice.buildBox();
+
+				$('.custom-option-noticePlayers').bind('click');
+			}
 		});
 	},
 
@@ -671,11 +741,21 @@ let Notice = {
 					});
 				});
 
-				MainParser.send2Server({type:'grp',grps:grps}, 'Notice/sort', (resp)=>{
-					Notice.notes = resp['notice'];
+				MainParser.send2Server({type:'grp',grps:grps,apiToken:Notice.ApiToken}, 'Notice/sort', (resp)=>{
+					if(resp['status'] === 'ERROR') {
+						HTML.ShowToastMsg({
+							head: 'Error',
+							text: resp['msg'],
+							type: 'error',
+							hideAfter: 10000,
+						});
+					}
+					else {
+						Notice.notes = resp['notice'];
 
-					$('.notices').tabslet();
-					Notice.BuildSettingButtons();
+						$('.notices').tabslet();
+						Notice.BuildSettingButtons();
+					}
 				});
 			}
 		});
@@ -719,11 +799,21 @@ let Notice = {
 						});
 					});
 
-					MainParser.send2Server({type:'itm',itms:itms}, 'Notice/sort', (resp)=>{
-						Notice.notes = resp['notice'];
+					MainParser.send2Server({type:'itm',itms:itms,apiToken:Notice.ApiToken}, 'Notice/sort', (resp)=>{
+						if(resp['status'] === 'ERROR') {
+							HTML.ShowToastMsg({
+								head: 'Error',
+								text: resp['msg'],
+								type: 'error',
+								hideAfter: 10000,
+							});
+						}
+						else {
+							Notice.notes = resp['notice'];
 
-						$('.tabs-sub').tabslet();
-						Notice.BuildSettingButtons();
+							$('.tabs-sub').tabslet();
+							Notice.BuildSettingButtons();
+						}
 					});
 				}
 			});
@@ -757,17 +847,27 @@ let Notice = {
 	 * @constructor
 	 */
 	DeleteElement: (type, id)=> {
-		MainParser.send2Server({type:type,id:id}, 'Notice/del', (resp)=>{
-			Notice.notes = resp['notice'];
+		MainParser.send2Server({type:type,id:id,apiToken:Notice.ApiToken}, 'Notice/del', (resp)=>{
+			if(resp['status'] === 'ERROR') {
+				HTML.ShowToastMsg({
+					head: 'Error',
+					text: resp['msg'],
+					type: 'error',
+					hideAfter: 10000,
+				});
+			}
+			else {
+				Notice.notes = resp['notice'];
 
-			$('#notices-modal').fadeToggle('fast', function(){
-				$(this).remove();
+				$('#notices-modal').fadeToggle('fast', function(){
+					$(this).remove();
 
-				$('.foe-helper-overlay').remove();
-			});
+					$('.foe-helper-overlay').remove();
+				});
 
-			Notice.EditMode = false;
-			Notice.buildBox();
+				Notice.EditMode = false;
+				Notice.buildBox();
+			}
 		});
 	},
 

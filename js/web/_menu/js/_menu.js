@@ -1,7 +1,7 @@
 /*
  * *************************************************************************************
  *
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -65,6 +65,7 @@ let _menu = {
 		'compare_friends_threads',
 		'discord',
 		'findGB'
+		//'qiMap'
 		// 'marketOffers',
 	],
 
@@ -585,6 +586,23 @@ let _menu = {
 	},
 
 	/**
+	 * citymap
+	 *
+	 * @returns {*|jQuery}
+	 */
+	qiMap_Btn: () => {
+		let btn_QIMapBG = _menu.MakeButton('qiMap', i18n('Menu.QIMap.Title'), i18n('Menu.QIMap.Desc'), true);
+
+		let btn_QIMap = $('<span />').on('click', function () {
+			if (Object.keys(QIMap.CurrentMapData).length > 0) 
+				QIMap.showBox()
+			
+		});
+
+		return btn_QIMapBG.append(btn_QIMap);
+	},
+
+	/**
 	 * Events in the city and the surrounding area
 	 *
 	 * @returns {null|undefined|jQuery}
@@ -964,6 +982,18 @@ let _menu = {
 		return btn.append(btn_sp);
 	},
 
+	/**
+	 * Castle System
+	 */
+	combat_power_Btn: () => {
+		let btn = _menu.MakeButton('combat_power', i18n('Menu.CombatPower.Title'), i18n('Menu.CombatPower.Desc'));
+
+		let btn_sp = $('<span />').bind('click', function () {
+			CombatPower.Init();
+		});
+
+		return btn.append(btn_sp);
+	},
 
 	/**
 	 * Compare friends and threads

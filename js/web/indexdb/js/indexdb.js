@@ -473,6 +473,26 @@ let IndexDB = {
         }
     },
 
+    rewardDBCleanup: async () => {
+        //reward type for shard, Ad chests and shards was changed around april 11 and code was amended for that on May 19 - this will switch all old entries for incidents to the new type
+        if (!localStorage.getItem("HiddenRewardOverwrite")) {
+            let x = await IndexDB.db.statsRewards.toArray();
+            let y= [];
+            x.forEach(a=>{
+                if (a.type=="hidden_reward") {
+                    a.type="shards"
+                    y.push(a)
+                }
+                if (a.type=="default" || a.type=="living_city") {
+                    a.type="hidden_reward"
+                    y.push(a)
+                }
+                });
+            IndexDB.db.statsRewards.bulkPut(y);
+            localStorage.setItem("HiddenRewardOverwrite","done");
+        }
+    },
+
 
     /**
      * Calculate estimated space used in db
@@ -503,6 +523,7 @@ let IndexDB = {
         let player = PlayerDict[playerId];
         const playerFromDB = await IndexDB.db.players.get(playerId);
         if (!playerFromDB) {
+            let player = PlayerDict[playerId];
             if (player) {
                 await IndexDB.db.players.add({
                     id: playerId,
@@ -510,7 +531,7 @@ let IndexDB = {
                     clanId: player.ClanId || 0,
                     clanName: player.ClanName,
                     avatar: player.Avatar,
-                    era: player.Era || 'unknown',
+                    era: player.Era || 'unknown', // Era can be discovered when user is visited, not now
                     score: player.Score,
                     lastScoreChangeDate: player.ScoreDate,
                     lastScoreReceiveData:player.ScoreReceiveDate, 

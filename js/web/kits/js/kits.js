@@ -1,6 +1,7 @@
 /*
- * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * *************************************************************************************
+ *
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -8,13 +9,18 @@
  * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
  * for full license details.
  *
- * **************************************************************************************
+ * *************************************************************************************
  */
 
 /**
  * A {@link HTML.Box box} for listing owned (in inventory) and missing buildings, and according kits and assets.
  * @namespace
  */
+
+FoEproxy.addFoeHelperHandler('InventoryUpdated', () => {
+	Kits.UpdateBoxIfVisible();
+});
+
 let Kits = {
 
 	/**
@@ -32,6 +38,7 @@ let Kits = {
 	ShowMissing: 0,
 	Fragments:{},
 	fragmentURL:null,
+	favourites:JSON.parse(localStorage.getItem("Kits.favourites")||"[]"),
 	specialCases:{
 		"selection_kit_watchtower_1_gbg" : "selection_kit_watchtower1_gbg",
 		"selection_kit_ind_palace_set" :"selection_kit_indian_palace",
@@ -110,7 +117,14 @@ let Kits = {
 					id: 'kits-triplestate-button',
 					class: 'btn-default btn-tight',
 					onclick: 'Kits.ToggleView()'
-				}).text(Kits.ShowMissing === 0 ? i18n('Boxes.Kits.TripleStateButton0') : Kits.ShowMissing === 1 ? i18n('Boxes.Kits.TripleStateButton1') : i18n('Boxes.Kits.TripleStateButton2'))
+				}).text(i18n('Boxes.Kits.TripleStateButton'+Kits.ShowMissing))
+			);
+			$('#kitsBodyBottombar').append(
+				$('<span />').attr({
+					id: 'kits-showFavourites',
+					class: 'btn-default btn-tight',
+					onclick: 'Kits.ToggleFavouritesBtn()'
+				}).text(i18n('Boxes.Kits.ShowFavourites'))
 			);
 		}
 		else {
@@ -127,6 +141,7 @@ let Kits = {
 	UpdateBoxIfVisible: ()=> {
 		if ($('#kits').length !== 0) {
 			Kits.ReadSets();
+			Kits._filter();
 		}
 	},
 
@@ -177,7 +192,7 @@ let Kits = {
 		}
 		for (let k in MainParser.Inventory) {
 			if (! MainParser.Inventory.hasOwnProperty(k)) continue
-			if (MainParser.Inventory[k]?.item?.reward?.type=="set") {
+			if (MainParser.Inventory[k]?.item?.reward?.type==="set") {
 				addItems(MainParser.Inventory[k].item.reward.rewards,MainParser.Inventory[k].item.reward.id)
 			}
 
@@ -189,7 +204,7 @@ let Kits = {
 			let upgradeList = [u.upgradeItem.id];
 			let buildingList=[];
 			let sK=[]
-			let upgradeCount=JSON.parse(`{"${u.upgradeItem.id.split("_")[0]}":${u.upgradeSteps.length-1}}`)
+			let upgradeCount=JSON.parse(`{"${u.upgradeItem.id.includes("ascended")?"ascended" : u.upgradeItem.id.split("_")[0]}":${u.upgradeSteps.length-1}}`)
 			for (let i = 1;i<u.upgradeSteps.length;i++) {
 				for (b of u.upgradeSteps[i].buildingIds) {
 					buildingList.push(b)
@@ -214,6 +229,7 @@ let Kits = {
 				}
 			}
 		}
+
 		// check if all upgrade kits' first buildings reference known buildings
 		let newCat=true;
 
@@ -223,7 +239,7 @@ let Kits = {
 				b => Object.entries(b).filter(bu => bu[0] === 'first' && bu[1] === id).length > 0).length > 0
 			);
 			if (kits_for_upg.length === 0) {
-				if (devMode=="true") console.log(`\t\t{\n\t\t\t"name": ${MainParser.CityEntities[id]?.name},\n\t\t\t"buildings": [\n\t\t\t\t{"first": ${id}}\n\t\t\t]\n\t\t}`) //`First building ${id} (${MainParser.CityEntities[id]?.name}) of upgrade(s) ${upg.upgradeList.join(',')} not found in Kits' json.`, upg);
+				if (devMode==="true") console.log(`\t\t{\n\t\t\t"name": "${MainParser.CityEntities[id]?.name}",\n\t\t\t"buildings": [\n\t\t\t\t{"first": "${id}"}\n\t\t\t]\n\t\t},\n`) //`First building ${id} (${MainParser.CityEntities[id]?.name}) of upgrade(s) ${upg.upgradeList.join(',')} not found in Kits' json.`, upg);
 				if (newCat) {
 					newCat = false;
 					kits.push({"groupname": "new_not_categorized"})	
@@ -265,7 +281,7 @@ let Kits = {
 			
 			let item = {
 						type: type,
-						item: inv[id] || (type=="first" ? entities[id] : (type=="asset" ? entities[id] : id)),
+						item: inv[id] || (type==="first" ? entities[id] : (type==="asset" ? entities[id] : id)),
 						fragments: inv["fragment#" + id]?.inStock,
 						reqFragments: inv["fragment#" + id]?.required,
 						missing: ((inv[id]?.inStock || 0) < 1) && (((inv["fragment#" + id]?.inStock)||0) < 1),
@@ -318,7 +334,7 @@ let Kits = {
 
 				for (let i in building) {
 					if (!building.hasOwnProperty(i)) continue;
-					if (i=="first")	continue;
+					if (i==="first")	continue;
 					let l = itemRow.push(create('update',building[i]));
 					if (!itemRow[l-1].missing) showB = true; 
 				}
@@ -359,8 +375,11 @@ let Kits = {
 				GroupName = kits[set].groupname;
 			
 			let ChainSetIco = '';
-
+			let favourite = "";
+			let favClass = "";
 			if (Name) { // Name is set
+				favourite = `<span class="FavStar" data-name="${Name}" onclick="Kits.toggleFavourite(event)" style="background-image:url('${Kits.favourites.includes(Name)? srcLinks.get("/shared/gui/guild_meta_layer/guild_meta_layer_recommend_star_fill.png",true) : srcLinks.get("/shared/gui/guild_meta_layer/guild_meta_layer_recommend_star_empty.png",true)}')"></span>`
+				favClass = Kits.favourites.includes(Name) ? "":" notFavourite";
 				let sName = Name.toLowerCase().replace(/_set/g, '');
 
 				if (Name === 'Kits') {
@@ -383,7 +402,7 @@ let Kits = {
 				else if (MainParser.CityEntities[kits[set].buildings[0].first]) {
 					let itemName = MainParser.CityEntities[kits[set].buildings[0].first].name;
 					let idx = itemName.indexOf(' - ', 0);
-					
+
 					if (idx === -1) {
 						idx = itemName.indexOf(' – ', 0); // looks the same but it isn't ¯\_(ツ)_/¯
 					}
@@ -418,13 +437,14 @@ let Kits = {
 				KitText = i18n('Boxes.Kits.Udate') + kits[set].udate;
 				show = true;
 			}
-
+			//let upgradeOrder=["upgrade","silver","golden","platinum","ascended"];
 			let upgrades = "";
 			if (kits[set].buildings?.[0]?.first && MainParser.CityEntities[kits[set].buildings[0].first]) {
 				let upgradeCount = Kits.upgradeKits?.[kits[set].buildings[0].first]?.upgradeCount;
 				if (upgradeCount) {
 					upgrades = '<span class="upgrades" data-original-title="'+i18n('Boxes.Kits.Upgrades')+'" data-toggle="tooltip">'
 					let first = true
+					//for (let i of upgradeOrder) {
 					for (let i in upgradeCount) {
 						if (!upgradeCount[i]) continue
 						upgrades += (first ? '<span class="base" title="'+i18n('Boxes.Kits.Base')+'">1</span>' : "") + `<span class="${i}">${upgradeCount[i]}</span>`
@@ -433,9 +453,10 @@ let Kits = {
 					upgrades+= '</span>'
 				}
 			}
+			
 			if (!GroupName) {
-				t += '<div class="item-row '+ (!show ? "all-missing" : "") +'">'
-				t += `<h2 class="head">` + ChainSetIco +' '+ KitText + upgrades + '</h2>'
+				t += '<div class="item-row'+ (!show ? " all-missing" : "") + favClass + '">'
+				t += `<h2 class="head">` + favourite + ChainSetIco +' '+ KitText + upgrades + '</h2>'
 			}
 			if(buildings.length) {
 				buildings.forEach((building) => {
@@ -498,7 +519,7 @@ let Kits = {
 			title = '';
 			
 		try {
-			if (el.type == "first" || el.type == "asset") url = '/city/buildings/' + [aName.slice(0, 1), '_SS', aName.slice(1)].join('') + '.png';
+			if (el.type === "first" || el.type === "asset") url = '/city/buildings/' + [aName.slice(0, 1), '_SS', aName.slice(1)].join('') + '.png';
 		} 
 		catch {
 			console.log(el)
@@ -518,7 +539,7 @@ let Kits = {
 		}
 
 		return 	`<div class="item${((el.missing) ? ' is-missing' : '')}">
-					<div class="image"><img src="${url}" alt="${title}" /></div>
+					<div class="image"><img loading="lazy" src="${url}" alt="${title}" /></div>
 					<strong class="in-stock" title="${i18n('Boxes.Kits.InStock')}">${(item.inStock ? item.inStock : '-')}</strong>
 					<span>${title}</span>
 					<span class="fragments">${(el.fragments ? `<img class="ItemFragment" src="${Kits.fragmentURL}"> ` + el.fragments + '/' + el.reqFragments : '')}</span>
@@ -540,6 +561,9 @@ let Kits = {
 			let id = x.item.upgradeItemId||x.item.selectionKitId||x.item.cityEntityId||x.itemAssetName;
 			let asset= x.itemAssetName;
 			let name = x.name;
+			if (x.item.__class__=="BuildingItemPayload") {
+				asset=MainParser.CityEntities[id].asset_id;
+			}
 			if (x.item.__class__=="FragmentItemPayload") {
 				id =  "fragment#"+ ((x.item.reward.assembledReward.type == "building") ? 
 										(x.item.reward.assembledReward.subType) : 
@@ -563,15 +587,34 @@ let Kits = {
     },
 
 
+	toggleFavourite:(e) => {
+		let name = e.target.dataset.name
+		let index = Kits.favourites.indexOf(name);
+
+		if (index === -1) {
+			Kits.favourites.push(name);
+		} else {
+			Kits.favourites.splice(index, 1);
+		}
+		e.target.style = `background-image:url('${Kits.favourites.includes(name)? srcLinks.get("/shared/gui/guild_meta_layer/guild_meta_layer_recommend_star_fill.png",true) : srcLinks.get("/shared/gui/guild_meta_layer/guild_meta_layer_recommend_star_empty.png",true)}')`
+		localStorage.setItem("Kits.favourites",JSON.stringify(Kits.favourites));
+		e.target.parentElement.parentElement.classList.toggle("notFavourite");
+	},
+
 	/**
 	 * Toggles displaying of owned, missing and all set items.
 	 */
 	ToggleView: ()=> {
-		Kits.ShowMissing === 0 ? Kits.ShowMissing = 1 : Kits.ShowMissing === 1 ? Kits.ShowMissing = 2 : Kits.ShowMissing = 0;
+		Kits.ShowMissing = (Kits.ShowMissing + 1) % 3;
 		
 		Kits._filter()
 		
-		$('#kits-triplestate-button').text(Kits.ShowMissing === 0 ? i18n('Boxes.Kits.TripleStateButton0') : Kits.ShowMissing === 1 ? i18n('Boxes.Kits.TripleStateButton1') : i18n('Boxes.Kits.TripleStateButton2'))
+		$('#kits-triplestate-button').text(i18n('Boxes.Kits.TripleStateButton'+Kits.ShowMissing))
+	},
+
+	ToggleFavouritesBtn:() => {
+		$('#kits-showFavourites')[0].classList.toggle("btn-active");
+		Kits._filter()
 	},
 
 	toggleGroup: ()=> {
@@ -584,6 +627,7 @@ let Kits = {
 		Kits._filterSets();
 		Kits._filterItems();
 		Kits._filterMissing();
+		if ($('#kits-showFavourites')[0].classList.contains("btn-active")) $('.notFavourite').hide(); 
 	},
 
 	/**

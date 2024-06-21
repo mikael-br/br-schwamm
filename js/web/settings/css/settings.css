@@ -95,12 +95,12 @@
 }
 
 #SettingsBoxBody .item-row dl dt {
-	width: 75px;
+	width: 86px;
 	text-align: right;      /* preserve */
     padding-right: 0.5rem;  /* preserve */
 }
 #SettingsBoxBody .item-row dl dd {
-	width: 146px;
+	width: 86px;
 	margin-inline-start: 0;
 }
 

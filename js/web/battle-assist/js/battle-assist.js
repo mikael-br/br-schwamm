@@ -60,6 +60,7 @@ FoEproxy.addHandler('BattlefieldService', 'all', (data, postData) => {
 FoEproxy.addHandler('BattlefieldService', 'getArmyPreview', (data, postData) => {
     
     if(!Settings.GetSetting('ShowArmyAdvice'))	return;
+    if (data.responseData?.__class__=="Error") return;
     
     $('#battleAssistArmyAdvice').remove();
     $('#battleAssistAddAdvice').remove();
@@ -173,6 +174,7 @@ let BattleAssist = {
             'dragdrop': false,
             'minimize': false
         });
+        if (MainParser.ABTests["foe_abtest_army_ux"].group != "control_group") $('#battleAssistRogueDialog').addClass("ABnew")
         $('#battleAssistRogueDialogBody').html(`${i18n('Boxes.BattleAssist.Text.Rogue')}`);
     },
     
@@ -243,12 +245,12 @@ let BattleAssist = {
             for (let x of BattleAssist.armyRecent) {
                 html += `<tr><td><div class="BattleWave">`
                 for (let unit of x.wave1) {
-                    html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit+'.jpg',true)}">`
+                    html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit.replace("guild_raids_","")+'.jpg',true)}">`
                 }            
                 html += `</div></td><td><div class="BattleWave">`
                 if (x.wave2) {
                     for (let unit of x.wave2) {
-                        html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit+'.jpg',true)}">`
+                        html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit.replace("guild_raids_","")+'.jpg',true)}">`
                     }
                 }            
                 html += `</div></td><td>${x.bonus}%`
@@ -267,12 +269,12 @@ let BattleAssist = {
                 if (!x) break;
                 html += `<tr><td><div class="BattleWave">`
                 for (let unit of x.wave1) {
-                    html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit+'.jpg',true)}">`
+                    html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit.replace("guild_raids_","")+'.jpg',true)}">`
                 }            
                 html += `</div></td><td><div class="BattleWave">`
                 if (x.wave2) {
                     for (let unit of x.wave2) {
-                        html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit+'.jpg',true)}">`
+                        html += `<img src="${srcLinks.get('/shared/unit_portraits/armyuniticons_50x50/armyuniticons_50x50_'+unit.replace("guild_raids_","")+'.jpg',true)}">`
                     }
                 }            
                 html += `</td><td class="AASetBonus" data-id="${id}">${x.bonus ? x.bonus + "%" : ""}`

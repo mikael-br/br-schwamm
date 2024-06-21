@@ -59,12 +59,12 @@ let ApiURL = 'https://api.foe-rechner.de/',
 	GameTimeOffset = 0,
 	GameTime = 0,
 	StartUpDone = new Promise(resolve => 
-			window.addEventListener('foe-helper#StartUpDone', resolve(), {once: true, passive: true})),
+			window.addEventListener('foe-helper#StartUpDone', resolve, {once: true, passive: true})),
 	Fights = [],
 	OwnUnits = [],
 	EnemyUnits = [],
 	UnlockedFeatures = [],
-	possibleMaps = ['main', 'gex', 'gg', 'era_outpost', 'gvg'],
+	possibleMaps = ['main', 'gex', 'gg', 'era_outpost', 'guild_raids', 'cultural_outpost'],
 	PlayerLinkFormat = 'https://foe.scoredb.io/__world__/Player/__playerid__',
 	GuildLinkFormat = 'https://foe.scoredb.io/__world__/Guild/__guildid__',
 	BuildingsLinkFormat = 'https://forgeofempires.fandom.com/wiki/__buildingid__',
@@ -153,6 +153,7 @@ GetFights = () =>{
 	FoEproxy.addMetaHandler('city_entities', (xhr, postData) => {
 		let EntityArray = JSON.parse(xhr.responseText);
 		MainParser.CityEntities = Object.assign({}, ...EntityArray.map((x) => ({ [x.id]: x })));
+
 		for (let i in MainParser.CityEntities) {
 			if (!MainParser.CityEntities.hasOwnProperty(i)) continue;
 
@@ -160,7 +161,7 @@ GetFights = () =>{
 			if (!CityEntity.type) CityEntity.type = CityEntity?.components?.AllAge?.tags?.tags?.find(value => value.hasOwnProperty('buildingType')).buildingType;
         }
 		MainParser.checkPlunderability();
-		MainParser.checkInactives();
+		MainParser.Inactives.check();
 		MainParser.createCityBuildings();
 	});
 
@@ -221,7 +222,7 @@ GetFights = () =>{
 	// --------------------------------------------------------------------------------------------------
 	// Player- und Gilden-ID setzen
 	FoEproxy.addHandler('StartupService', 'getData', (data, postData) => {
-
+        moment.locale(i18n('Local'));
 		window.addEventListener("error", function (e) {
 			console.error(e.error);
 			e.preventDefault();
@@ -279,6 +280,9 @@ GetFights = () =>{
 		// Unlocked features
 		MainParser.UnlockedFeatures = data.responseData.unlocked_features.map(function(obj) { return obj.feature; });
 
+		//A/B Tests
+		MainParser.ABTests=Object.assign({}, ...data.responseData.active_ab_tests.map((x) => ({ [x.test_name]: x })));
+	
 		Stats.Init();
 		Alerts.init();
 
@@ -307,20 +311,28 @@ GetFights = () =>{
 		MainParser.CollectBoosts(data.responseData);
 	});
 
+	// QI map
+	FoEproxy.addHandler('GuildRaidsMapService', 'getOverview', (data, postData) => {		
+		QIMap.init(data.responseData)
+	})
 
 	// --------------------------------------------------------------------------------------------------
 	// Karte wird gewechselt zum Außenposten
 	FoEproxy.addHandler('CityMapService', 'getCityMap', (data, postData) => {
 		ActiveMap = data.responseData.gridId;
-
-		// update FP-Bar for more customizable
-		// $('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+		FoEproxy.triggerFoeHelperHandler("ActiveMapUpdated");
 
 		if (ActiveMap === 'era_outpost') {
-			MainParser.CityMapEraOutpostData = Object.assign({}, ...data.responseData['entities'].map((x) => ({ [x.id]: x })));
+			CityMap.EraOutpostData = Object.assign({}, ...data.responseData['entities'].map((x) => ({ [x.id]: x })));
+			CityMap.EraOutpostAreas = data.responseData['unlocked_areas'];
 		}
 		else if (ActiveMap === 'guild_raids') {
-			MainParser.CityMapQIData = Object.assign({}, ...data.responseData['entities'].map((x) => ({ [x.id]: x })));
+			CityMap.QIData = Object.assign({}, ...data.responseData['entities'].map((x) => ({ [x.id]: x })));
+			CityMap.QIAreas = data.responseData['unlocked_areas'];
+		}
+		else if (ActiveMap === 'cultural_outpost') {
+			CityMap.CulturalOutpostData = Object.assign({}, ...data.responseData['entities'].map((x) => ({ [x.id]: x })));
+			CityMap.CulturalOutpostAreas = data.responseData['unlocked_areas'];
 		}
 	});
 
@@ -358,33 +370,33 @@ GetFights = () =>{
 			MainParser.NewCityMapData[building.id] = newCityEntity;
 		});
 
-		ActiveMap = 'main';
-		$('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+		MainParser.UpdateActiveMap('main');
 	});
 
 
 	// main is entered
 	FoEproxy.addHandler('AnnouncementsService', 'fetchAllAnnouncements', (data, postData) => {
-		ActiveMap = 'main';
-		$('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+		MainParser.UpdateActiveMap('main');
 	});
 
 	// gex is entered
 	FoEproxy.addHandler('GuildExpeditionService', 'getOverview', (data, postData) => {
-		ActiveMap = 'gex';
-		$('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+		MainParser.UpdateActiveMap('gex');
 	});
 
 	// gg is entered
 	FoEproxy.addHandler('GuildBattlegroundService', 'getBattleground', (data, postData) => {
-		ActiveMap = 'gg';
-		$('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+		MainParser.UpdateActiveMap('gg');
 	});
 
-	// gvg is entered
-	FoEproxy.addHandler('ClanBattleService', 'getContinent', (data, postData) => {
-		ActiveMap = 'gvg';
-		$('#fp-bar').removeClass(possibleMaps).addClass(ActiveMap);
+	// QI is entered
+	FoEproxy.addHandler('GuildRaidsService', 'getState', (data, postData) => {
+		if (!data.responseData?.guildRaidsType) return;
+		if (data.responseData?.__class__ != "GuildRaidsRunningState") return;
+		if (!data.responseData?.endsAt) return;
+
+		MainParser.UpdateActiveMap('guild_raids');
+
 	});
 
 	// visiting another player
@@ -421,6 +433,19 @@ GetFights = () =>{
 		else if (data.requestMethod === 'placeBuilding') {
 			let building = data.responseData[0];
 			if (building && building.id) {
+				if (ActiveMap === "cultural_outpost") {
+					CityMap.CulturalOutpostData[building.id] = building
+					return
+				}
+				else if (ActiveMap === "era_outpost") {
+					CityMap.EraOutpostData[building.id] = building
+					return
+				}
+				else if (ActiveMap === "guild_raids") {
+					CityMap.QIData[building.id] = building
+					return
+				}
+
 				MainParser.CityMapData[building.id] = building;
 
 				let ceData = Object.values(MainParser.CityEntities).find(x => x.id == building.cityentity_id)
@@ -431,6 +456,18 @@ GetFights = () =>{
 		}
 		else if (data.requestMethod === 'removeBuilding') {
 			let ID = postData[0].requestData[0];
+			if (ActiveMap === "cultural_outpost") {
+				delete CityMap.CulturalOutpostData[ID];
+				return
+			}
+			else if (ActiveMap === "era_outpost") {
+				delete CityMap.EraOutpostData[ID];
+				return
+			}
+			else if (ActiveMap === "guild_raids") {
+				delete CityMap.QIData[ID];
+				return
+			}
 			if (ID && MainParser.CityMapData[ID]) {
 				delete MainParser.CityMapData[ID];
 			}
@@ -773,7 +810,7 @@ GetFights = () =>{
 	FoEproxy.addHandler('ResourceService', 'getPlayerResources', (data, postData) => {
 		ResourceStock = data.responseData.resources; // Lagerbestand immer aktualisieren. Betrifft auch andere Module wie Technologies oder Negotiation
 		Outposts.CollectResources();
-		StrategyPoints.ShowFPBar();
+		FoEproxy.triggerFoeHelperHandler('ResourcesUpdated')
 		Castle.UpdateCastlePoints(data['requestId']);
 	});
 
@@ -809,15 +846,27 @@ GetFights = () =>{
 
 
 	// --------------------------------------------------------------------------------------------------
-	// GüterUpdate nach angenommenen Handel
 	FoEproxy.addRawWsHandler((data) => {
-		let Msg = data[0];
-		if (Msg === undefined || Msg['requestClass'] === undefined) {
-			return;
+		let Msg = data?.[0];
+		if (!Msg || !Msg.requestClass || !Msg.responseData) return;
+
+		let requestClass = Msg.requestClass;
+		let requestMethod = Msg.requestMethod;
+		let responseData = Msg.responseData;
+
+		// Goods Update after accepted Trade
+		if (requestMethod === "newEvent" && responseData.type === "trade_accepted") {
+			ResourceStock[responseData.need.good_id] += responseData.need.value;
+			FoEproxy.triggerFoeHelperHandler("ResourcesUpdated");
 		}
-		if (Msg['requestMethod'] === "newEvent" && Msg['responseData']['type'] === "trade_accepted") {
-			let d = Msg['responseData'];
-			ResourceStock[d['need']['good_id']] += d['need']['value'];
+		// Inventory Update, e.g. when receiving FP packages from GB leveling	
+		if (requestClass === 'InventoryService' && requestMethod === 'getItem') {
+			MainParser.UpdateInventoryItem(responseData);
+		}
+
+		if (requestClass === 'InventoryService' && requestMethod === 'getItemAmount') {
+			MainParser.UpdateInventoryAmount(responseData);
+
 		}
 	});
 
@@ -830,7 +879,7 @@ GetFights = () =>{
 
 		MainParser.Quests = data.responseData;
 
-		FoEproxy.pushFoeHelperMessage('QuestsUpdated');
+		FoEproxy.triggerFoeHelperHandler('QuestsUpdated');
 	});
 
 	// Update unlocked features
@@ -871,6 +920,7 @@ let HelperBeta = {
 	menu: [
 		'unitsGex',
 		'marketOffers',
+		'combat_power'
 	],
 	active: JSON.parse(localStorage.getItem('HelperBetaActive'))
 };
@@ -900,8 +950,6 @@ let MainParser = {
 	// all buildings of the player
 	CityMapData: {},
 	NewCityMapData: {},
-	CityMapEraOutpostData: null,
-	CityMapQIData: null,
 	OtherPlayerCityMapData: {},
 
 	// Unlocked extensions
@@ -950,10 +998,11 @@ let MainParser = {
 		localStorage.setItem('LastAgreedVersion', extVersion); //Comment out this line if you have something the player must agree on
 	},
 
+
 	createCityBuildings: () => {
 		// loop through all city buildings
 		for (const [key, data] of Object.entries(MainParser.CityMapData)) {
-			let ceData = Object.values(MainParser.CityEntities).find(x => x.id == data.cityentity_id);
+			let ceData = Object.values(MainParser.CityEntities).find(x => x.id === data.cityentity_id);
 			let era = Technologies.getEraName(data.cityentity_id, data.level);
 			let cityMapEntity = CityMap.createNewCityMapEntity(ceData,data,era)
 
@@ -1028,7 +1077,8 @@ let MainParser = {
 			return response.data;
 		}
 		else {
-			throw new Error('EXT-API error: ' + response.error);
+			if (response.error.indexOf('"type":"alerts"')== -1 && response.error.indexOf('"action":"getAll"') == -1)
+				throw new Error('EXT-API error: ' + response.error);
 		}
 	},
 
@@ -1509,7 +1559,6 @@ let MainParser = {
 	 * @constructor
 	 */
 	UpdatePlayerDict: (d, Source, ListType = undefined) => {
-		let promise = Promise.resolve();  /* Preserve */
 		if (Source === 'Conversation') {
 			for (let i in d['messages']) {
 				if (!d['messages'].hasOwnProperty(i))
@@ -1518,13 +1567,13 @@ let MainParser = {
 				let Message = d['messages'][i];
 
 				if (Message.sender !== undefined) {
-					promise = MainParser.UpdatePlayerDictCore(Message.sender);
+					MainParser.UpdatePlayerDictCore(Message.sender);
 				}
 			}
 		}
 
 		else if (Source === 'LGOverview') {
-			promise = MainParser.UpdatePlayerDictCore(d[0].player);
+			MainParser.UpdatePlayerDictCore(d[0].player);
 		}
 
 		else if (Source === 'LGContributions') {
@@ -1532,7 +1581,7 @@ let MainParser = {
 				if (!d.hasOwnProperty(i))
 					continue;
 
-				promise = MainParser.UpdatePlayerDictCore(d[i].player);
+				MainParser.UpdatePlayerDictCore(d[i].player);
 			}
 		}
 
@@ -1541,7 +1590,7 @@ let MainParser = {
 				if (!d.hasOwnProperty(i))
 					continue;
 
-				promise = MainParser.UpdatePlayerDictCore(d[i]);
+				MainParser.UpdatePlayerDictCore(d[i]);
 			}
 
 			if (ListType === 'getNeighborList') {
@@ -1560,7 +1609,7 @@ let MainParser = {
 		}
 		/* --- Preserve start --------------------------------------------- */ 
 		else if (Source === 'PlayerVO') {
-			promise = MainParser.UpdatePlayerDictCore(d);
+			MainParser.UpdatePlayerDictCore(d);
 		}
 
 		else if (Source === 'Events') {
@@ -1572,23 +1621,20 @@ let MainParser = {
 		}
 
 		else if (Source === 'VisitPlayer') {
-			promise = MainParser.UpdatePlayerDictCore(d.other_player);
+			MainParser.UpdatePlayerDictCore(d.other_player);
 		}
 
 		else if (Source === 'PvPArena') {
 			for (let i in d['opponents']) {
 				if(!d['opponents'].hasOwnProperty(i)) continue;
-				promise = MainParser.UpdatePlayerDictCore(d['opponents'][i].opposingPlayer.player);
+				 MainParser.UpdatePlayerDictCore(d['opponents'][i].opposingPlayer.player);
 			}
 		}
-
-		return promise;
 	},
 
 	loadPlayerIntoDict: (PlayerID) => {
-		let promise = Promise.resolve();
 		if (PlayerDict[PlayerID] === undefined) {
-			promise = IndexDB.loadPlayer(PlayerID).then(PlayerFromDB => {
+			IndexDB.loadPlayer(PlayerID).then(PlayerFromDB => {
 					if (PlayerFromDB) {
 						PlayerDict[PlayerID] = {};
 						PlayerDict[PlayerID]['PlayerID'] = PlayerID;
@@ -1606,7 +1652,6 @@ let MainParser = {
 					}
 				});
 		}
-		return promise;
 	},
 	/* --- Preserve end --------------------------------------------- */
 
@@ -1618,12 +1663,10 @@ let MainParser = {
 	 */
 	UpdatePlayerDictCore: (Player) => {
 
-		let promise = Promise.resolve();    /* preserve */
 		let PlayerID = Player['player_id'];
 		let HasGuildPermission = ((ExtGuildPermission & GuildMemberStat.GuildPermission_Leader) > 0 || (ExtGuildPermission & GuildMemberStat.GuildPermission_Founder) > 0);
 
 		if (PlayerID !== undefined) {
-			// Preserve? if (PlayerDict[PlayerID] === undefined) PlayerDict[PlayerID] = {'Activity': 0};
 			if (PlayerDict[PlayerID] === undefined) PlayerDict[PlayerID] = {
 										Activity: (Player['is_friend'] || (Player['is_guild_member'] && HasGuildPermission)) ? 0 : undefined
 									};
@@ -1646,7 +1689,7 @@ let MainParser = {
 			/* --- Preserve end --------------------------------------------- */ 
 
 			/* --- Preserve start --------------------------------------------- */
-			promise = IndexDB.loadPlayer(PlayerID).then((PlayerFromDB) => {
+			IndexDB.loadPlayer(PlayerID).then((PlayerFromDB) => {
 				if (PlayerFromDB) {
 					PlayerDict[PlayerID]['WonBattlesReceiveDate'] = (PlayerDict[PlayerID]['WonBattles'] !== undefined ? MainParser.getCurrentDate() : PlayerFromDB.lastWonBattlesReceiveDate);
 					PlayerDict[PlayerID]['WonBattlesDate'] = (PlayerFromDB.wonBattles === undefined && PlayerDict[PlayerID]['WonBattles'] !== undefined  || PlayerFromDB.lastWonBattlesChangeDate === undefined || PlayerFromDB.wonBattles < PlayerDict[PlayerID]['WonBattles'] ? MainParser.getCurrentDate() : PlayerFromDB.lastWonBattlesChangeDate);
@@ -1662,7 +1705,6 @@ let MainParser = {
 			});
 			/* --- Preserve end --------------------------------------------- */
 		}
-		return promise;  /* preserve */
 	},
 
 
@@ -1691,7 +1733,7 @@ let MainParser = {
 			let ID = Items[i]['id'];
 			MainParser.Inventory[ID] = Items[i];
 		}
-		Kits.UpdateBoxIfVisible();
+		FoEproxy.triggerFoeHelperHandler('InventoryUpdated');
 	},
 
 
@@ -1703,7 +1745,7 @@ let MainParser = {
 	UpdateInventoryItem: (Item) => {
 		let ID = Item['id'];
 		MainParser.Inventory[ID] = Item;
-		Kits.UpdateBoxIfVisible();
+		FoEproxy.triggerFoeHelperHandler('InventoryUpdated');
 	},
 
 
@@ -1715,8 +1757,11 @@ let MainParser = {
 	UpdateInventoryAmount: (Item) => {
 			let ID = Item[0],
 			Amount = Item[1];
-			MainParser.Inventory[ID].inStock = Amount;
-			Kits.UpdateBoxIfVisible();
+			try {
+				MainParser.Inventory[ID].inStock = Amount;
+			} catch (e) {
+			}
+			FoEproxy.triggerFoeHelperHandler('InventoryUpdated');
 	},
 
 
@@ -1734,9 +1779,15 @@ let MainParser = {
 			let ID = Buildings[i]['id'];
 			if (MainParser.CityMapData[ID]) {
 				MainParser.CityMapData[ID] = Buildings[i];
+			} // hier
+			if (ActiveMap === "era_outpost") {
+				CityMap.EraOutpostData[ID] = Buildings[i];
 			}
-			if (MainParser.CityMapEraOutpostData && MainParser.CityMapEraOutpostData[ID]) {
-				MainParser.CityMapEraOutpostData[ID] = Buildings[i];
+			else if (ActiveMap === "cultural_outpost") {
+				CityMap.CulturalOutpostData[ID] = Buildings[i];
+			}
+			else if (ActiveMap === "guild_raids") {
+				CityMap.QIData[ID] = Buildings[i];
 			}
 		}
 		MainParser.SetArkBonus2();
@@ -1768,7 +1819,7 @@ let MainParser = {
 		let day = Math.floor(Date.now()/86400000);
 		let LCUindex = MainParser.Conversations.findIndex((obj) => (obj.id === "__lastCleanup"));
 		let LCU = day;
-		if (LCUindex == -1) {
+		if (LCUindex === -1) {
 			MainParser.Conversations.forEach( (obj) => obj.lastSeen = day);
 			MainParser.Conversations.push({
 				id: "__lastCleanup",
@@ -1918,6 +1969,138 @@ let MainParser = {
 		}
 	},
 
+	Inactives: {
+		list:[],
+		ignore: JSON.parse(localStorage.getItem("LimitedBuildingsIgnoreList")||'[]'),
+		check: () => {
+			//get list of buildings for which an alert is already set
+			let LB = JSON.parse(localStorage.getItem("LimitedBuildingsAlertSet")||'{}')
+			//get list of expired limited buildings in city
+			let list = Object.values(MainParser.CityMapData).filter(value => !!value.decayedFromCityEntityId).map(value => value.id);
+			//remove buildings that were already tracked and that should have just triggered an alert
+			for (let i = list.length-1;i>=0;i--) {
+				if (LB[list[i]] || MainParser.Inactives.ignore.includes(MainParser.CityMapData[list[i]].cityentity_id)) {
+					list.splice(i,1)
+				}
+			}
+			MainParser.Inactives.list = [...new Set(list.map(x=>MainParser.CityMapData[x].cityentity_id))];
+			
+			//remove tracked buildings if time ran out
+			for (let x in LB) {
+				if (!LB[x]) continue;
+				if (LB[x]<GameTime*1000-GameTimeOffset) delete LB[x];
+				localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
+			}
+			if(!Settings.GetSetting('ShowBuildingsExpired')){
+				return;
+			}
+			//create instant alert for currently expired buildings		
+			if (list.length > 0) {
+					const data = {
+					title: i18n("InactiveBuildingsAlert.title"),
+					body: list.map(x=>MainParser.CityEntities[MainParser.CityMapData[x].cityentity_id].name).join("\n"),
+					expires: moment().add(1,"seconds").valueOf(),
+					repeat: -1,
+					persistent: true,
+					tag: '',
+					category: 'event',
+					vibrate: false,
+					actions: [{title:"OK"}]
+				};
+		
+				MainParser.sendExtMessage({
+					type: 'alerts',
+					playerId: ExtPlayerID,
+					action: 'create',
+					data: data,
+				})
+			}
+			let buildings = Object.values(MainParser.CityMapData)
+			for (let building of buildings) {
+				// set alerts for limited buildings that will run out in the future and that have no alert yet
+				if (!LB[building.id] && MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime) {
+					const data = {
+						title: i18n("InactiveBuildingsAlert.title"),
+						body: MainParser.CityEntities[MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.targetCityEntityId].name,
+						expires: (MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset,
+						repeat: -1,
+						persistent: true,
+						tag: '',
+						category: 'event',
+						vibrate: false,
+						actions: [{title:"OK"}]
+					};
+			
+					MainParser.sendExtMessage({
+						type: 'alerts',
+						playerId: ExtPlayerID,
+						action: 'create',
+						data: data,
+					}).then((aId) => {
+						LB[building.id]=(MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset;
+						localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
+					})
+				}
+			}
+		},
+		showSettings: ()=> {
+
+			if ($('#inactivesSettingsBox').length === 0) {
+				HTML.Box({
+					id: 'inactivesSettingsBox',
+					title: i18n('Boxes.InactivesSettings.Title'),
+					//ask: i18n('Boxes.AuctionSettings.HelpLink'),
+					auto_close: true,
+					dragdrop: true,
+					minimize: true,
+					resize: true,
+				});
+	
+				//HTML.AddCssFile('auctions');
+			}
+			MainParser.Inactives.updateSettings();
+		},
+		updateSettings:()=>{ 
+			let t=[];
+			//t.push(`<h2>${i18n('Boxes.InactivesSettings.Ignored')}</h2>`);
+			t.push(`<h2>${i18n('Boxes.InactivesSettings.Toggle')}</h2>`);
+			for (let id of MainParser.Inactives.ignore) {
+				t.push(`<span class="inactivesIgnoreToggle" data-id="${id}" title="${i18n('Boxes.InactivesSettings.NoAlert')}">🤐${MainParser.CityEntities[id].name}</span></br>`);
+			}
+			//t.push(`<h2>${i18n('Boxes.InactivesSettings.ClickToIgnore')}</h2>`);
+			
+			for (let id of MainParser.Inactives.list) {
+				t.push(`<span class="inactivesIgnoreToggle" data-id="${id}" title="${i18n('Boxes.InactivesSettings.AlertActive')}">⚠️${MainParser.CityEntities[id].name}</span></br>`);
+			}
+			
+			
+			$('#inactivesSettingsBoxBody').html(t.join(''));
+			
+			$('.inactivesIgnoreToggle').on("click", (e) => {
+				let id = e.target.dataset.id;
+				let i = MainParser.Inactives.ignore.findIndex(x => x==id);
+				if (i>=0) {
+					MainParser.Inactives.ignore.splice(i,1);
+					MainParser.Inactives.list.push(id);
+
+				} else {
+					i = MainParser.Inactives.list.findIndex(x => x==id);
+					MainParser.Inactives.list.splice(i,1);
+					MainParser.Inactives.ignore.push(id);
+
+				};
+				localStorage.setItem("LimitedBuildingsIgnoreList",JSON.stringify(MainParser.Inactives.ignore));
+				MainParser.Inactives.updateSettings();
+			});
+		},
+
+
+	},
+	UpdateActiveMap: (map)=>{
+		ActiveMap=map;
+		FoEproxy.triggerFoeHelperHandler("ActiveMapUpdated");
+	},
+
 	checkPlunderability: () => {
 		/* --- Preserve start --------------------------------------------- */ 
 		Object.values(MainParser.CityEntities).forEach(
@@ -1960,80 +2143,6 @@ let MainParser = {
 			}
 		);
 		/* --- Preserve end --------------------------------------------- */ 
-	},
-
-	checkInactives: () => {
-		//get list of buildings for which an alert is already set
-		let LB = JSON.parse(localStorage.getItem("LimitedBuildingsAlertSet")||'{}')
-		
-		//get list of expired limited buildings in city
-		let inactives = Object.values(MainParser.CityMapData).filter(value => !!value.decayedFromCityEntityId).map(value => MainParser.CityEntities[value.cityentity_id].name)
-		
-		//remove buildings that were already tracked
-		for (let i = inactives.length-1;i>=0;i--) {
-			if (LB[inactives[i]]) {
-				inactives.splice(i,1)
-			}
-		}
-		//remove tracked buildings if time ran out
-		for (let x in LB) {
-			if (!LB[x]) continue;
-			if (LB[x]<GameTime*1000-GameTimeOffset) delete LB[x];
-			localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
-		}
-		if(!Settings.GetSetting('ShowBuildingsExpired')){
-			return;
-		}
-		//create instant alert for currently expired buildings		
-		if (inactives.length > 0) {
-				const data = {
-				title: i18n("InactiveBuildingsAlert.title"),
-				body: inactives.join("\n"),
-				expires: moment().add(1,"seconds").valueOf(),
-				repeat: -1,
-				persistent: true,
-				tag: '',
-				category: 'event',
-				vibrate: false,
-				actions: [{title:"OK"}]
-			};
-	
-			MainParser.sendExtMessage({
-				type: 'alerts',
-				playerId: ExtPlayerID,
-				action: 'create',
-				data: data,
-			})
-		}
-		let buildings = Object.values(MainParser.CityMapData)
-		for (let building of buildings) {
-			// set alerts for limited buildings that will run out in the future and that have no alert yet
-			if (!LB[building.id] && MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime) {
-				const data = {
-					title: i18n("InactiveBuildingsAlert.title"),
-					body: MainParser.CityEntities[MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.targetCityEntityId].name,
-					expires: (MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset,
-					repeat: -1,
-					persistent: true,
-					tag: '',
-					category: 'event',
-					vibrate: false,
-					actions: [{title:"OK"}]
-				};
-		
-				MainParser.sendExtMessage({
-					type: 'alerts',
-					playerId: ExtPlayerID,
-					action: 'create',
-					data: data,
-				}).then((aId) => {
-					LB[building.id]=(MainParser.CityEntities[building.cityentity_id]?.components?.AllAge?.limited?.config?.expireTime + building.state.constructionFinishedAt)*1000 - GameTimeOffset;
-					localStorage.setItem("LimitedBuildingsAlertSet",JSON.stringify(LB));
-				})
-			}
-		}
-
-
 	}
 
 };

@@ -186,7 +186,7 @@ let Calculator = {
 	Show: (action = '') => {
 		Calculator.initCalculator();
         // moment.js global setzen
-        moment.locale(MainParser.Language);
+        //moment.locale(MainParser.Language);
 
         // close at the second click
 		if ($('#costCalculator').length > 0 && action === 'menu')
@@ -199,7 +199,17 @@ let Calculator = {
 
         // Wenn die Box noch nicht da ist, neu erzeugen und in den DOM packen
         if ($('#costCalculator').length === 0) {
-           HTML.Box({
+            let spk = localStorage.getItem('CalculatorTone');
+
+            if (spk === null) {
+                localStorage.setItem('CalculatorTone', 'deactivated');
+                Calculator.PlayInfoSound = false;
+
+            } else {
+                Calculator.PlayInfoSound = (spk !== 'deactivated');
+            }		
+
+            HTML.Box({
 				id: 'costCalculator',
 				title: i18n('Boxes.Calculator.Title'),
 				ask: i18n('Boxes.Calculator.HelpLink'),
@@ -423,7 +433,7 @@ let Calculator = {
 
 		if (Calculator.LastRecurringQuests !== undefined && RecurringQuests !== Calculator.LastRecurringQuests) { //Schleifenquest gestartet oder abgeschlossen
 			if (PlaySound) { //Nicht durch Funktion PlaySound ersetzen!!! GetRecurringQuestLine wird auch vom EARechner aufgerufen.
-				if (Settings.GetSetting('EnableSound')) Calculator.SoundFile.play();
+				if (Settings.GetSetting('EnableSound')) helper.sounds.message.play();
 			}
         }
 
@@ -977,7 +987,7 @@ let Calculator = {
 	 */
     PlaySound: () => {
         if (Calculator.PlayInfoSound) {
-			if (Settings.GetSetting('EnableSound')) Calculator.SoundFile.play();
+			if (Settings.GetSetting('EnableSound')) helper.sounds.message.play();
         }
     },
 

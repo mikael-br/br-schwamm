@@ -72,7 +72,7 @@ let HiddenRewards = {
                 'settings': 'HiddenRewards.ShowSettingsButton()'
             });
 
-            moment.locale(i18n('Local'));
+            //moment.locale(18n('Local'));
 
             HiddenRewards.RefreshGui();
 
@@ -150,9 +150,10 @@ let HiddenRewards = {
         HiddenRewards.FutureCache = [];
         HiddenRewards.FutureCountNonGE = 0;
         for (let i = 0; i < HiddenRewards.Cache.length; i++) {
-            let StartTime = moment.unix(HiddenRewards.Cache[i].starts|0),
-                EndTime = moment.unix(HiddenRewards.Cache[i].expires|0);
+	    let StartTime = moment.unix(HiddenRewards.Cache[i].starts|0),
+		EndTime = moment.unix(HiddenRewards.Cache[i].expires|0);
             HiddenRewards.Cache[i].isVis = true;
+            if (StartTime > MainParser.getCurrentDateTime() || EndTime < MainParser.getCurrentDateTime()) continue;
             if (HiddenRewards.Cache[i].isGE && !(HiddenRewards.GElookup[HiddenRewards.Cache[i].positionGE] <= Math.floor((HiddenRewards.GEprogress % 32)/8))) {
                 HiddenRewards.Cache[i].isVis = false;
             }
@@ -287,4 +288,3 @@ let HiddenRewards = {
         HiddenRewards.SetCounter();
     },
 };
-

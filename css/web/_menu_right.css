@@ -70,19 +70,16 @@
 }
 
 /* --- Preserve start --------------------------------------------- */ 
-.hud-btn span.hud-counter {
+.hud-right .hud-btn span.hud-counter {
 	padding: 2px;
 	width: 16px;
 	height: 16px;
-	top: unset;
-	bottom: -2px;
-	right: unset;
-	left: -2px;
+	bottom: 4px;
+	left: 5px;
 	line-height: 16px;
-	pointer-events: none !important;
 }
 
-.hud-right .hud-btn span.hud-future-counter {
+.hud-bottom .hud-btn span.hud-future-counter {
 	padding: 2px;
 	width: 16px;
 	height: 16px;
