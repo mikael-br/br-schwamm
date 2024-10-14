@@ -1,9 +1,14 @@
 ## Changelog - Extension
 
+1.29.0.0
+
+**FoE-Helfer**
+  - Alle Änderungen und Bugfixes bis einschließlich Version *3.8.0.0* migriert
+
 1.28.0.0
 
 **FoE-Helfer**
-  - Alle Änderungen und Bugfixes bis einschließlich Version *3.6.5.0* migriert:
+  - Alle Änderungen und Bugfixes bis einschließlich Version *3.6.5.0* migriert
 
 ### 1.26.0.1
 **Bugfix**

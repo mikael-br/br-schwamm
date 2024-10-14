@@ -75,7 +75,7 @@ let Notice = {
 					});
 				}
 				else {
-						Notice.notes = resp['notice'];
+					Notice.notes = resp['notice'];
 
 					Notice.buildBox(false);
 				}

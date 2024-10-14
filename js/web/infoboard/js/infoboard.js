@@ -280,7 +280,7 @@ let Infoboard = {
 
             if (Infoboard.PlayInfoSound && status && filterStatus)
             {
-                if (Settings.GetSetting('EnableSound')) helper.sounds.ping.play();
+                helper.sounds.play("ping");
             }
         }
     },
@@ -453,7 +453,7 @@ let Info = {
             }
             else if (d['attachment']['type'] === 'trade_offer') {
                 // Handelsangebot
-                message = `<div class="offer"><span title="${GoodsData[d['attachment']['offeredResource']]['name']}" class="goods-sprite-50 ${d['attachment']['offeredResource']}"></span> <span>x<strong>${d['attachment']['offeredAmount']}</strong></span> <span class="sign">&#187</span> <span title="${GoodsData[d['attachment']['neededResource']]['name']}" class="goods-sprite-50 ${d['attachment']['neededResource']}"></span> <span>x<strong>${d['attachment']['neededAmount']}</strong></span></div>`;
+                message = `<div class="offer"><span title="${GoodsData[d['attachment']['offeredResource']]['name']}" class="goods-sprite sprite-50 ${d['attachment']['offeredResource']}"></span> <span>x<strong>${d['attachment']['offeredAmount']}</strong></span> <span class="sign">&#187</span> <span title="${GoodsData[d['attachment']['neededResource']]['name']}" class="goods-sprite sprite-50 ${d['attachment']['neededResource']}"></span> <span>x<strong>${d['attachment']['neededAmount']}</strong></span></div>`;
             }
         }
 
