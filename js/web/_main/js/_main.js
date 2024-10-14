@@ -1033,6 +1033,20 @@ let MainParser = {
 		localStorage.setItem('LastAgreedVersion', extVersion); //Comment out this line if you have something the player must agree on
 	},
 
+ /* ---- preserve ---- */
+	createCityBuildings: () => {
+		// loop through all city buildings
+		for (const [key, data] of Object.entries(MainParser.CityMapData)) {
+			let ceData = Object.values(MainParser.CityEntities).find(x => x.id === data.cityentity_id);
+			let era = Technologies.getEraName(data.cityentity_id, data.level);
+			let cityMapEntity = CityMap.createNewCityMapEntity(ceData,data,era)
+
+			MainParser.NewCityMapData[cityMapEntity.id] = cityMapEntity;
+		}
+	},
+ /* ---- /preserve ---- */
+	
+
 
 	BoostMapper: {
 		'supplies_boost': ['supply_production'],
