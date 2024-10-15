@@ -780,6 +780,11 @@ let CityMap = {
 	 *
 	 */
 	SubmitData: ()=> {
+		/* --- Preserve start --------------------------------------------- */ 
+		if (!window.confirm(i18n('Boxes.CityMap.SendDoubleOptIn'))) {
+			return;
+		}
+		/* --- Preserve end --------------------------------------------- */ 
 
 		let apiToken = localStorage.getItem('ApiToken');
 

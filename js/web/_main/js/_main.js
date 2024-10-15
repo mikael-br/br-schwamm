@@ -162,7 +162,7 @@ GetFights = () =>{
         }
 		MainParser.checkPlunderability();
 		MainParser.Inactives.check();
-		MainParser.createCityBuildings();
+		// MainParser.createCityBuildings();
 	});
 
 	// Building-Upgrades
@@ -441,14 +441,7 @@ GetFights = () =>{
 	FoEproxy.addHandler('CityMapService', (data, postData) => {
 		if (data.requestMethod === 'moveEntity' || data.requestMethod === 'moveEntities' || data.requestMethod === 'updateEntity') {
 			let Buildings = data.responseData;
-			// if (Buildings[0]?.player_id != ExtPlayerID) return // opened another players GB
-			Buildings.forEach(building => {
-				let responseData = data.responseData.find(x => x.id == building.id);
-				let ceData = Object.values(MainParser.CityEntities).find(x => x.id == building.cityentity_id);
-				let era = Technologies.getEraName(building.cityentity_id, responseData.level);
-				let newCityEntity = CityMap.createNewCityMapEntity(ceData, responseData, era);
-				MainParser.NewCityMapData[building.id] = newCityEntity;
-			});
+			if (Buildings[0]?.player_id != ExtPlayerID) return // opened another players GB
 			MainParser.UpdateCityMap(data.responseData);
 		}
 		else if (data.requestMethod === 'placeBuilding') {
@@ -498,14 +491,6 @@ GetFights = () =>{
 			let Buildings = data.responseData['updatedEntities'];
 			if (!Buildings) return;
 			if (ActiveMap != "main") return // do not add outpost buildings
-			Buildings.forEach(building => {
-				let responseData = data.responseData.updatedEntities.find(x => x.id == building.id);
-				let ceData = Object.values(MainParser.CityEntities).find(x => x.id == building.cityentity_id);
-				let era = Technologies.getEraName(building.cityentity_id, responseData.level);
-				let newCityEntity = CityMap.createNewCityMapEntity(ceData, responseData, era);
-				MainParser.NewCityMapData[building.id] = newCityEntity;
-			});
-
 			MainParser.UpdateCityMap(Buildings)
 		}
 	});
@@ -1034,16 +1019,16 @@ let MainParser = {
 	},
 
  /* ---- preserve ---- */
-	createCityBuildings: () => {
-		// loop through all city buildings
-		for (const [key, data] of Object.entries(MainParser.CityMapData)) {
-			let ceData = Object.values(MainParser.CityEntities).find(x => x.id === data.cityentity_id);
-			let era = Technologies.getEraName(data.cityentity_id, data.level);
-			let cityMapEntity = CityMap.createNewCityMapEntity(ceData,data,era)
-
-			MainParser.NewCityMapData[cityMapEntity.id] = cityMapEntity;
-		}
-	},
+	// createCityBuildings: () => {
+	// 	// loop through all city buildings
+	// 	for (const [key, data] of Object.entries(MainParser.CityMapData)) {
+	// 		let ceData = Object.values(MainParser.CityEntities).find(x => x.id === data.cityentity_id);
+	// 		let era = Technologies.getEraName(data.cityentity_id, data.level);
+	// 		let cityMapEntity = CityMap.createNewCityMapEntity(ceData,data,era)
+	//
+	// 		MainParser.NewCityMapData[cityMapEntity.id] = cityMapEntity;
+	// 	}
+	// },
  /* ---- /preserve ---- */
 	
 
