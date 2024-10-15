@@ -1,5 +1,189 @@
 ## Changelog - Extension
 
+##### 3.8.0.0
+
+**Neu**
+- Produktionsübersicht Update:
+	- Fehlerkorrekturen und fehlende Gebäude hinzugefügt
+	- Güter-Übersicht überarbeitet
+	- Übersicht aller Fragmente und Items hinzugefügt inkl. Summe über alle Gebäude
+	- Filter hinzugefügt
+	- Kampf-Boosts kategorisiert
+	- Einheitenproduktion nach Typ und Zeitalter summiert
+
+- Effizienzbewertung Update:
+	- Neue Kategorien hinzugefügt
+	- Neue Übersicht inklusive Anzeige der produzierten Fragmente/Items
+	- Neu: Möglichkeit zu suchen und zu filtern
+	- Neu: Anzeige der Werte pro Feld hinzugefügt
+	- Neu: Gebäude, die man nicht hat, zum Vergleichen hinzufügen
+
+- Boost-Inventar
+	- listet alle Gebäude aus dem Inventar, die Boosts (zum Beispiel für den Kampf) bereitstellen
+
+- Aktive Mitglieder anderer Gilden
+	- wenn innerhalb von 5 Minuten, zweimal nacheinander die Details der selben fremden Gilde aufgerufen werden (Hauptquartier in den GG) und zumindest ein Mitglied dieser Gilde aktiv war, wird ein Fenster geöffnet, in dem die aktiven Mitglieder gelistet werden
+
+**Update**
+- Kampf-Assistent:
+	- es wird keine Warnung mehr ausgegeben, wenn eine Einheit eines höheren Zeitalters gefallen ist, da diese Einheiten jetzt im Krankenhaus wiederbelebt werden können
+
+- Kits:
+	- Effizienz-Werte der Gebäude hinzugefügt
+
+- Technologien:
+	- Raumfahrt: Weltraumbasis Daten und Güter hinzugefügt
+
+- Einstellungen:
+	- Kategorien umstrukturiert
+	- Fenster vergrößert und verschiebbar gemacht
+
+- Stadtübersicht QI:
+	- Gebäude werden nun nach Typ kategorisiert
+	- Münz- Vorrats- und Quantenaktionsboosts aus der Hauptstadt werden mitberechnet - danke Juber!
+
+**BugFix**
+- Fenster:
+	- können nun nicht mehr verschoben werden, wenn die Maus auf einen der Buttons des Fensters zeigt
+
+##### 3.7.0.0
+
+**Neu**
+- Tränke Übersicht hinzugefügt in der oberen rechten Ecke um
+	- die Laufzeit des Tranks mit kürzesten verbliebenen Laufzeit anzuzeigen (Tränke die für das aktuell gewählte Feature nicht relevant sind, werden ignoriert)
+	- alle aktuell aktiven Tränke in einem Mouse-Over Pop-Up anzuzeigen 
+	- alle im Inventar verfügbaren Tränke in einem Mouse-Over Pop-Up anzuzeigen
+
+**Update**
+- Kits - neue Teile hinzugefügt (bis Herbst 2024)
+
+- Mergergame an Care Event angepasst
+
+
+---
+
+##### 3.6.5.0
+
+**Neu**
+- Sommer Event:
+	- Der Event-Truhen-Helfer zeigt nun verdeckte Preise eines Bretts an
+
+**Update**
+- Stadtübersicht:
+	- QI Aktionspunkte die durch Gebäude produziert werden, werden jetzt in der Stadtübersicht angezeigt (wenn in QI)
+	- Man sieht nun auch bei anderen Spielern, welche Gebäude keine Straßenverbindungen benötigen
+
+- Kulturelle Siedlungen:
+	- Auf 5-Stunden Zyklus angepasst
+
+- Alle verstecken/schließen funktioniert nun auch für Minispiel-Blocker
+
+- Blaue Galaxie:
+	- Aktuelle Güter werden nun separat gelistet
+
+- Kits:
+	- Aktualisiert bis Sommer Event 2024
+	- Bilder werden nun erst geladen, wenn tatsächlich benötigt, um Ladezeiten zu verkürzen
+	- Erhabene Upgrades werden nun auch in gelistet
+
+- Abgelaufene beschränkte Gebäude:
+	- Es kann nun eingestellt werden, für welche Gebäude die "ist abgelaufen" Warnung bei Start nicht mehr angezeigt werden soll
+
+- Statistik:
+	- Ereignisse und Scherben werden wieder gelistet
+
+**BugFix**
+- GG Gebäude-Empfehlung:
+	- In 3er-Provinzen wurden manche Kombination übergangen
+
+- (QI) Pass Belohnungen wurden nicht korrekt behandelt, wenn mehr als eine Belohnung auf einmal eingesammelt wurde
+
+- FP-Einsammlungen:
+	- QI-Belohnungen wurden falsch gezählt
+
+- Stadtübersicht:
+	- Bestimmte Gebäude konnten verhindern, dass die Übersicht korrekt lädt
+
+- Bilder der Wiederkehrende Quest Übersicht werden wieder korrekt geladen
+
+
+---
+
+##### 3.6.4.0
+
+**Update**
+- Website Kommunikation:
+	- Datenübertragung an die Webseite (Notizen + Stadtplaner) benötigt nun einen Token
+	- der Token wird nach Registrierung auf der Webseite generiert und muss in die Helfer Einstellungen übertragen werden
+
+- Stadt-Übersicht:
+	- zeigt in den QI eine Produktionsübersicht
+
+- Cardgame:
+	- die Warnung wegen geringer Lebenspunkte schließt sich nun gemeinsam mit dem Helfer-Fenster
+
+- Kits:
+	- Es können nun Favoriten angelegt und gefiltert werden
+
+**BugFix**
+- Statistik:
+	- einige Güterbelohnungen wurden nicht kombiniert
+
+---
+
+##### 3.6.3.0
+
+**Update**
+- Stadtübersicht:
+	- Neu: Stadtübersicht auch bei Siedlungen, Kolonien und Quanten Invasionen
+- Card Game:
+	- An Änderungen des Geschichte-Events 2024 angepasst
+- Quests:
+	- Wenn eine Rivalen-Quest erfüllt ist, wird ein Ton abgespielt. Kann in den Einstellungen deaktiviert werden
+- FP Sammlung:
+	- QI und Event-Pass als mögliche Quellen hinzugefügt
+- Statistik:
+	- QI-Belohnungen werden erfasst
+	- Güter- und Einheiten-Belohnungen werden nun gruppiert angezeigt, statt für jeden Typ einzeln
+- Siedlungen:
+	- Bilder für Polynesien hinzugefügt
+- GvG:
+	- Modul entfernt
+- FP Leiste:
+	- Wird in QI nun auf der linken Seite angezeigt
+	- Wird nun auch in der Stadt angezeigt, wenn mehr als 999 FP in der Leiste sind
+- GG Gebäudeempfehlung:
+	- Einige Empfehlungen wurden entfernt
+	- Empfehlungen werden nun hervorgehoben um darzustellen, warum diese empfohlen werden.
+- Musik:
+	- Neue Titel hinzugefügt (Polynesien und Geschichtsevent)
+	- Kategorie GvG entfernt
+- Kits:
+	- Neue Gebäude bis Geschichtsevent 2024 hinzugefügt
+	- Favoriten-Option hinzugefügt
+- Idle-Game:
+	- Es wurde ein separater Timer für 6.3Q (25% Rabatt) hinzugefügt
+- Kampf-Empfehlungen:
+	- Design angepasst
+
+**BugFix**
+- Idle Game:
+	- Es konnte passieren, dass die Strategie nicht bearbeitet werden konnte
+- Titan LB:
+	- Manche Boosts waren vertauscht
+- Kits:
+	- In seltenen Fällen wurden falsche Bild-Daten genutzt
+- Produktions-Übersicht:
+	- Für das Rathaus wurde bei Berechnung des Platzbedarf angenommen, dass dies eine Straße braucht
+- Kampf-Empfehlungen:
+	- Einheiten Bilder für QI korrigiert
+- Merger-Game:
+	- Schlüssel-Werte korrigiert
+- Wiederkehrende Quests (Diamanten-Abhaken):
+	- Es war möglich, dass 1 oder 2 Quests aus einem früheren Zeitalter in der Liste stehen blieben - dies sollte nun nicht mehr passieren, sobald man das nächste Zeitalter erreicht
+
+---
+
 ##### 3.6.2.0
 
 **Update**
@@ -14,7 +198,8 @@
 	- beim ersten Durchlauf einer Siedlung wird nun die korrekte 4x Chance angezeigt
 
 - Statistiken:
-	- verbesserte Datumsauswahl (thanks Linnum!)
+	- verbesserte Datumsauswahl (thanks Linnun!)
+
 ---
 
 ##### 3.6.1.1

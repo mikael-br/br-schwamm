@@ -1,5 +1,186 @@
 ## Changelog - Extension
 
+##### 3.8.0.0
+
+**New**
+- Production Overview Update:
+	- Bugfixes, added missing buildings
+	- Removed some information to improve readability
+	- Overhauled goods view
+	- Added all fragments and items incl. sum accross all building
+	- Added filter
+	- Categorized army boosts
+	- Added sum table for unit production according to unit types
+
+- Buildings Efficiency Rating Update:
+	- New Categories
+	- New overview with more details
+	- New: Search and filter for easier comparison
+	- New: Show values per tile
+	- New: Add any building to the list for comparison
+
+- Boost-Inventory
+	- Lists all Buildings in your Inventory that provide boosts (e.g. for battle)
+	- Fragmented buildings are not considered!!
+
+- Active Members of other Guilds
+	- When within 5 minutes, the same guild (HQ in GBG) is inspected twice and at least one member of that guild was active, a list of the active guild members is displayed
+
+**Update**
+- Battle-Assist:
+	- There will be no warning message anymore, if higher age units die in battle as they can now be revived in the hospital
+
+- Kits:
+	- Added Efficiency Score of the respective buildings
+
+- Technologies:
+	- Added Space Age Space Hub assets
+
+- Settings:
+	- Reorganized the menu
+	- Bigger and moveable window
+
+- QI City Map:
+	- Buildings are now grouped by type
+	- Coin, supply and quantum action boosts from your main city are now included - thx Juber!
+
+**BugFix**
+- Boxes:
+	- can not be draged anymore when the mouse is on of the buttons of the box
+
+##### 3.7.0.0
+
+**New**
+- added potion overview icon in the top right corner to
+	- display the runtime of the potion with the shortest runtime left (potions are ignored when not relevant for currently selected game feature)
+	- display all currently active potions upon mouse over
+	- display inventory stock of all potions upon mouse over
+
+**Update**
+- Kits updated till Fall Event 2024
+
+- Mergergame updated for Care Event
+
+---
+
+##### 3.6.5.0
+
+**New**
+- Summer Event:
+	- Added a list of currently hidden rewards to the event chest helper
+
+**Update**
+- City Map:
+	- Added QI Action Points in production overview when in QI Settlement
+	- Added highlighting for buildings without street requirements for all players
+
+- Cultural Settlements Overview:
+	- Changed to 5-hour production cycle
+
+- Close/hide all buttons now also close/hide minigame blockers
+
+- Blue Galaxy:
+	- Current era goods and other goods are now handled separately
+
+- Kits:
+	- Updated 'til Summer Event 2024
+	- Images are now lazy-loaded to improve loading time
+	- Ascended upgrades added to overview
+
+- Limited buildings expired warning:
+	- Now with a setting to ignore selected buildings after they expire
+
+- Statistics:
+	- Incidents and shards are now properly tracked again
+
+**BugFix**
+- GBG Building Recommendation:
+	- Some combinations were ignored in 3-slot provinces
+
+- (QI) pass rewards were not processed correctly if more than one was collected at once
+
+- City Map:
+	- certain buildings caused the city map to not load properly
+
+- FP Collection:
+	- QI rewards were way too high
+
+- Recurring quest list did not show proper images
+
+---
+
+##### 3.6.4.0
+
+**Update**
+- Website Communication:
+	- Transmitting data (Notes + City planner) to the website now needs a token
+	- the token will be generated on the website after registration and needs to be entered in the helper settings
+
+- City Overview:
+	- in QI gives a production overview
+- Cardgame:
+	- the low health blocker now closes together with the helper box
+- Kits:
+	- Favourites can be selected and filtered for
+
+**BugFix**
+- Statistics:
+	- some goods rewards were not combined
+
+---
+
+##### 3.6.3.0
+
+**Update**
+- City Overview:
+	- new: City Overview for Settlements, Space Colonies and Quantum Incursions
+- Card Game:
+	- adapted to History 2024 changes
+- Quests:
+	- when a rival quest is done, a sound will alert the player of that (can be deactivated in the settings)
+- FP Collector:
+	- added sources "QI and "Event pass"
+- Statistics:
+	- added rewards from QI
+	- goods rewards and units rewards will now be grouped instead of beeing listed individually for every type
+- Settlements:
+	- added images for polynesia
+- GvG:
+	removed the module	
+- FP Bar:
+	- moved it to the left in QI
+	- now also shows in the main city when more than 999 FP in bar
+- GBG Building suggestion:
+	- removed some suggestions
+	- added some highlighting
+- Music:
+	- added new tracks (polynesia and history)
+	- removed category GvG
+- Kits:
+	- added items up to history event 2024
+	- added a way to make items favourites and a highlight Option for that
+- idle-game:
+	- now has a separate timer for 6.3Q (25% Discount)
+- Battle Advisor:
+	- updated styling
+
+**BugFix**
+- St Patrick:
+	- it was possible that the strategy could not be edited
+- Titan GBs:
+	- some boosts were wrong
+- Kits:
+	- wrong image data was used in some cases
+- Production:
+	- townhall space requirement assumed the needs for a road
+- Battle Advisor:
+	- corrected army images for QI
+- Merger-Game:
+	- corrected key values
+- Recurring Quests (diamonds tracker):
+	- it was possible for 1 or 2 quests of the previous era to show up in the next era - this should no longer happen as soon as the player enters the next era
+
+---
 
 ##### 3.6.2.0
 
@@ -15,7 +196,7 @@
 	- fix 4x chance for first run
 
 - Statistics:
-	- improved datepicker (thanks Linnum!)
+	- improved datepicker (thanks Linnun!)
 
 ---
 

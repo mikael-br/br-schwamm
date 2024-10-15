@@ -172,6 +172,7 @@ let IndexDB = {
 
         setTimeout(() => {
             IndexDB.GarbageCollector();
+            IndexDB.rewardDBCleanup()
         }, 10 * 1000);
     },
 

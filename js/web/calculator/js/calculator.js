@@ -371,7 +371,7 @@ let Calculator = {
 		h.push('</td></tr></table>');
 		/* --- Preserve end --------------------------------------------- */ 
 
-       h.push('</div>');
+        h.push('</div>');
 
         // Tabelle zusammen fummeln
 		h.push('<table id="costTableFordern" style="width:100%" class="foe-table"></table>');
@@ -433,7 +433,7 @@ let Calculator = {
 
 		if (Calculator.LastRecurringQuests !== undefined && RecurringQuests !== Calculator.LastRecurringQuests) { //Schleifenquest gestartet oder abgeschlossen
 			if (PlaySound) { //Nicht durch Funktion PlaySound ersetzen!!! GetRecurringQuestLine wird auch vom EARechner aufgerufen.
-				if (Settings.GetSetting('EnableSound')) helper.sounds.message.play();
+				helper.sounds.play("message");
 			}
         }
 
@@ -987,7 +987,7 @@ let Calculator = {
 	 */
     PlaySound: () => {
         if (Calculator.PlayInfoSound) {
-			if (Settings.GetSetting('EnableSound')) helper.sounds.message.play();
+			helper.sounds.play("message");
         }
     },
 

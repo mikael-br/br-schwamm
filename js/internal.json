@@ -19,7 +19,7 @@
 	"guildfights",
 	"stats",
 	"campagnemap",
-	"combat_power",
+	"boost_inventory",
 	"bonus-service",
 	"technologies",
 	"negotiation",
@@ -62,5 +62,7 @@
 	"cardgame",
 	"gbgbuildings",
 	"pvparena",
-	"qimap"
+	"qimap",
+	"worldchallenge",
+	"boost-potions"
 ]
