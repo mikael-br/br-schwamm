@@ -718,6 +718,24 @@ let HTML = {
 
 
 	/**
+	 * Formatiert Zahlen oder gibt = 0 einen "-" aus
+	 *
+	 * @param number
+	 * @returns {*}
+	 */
+	FormatNumberShort: (number,replaceZero=true) => {
+		if (number === 0 && replaceZero) {
+			return '-';
+		} else {
+			return Intl.NumberFormat(i18n('Local'), {
+				notation: "compact",
+				maximumFractionDigits: 1
+			  }).format(Number(number));
+		}
+	},
+
+
+	/**
 	* Returns strong class for formating mopppel date
 	*
 	* @param Value
