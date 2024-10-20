@@ -1,5 +1,8 @@
 ## Changelog - Extension
 
+1.29.0.3
+  - Titel und Beschreibung zu GEX Units Button hinzugefügt
+
 1.29.0.0
 
 **FoE-Helfer**
