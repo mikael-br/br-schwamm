@@ -246,10 +246,9 @@ FoEproxy.addHandler('OtherPlayerService', 'visitPlayer', async (data, postData) 
 	Looting.page = 1;
 	Looting.filterByPlayerId = playerData.other_player.player_id;
 	Looting.filterByPvPArena = false;
- 	MainParser.UpdatePlayerDict(playerData, 'VisitPlayer').then(() => {
-		//await Looting.collectPlayer(playerData);
-		Looting.UpdateBoxIfVisible();
-	});
+ 	MainParser.UpdatePlayerDict(playerData, 'VisitPlayer');
+	//await Looting.collectPlayer(playerData);
+	Looting.UpdateBoxIfVisible();
 });
 
 // PvPArena geöffnet

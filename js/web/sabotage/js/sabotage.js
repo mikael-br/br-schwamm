@@ -30,17 +30,16 @@ FoEproxy.addHandler('CityMapService', 'reset', (data, postData) => {
 });
 
 FoEproxy.addHandler('OtherPlayerService', 'visitPlayer', async (data, postData) => {
-	MainParser.UpdatePlayerDict(data.responseData, 'VisitPlayer').then(() => {
-		if (Settings.GetSetting('ShowPlayersAttDeffValues') || Settings.GetSetting('ShowNeighborsLootables')) {
-			Sabotage.OtherPlayersBuildings(data.responseData);
-			$('#sabotage-Btn').removeClass('hud-btn-red');
-			$('#sabotage-Btn-closed').remove();
-		}
-		else {
-			$('#sabotage-Btn').removeClass('hud-btn-red').addClass('hud-btn-red');
-			$('#sabotageInfo').remove();
-		}
-	});
+	MainParser.UpdatePlayerDict(data.responseData, 'VisitPlayer');
+	if (Settings.GetSetting('ShowPlayersAttDeffValues') || Settings.GetSetting('ShowNeighborsLootables')) {
+		Sabotage.OtherPlayersBuildings(data.responseData);
+		$('#sabotage-Btn').removeClass('hud-btn-red');
+		$('#sabotage-Btn-closed').remove();
+	}
+	else {
+		$('#sabotage-Btn').removeClass('hud-btn-red').addClass('hud-btn-red');
+		$('#sabotageInfo').remove();
+	}
 });
 
 /**

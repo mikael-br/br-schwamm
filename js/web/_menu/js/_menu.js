@@ -881,23 +881,6 @@ let _menu = {
 	},
 
 	/**
-	 * Shows the box for gex units stats
-	 *
-	 * @returns {*|jQuery}
-	 */
- /* preserve */
-	unitsGex_Btn: () => {
-		let btn = _menu.MakeButton('unitsGex', i18n('Menu.unitsGex.Title'), i18n('Menu.unitsGex.Desc'));
-
-		let btn_sp = $('<span />').on('click', function () {
-			UnitGex.showBox();
-		});
-
-		return btn.append(btn_sp);
-	},
- /* preserve end */
-
-	/**
 	 * Guildfight Overview
 	 * 	
 	 * @returns {*|jQuery}
