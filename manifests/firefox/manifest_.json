@@ -2,8 +2,8 @@
 	"name": "__MSG_appName__",
 	"description": "__MSG_appDesc__",
 	"default_locale": "de",
-	"version": "1.29.0.4",
-	"version_name": "1.29.0.4 (3.8.0.0)",
+	"version": "1.30.0.0",
+	"version_name": "1.30.0.0 (3.10.0.0)",
 
 	"manifest_version": 3,
 	"permissions": [
@@ -70,7 +70,7 @@
 	"browser_specific_settings": {
 		"gecko": {
 			"id": "{0668a87f-e3bb-4ed3-a096-e145c1e9f1d2}",
-			"strict_min_version": "91.0"
+			"strict_min_version": "110.0"
 		}
 	}
 }

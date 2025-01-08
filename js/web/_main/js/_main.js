@@ -47,6 +47,7 @@ let ApiURL = 'https://api.foe-rechner.de/',
 	CurrentEraID = null,
 	GoodsData = [],
 	GoodsList = [],
+	FHResourcesList = [],
 	PlayerDict = {},
 	PlayerDictNeighborsUpdated = false,
 	PlayerDictGuildUpdated = false,
@@ -160,7 +161,7 @@ GetFights = () =>{
 			let CityEntity = MainParser.CityEntities[i];
 			if (!CityEntity.type) CityEntity.type = CityEntity?.components?.AllAge?.tags?.tags?.find(value => value.hasOwnProperty('buildingType')).buildingType;
         }
-		MainParser.checkPlunderability();
+		MainParser.checkPlunderability();  /* preserve */
 		MainParser.Inactives.check();
 		// MainParser.createCityBuildings();
 	});
@@ -243,10 +244,11 @@ GetFights = () =>{
 		// check if DB exists
 		StrategyPoints.checkForDB(ExtPlayerID);
 		EventHandler.checkForDB(ExtPlayerID);
-		UnitGex.checkForDB(ExtPlayerID);
+		//UnitGex.checkForDB(ExtPlayerID);
 		GuildMemberStat.checkForDB(ExtPlayerID);
 		GexStat.checkForDB(ExtPlayerID);
 		GuildFights.checkForDB(ExtPlayerID);
+		QiProgress.checkForDB(ExtPlayerID);
 
 		// which tab is active in StartUp Object?
 		let vals = {
@@ -276,7 +278,7 @@ GetFights = () =>{
 		MainParser.SaveBuildings(MainParser.CityMapData);
 		MainParser.SetArkBonus2();
 		// Güterliste
-		GoodsList = data.responseData.goodsList;
+		GoodsList = data.responseData.goodsList
 
 		// freigeschaltete Erweiterungen sichern
 		CityMap.UnlockedAreas = data.responseData.city_map.unlocked_areas;
@@ -287,7 +289,19 @@ GetFights = () =>{
 		EventCountdown = eventCountDownFeature?.length > 0 ? eventCountDownFeature[0]["time_string"] : false;
 
 		// Unlocked features
-		MainParser.UnlockedFeatures = data.responseData.unlocked_features?.map(function(obj) { return obj.feature; });
+		if (data.responseData.unlocked_features) {
+			MainParser.UnlockedFeatures = data.responseData.unlocked_features?.map(function(obj) { return obj.feature; });
+		} else {
+			$('script').each((i,s)=>{    
+				if (!s?.innerHTML?.includes("unlockedFeatures")) return
+				try {
+					let ulf = JSON.parse([...s?.innerHTML.matchAll(/(unlockedFeatures:\ ')(.*?)(',\n)/gm)][0][2])
+					if (Array.isArray(ulf)) MainParser.UnlockedFeatures = ulf.map(x=>x.feature);
+				} catch (e) {
+
+				}
+			})
+		}
 
 		//A/B Tests
 		MainParser.ABTests=Object.assign({}, ...data.responseData.active_ab_tests.map((x) => ({ [x.test_name]: x })));
@@ -295,6 +309,11 @@ GetFights = () =>{
 		Stats.Init();
 		Alerts.init();
 
+	});
+
+	// ResourcesList
+	FoEproxy.addHandler('ResourceService', 'getResourceDefinitions', (data, postData) => {
+		FHResourcesList = data.responseData
 	});
 
 	// --------------------------------------------------------------------------------------------------
@@ -367,7 +386,7 @@ GetFights = () =>{
 
 		if (ActiveMap === 'gg') return; // getEntities wurde in den GG ausgelöst => Map nicht ändern
 
-		let MainGrid = false;
+		let MainGrid = false
 		for (let i = 0; i < postData.length; i++) {
 			let postDataItem = postData[i];
 
@@ -380,14 +399,14 @@ GetFights = () =>{
 		}
 
 		if (!MainGrid) { 
-			CityMap.IsExtern = true;
+			CityMap.IsExtern = true
 			return
 		} // getEntities wurde in einer fremden Stadt ausgelöst => ActiveMap nicht ändern
 
-		LastMapPlayerID = ExtPlayerID;
+		LastMapPlayerID = ExtPlayerID
 
-		MainParser.CityMapData = Object.assign({}, ...data.responseData.map((x) => ({ [x.id]: x })));
-		MainParser.SetArkBonus2();
+		MainParser.CityMapData = Object.assign({}, ...data.responseData.map((x) => ({ [x.id]: x })))
+		MainParser.SetArkBonus2()
 
 		MainParser.UpdateActiveMap('main')
 	});
@@ -403,7 +422,7 @@ GetFights = () =>{
 		MainParser.UpdateActiveMap('gex');
 	});
 
-	// gg is entered
+	// GBG is entered
 	FoEproxy.addHandler('GuildBattlegroundService', 'getBattleground', (data, postData) => {
 		MainParser.UpdateActiveMap('gg');
 	});
@@ -489,7 +508,7 @@ GetFights = () =>{
 	FoEproxy.addHandler('CityProductionService', (data, postData) => {
 		if (data.requestMethod === 'pickupProduction' || data.requestMethod === 'pickupAll' || data.requestMethod === 'startProduction' || data.requestMethod === 'cancelProduction') {
 			let Buildings = data.responseData['updatedEntities'];
-			if (!Buildings) return;
+			if (!Buildings) return
 			if (ActiveMap != "main") return // do not add outpost buildings
 			MainParser.UpdateCityMap(Buildings)
 		}
@@ -851,13 +870,13 @@ GetFights = () =>{
 		GameTimeOffset = data.responseData.time * 1000 - new Date().getTime();
 		GameTime = data.responseData.time;
 		if (MainMenuLoaded) return;
+
 	
 		MainMenuLoaded = true;
 		await StartUpDone;	
 		let MenuSetting = localStorage.getItem('SelectedMenu');
-		MenuSetting = MenuSetting || 'BottomBar';
-		MainParser.SelectedMenu = MenuSetting;
-		_menu.CallSelectedMenu(MenuSetting);
+		MainParser.SelectedMenu = MenuSetting || 'RightBar';
+		_menu.CallSelectedMenu(MainParser.SelectedMenu);
 		
 		MainParser.setLanguage();
 
@@ -893,7 +912,7 @@ GetFights = () =>{
 	// --------------------------------------------------------------------------------------------------
 	// Quests
 	FoEproxy.addHandler('QuestService', 'getUpdates', (data, PostData) => {
-		if (PostData[0].requestClass === 'QuestService' && PostData[0].requestMethod === 'advanceQuest') {
+		if (PostData[0]?.requestClass === 'QuestService' && PostData[0]?.requestMethod === 'advanceQuest') {
 			FPCollector.HandleAdvanceQuest(PostData[0]);
 		}
 
@@ -953,7 +972,7 @@ let MainParser = {
 	savedFight: null,
 	DebugMode: false,
 	Language: 'en',
-	SelectedMenu: 'BottomBar',
+	SelectedMenu: 'RightBar',
 	i18n: null,
 	BonusService: null,
 	Boosts: {},
@@ -1056,9 +1075,13 @@ let MainParser = {
 		'coin_production': 0,
 		'supply_production': 0,
 		'forge_points_production':0,
+		'guild_raids_action_points_collection': 0,
 		'guild_raids_coins_production': 0,
+		'guild_raids_coins_start': 0,
 		'guild_raids_supplies_production': 0,
-		'guild_raids_action_points_collection': 0
+		'guild_raids_supplies_start': 0,
+		'guild_raids_goods_start': 0,
+		'guild_raids_units_start': 0,
 	},
 
 
@@ -1537,7 +1560,7 @@ let MainParser = {
 			MainParser.Allies.names = Object.assign({}, ...rawStats.map(a=>({[a.id]:a.name})))
 		},
 		getProd:(CityMapId) => {
-			let M= MainParser.Allies
+			let M = MainParser.Allies
 			if (!M.buildingList?.[CityMapId]) return null
 			let prod={}
 			Object.values(M.buildingList[CityMapId]).forEach(id=> {
@@ -1555,13 +1578,32 @@ let MainParser = {
 		},
 		tooltip:(id)=>{
 			if (!MainParser.Allies.buildingList?.[id]) return ""
-			return `data-original-title ="` + Object.keys(MainParser.Allies.buildingList[id]).map(a=> {
-				ally=MainParser.Allies.allyList[a]
-				return `<span style='color:`+MainParser.Allies.rarities[ally.rarity.value].textColor+`'>` + MainParser.Allies.names[ally.allyId] + " (" + i18n("Boxes.Productions.AllyRarity."+ally.rarity.value) + " - " + i18n("General.Level") + " " + ally.level + ")</span>"
-			}).join("<br/>") + `"`
+			return `data-allies ="${JSON.stringify(Object.values(MainParser.Allies.buildingList[id]))}"`
 		},
 		setRarities:(raw)=>{
 			MainParser.Allies.rarities=Object.assign({}, ...raw.map(r=>({[r.id.value]:r})))
+		},
+		getAllieData:(id)=>{
+			ally={
+				id:id,
+				allyId:MainParser.Allies.allyList[id].allyId,
+				rarity:MainParser.Allies.allyList[id].rarity.value,
+				level:MainParser.Allies.allyList[id].level,
+				name:MainParser.Allies.names[MainParser.Allies.allyList[id].allyId],
+			}
+			let prod = {}
+			let stat = MainParser.Allies.stats[ally.allyId][ally.rarity][ally.level]
+			let type = "military"
+			for (let s of Object.keys(stat)) { // ToDo: check stats to change type whenever implemented
+				if (s=="level") continue
+				if (prod[s]) 
+					prod[s].concat(stat[s])
+				else
+					prod[s]=stat[s]
+			}
+			ally.prod = prod
+			ally.type = type
+			return ally
 		}
 	},
 
@@ -1580,16 +1622,16 @@ let MainParser = {
 
 			let Boost = d[i];
 
-			let EntityID = Boost['entityId'];
+			let EntityID = Boost['entityId']
 			if (Boost.origin == "castle_system")
-				EntityID = 2000000023; // castle system has entityid 2000000023
+				EntityID = 2000000023 // castle system has entityid 2000000023
 			if (!EntityID) EntityID = 0;
-			if (!MainParser.Boosts[EntityID]) MainParser.Boosts[EntityID] = [];
-			MainParser.Boosts[EntityID].push(Boost);
+			if (!MainParser.Boosts[EntityID]) MainParser.Boosts[EntityID] = []
+			MainParser.Boosts[EntityID].push(Boost)
 			if (Boost.origin==="inventory_item") {
-				BoostPotions.activate(Boost.type,{expire:Boost.expireTime,target:Boost.targetedFeature||"all",value:Boost.value});
-			};
-			if (MainParser.BoostSums[d[i]['type']] !== undefined) {
+				BoostPotions.activate(Boost.type,{expire:Boost.expireTime,target:Boost.targetedFeature||"all",value:Boost.value})
+			}
+			if (MainParser.BoostSums[d[i]['type']] !== undefined && (d[i]['type']!='guild_raids_action_points_collection' || MainParser.CityMapData[d[i].entityId])) {
 				MainParser.BoostSums[d[i]['type']] += d[i]['value']
 			}
 			if (MainParser.BoostMapper[d[i]['type']]) {
@@ -1674,7 +1716,7 @@ let MainParser = {
 			}
 		}
 
-		else if (Source === 'LGOverview') {
+		else if (Source === 'LGOverview' && d[0]) {
 			MainParser.UpdatePlayerDictCore(d[0].player);
 		}
 

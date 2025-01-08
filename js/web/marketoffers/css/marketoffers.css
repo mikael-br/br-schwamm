@@ -1,6 +1,6 @@
 ﻿/*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -25,10 +25,7 @@
 }
 
 #MarketOffers #MarketOffersBody table th {
-    position: sticky;
-    top: 0;
     cursor: pointer;
-    z-index: 1;
     font-size: 85%;
 }
 
@@ -92,10 +89,7 @@
 }
 
 #MarketOffersEvents #MarketOffersEventsBody table th {
-    position: sticky;
-    top: 0;
     cursor: pointer;
-    z-index: 1;
     font-size: 85%;
 }
 

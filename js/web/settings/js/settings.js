@@ -653,7 +653,7 @@ let Settings = {
 				icon: 'success',
 				hideAfter: 6000,
 				position: pos,
-				extraClass: localStorage.getItem('SelectedMenu') || 'bottombar',
+				extraClass: localStorage.getItem('SelectedMenu') || 'RightBar',
 				afterHidden: function () {
 					$('.jq-toast-wrap').remove();
 				}

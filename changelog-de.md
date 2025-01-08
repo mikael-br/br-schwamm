@@ -1,5 +1,83 @@
 ## Changelog - Extension
 
+##### 3.10.0.0
+
+**Neu**
+- QI Fortschritts Übersicht hinzugefügt (öffnet sich automatisch, wenn die QI-Spieler Rangliste geöffnet wird)
+- Quellen für Gegenstände: In der Produktionsübersicht für Gegenstände und Fragmente gibt es nun die Möglichkeit, sich eine Liste von Gebäude ausgeben zu lassen, die einen bestimmten Gegenstand produzieren (auch, wenn diese nicht gebaut sind)
+- Produktionsübersicht: Tabellen für Münz-, Vorrats- und FP-Boots hinzugefügt
+- Effizienzbewertung: Feld für Spezialproduktion abschließen Fragmente hinzugefügt
+- Stadtübersicht: Anzeigeoption für Gebäude, die eine erhabene Stufe haben und "abgelaufene" Gebäude
+- Wiederholtes Bauen:
+	- !!! ACHTUNG !!! Obwohl das Feature an sich grünes Licht von Inno bekommen hat, könnte es trotzdem vorkommen, dass die Bot-Erkennung ausgelöst wird. Benutzung auf eigene Gefahr!!!
+	- Kann in den Einstellungen aktiviert werden
+	- Wenn ein Gebäude aus dem Baumenü oder dem Umbaulager gebaut wird, wird das gleiche Gebäude automatisch erneut ausgewählt
+
+**Update**
+- Tooltip: Design der Gebäude-Tooltips angepasst
+- Gebäude-Effizienz: 
+	- Gebäude-Tooltips hinzugefügt
+	- Ergebnisseite wird nun zuerst angezeigt
+	- Itemliste versteckt
+- Menü: Von unten nach rechts verschoben, weil die möglichen Einstellungen gerne übersehen werden
+- Gefechte: 
+	- Symbole für blauen/roten Angriff in die Countdown-Liste hinzugefügt
+	- Angriffsfarben zur Karte hinzugefügt
+	- Neue Kartenansicht, die die Angriffsfarben besser sichtbar macht
+
+**BugFix**
+- Tooltip: 
+	- manche Browser haben nicht das korrekte Design verwendet
+	- konnte offen bleiben, obwohl zugehöriges Fenster geschlossen wurde
+- Umbau-Liste: 
+	- Standardhöhe gesetzt
+	- Umplatzieren von Gebäuden verringerte den Zähler
+- Gebäude-Effizienz:
+	- Die Bewertungen bei anderen Spielern haben dein aktuelles Zeitalter genutzt, statt ihr eigenes
+
+##### 3.9.0.0
+
+**Neu**
+- Im Umbaumodus wird nun eine nach Größe sortierbare Gebäudeliste angezeigt
+- Gex-Ergebnisse: Menu-Icon zeigt nun die aktuelle Anzahl an GE-Versuchen an
+- Tooltips: in bestimmten Modulen werden nun die Gebäude-informationen als Tooltip angezeigt:
+	- im Effizienz-Modul, im "Gebäude hinzufügen" dialog
+	- im Boost-Inventar
+	- in der Umbau-Größenliste
+	- lasst uns auf Discord wissen, wo ihr diese Info noch gerne sehen würdet
+
+**Update**
+- Statistik: Dunkle Materie zu Spezial-Gütern hinzugefügt
+- Einstellung "Lade aktuelle Beta" angepasst
+
+**BugFix**
+- Gebäude-Effizienz: 
+	- Ist wegen eines Spiel-Updates kaputt gegangen
+	- Gleiche Gebäude mit und ohne Verbündete wurden nicht korrekt gezählt
+- Produktionsübersicht:
+	- In der Fragmente-Übersicht war die Anzahl an Fragmenten teilweise nicht korrekt
+	- In der Fragmente-Übersicht wurden nicht alle Gebäude gelistet
+
+##### 3.8.1.0
+
+**Neu**
+- Produktionsübersicht:
+	- QI Übersicht hinzugefügt
+	- Einstellungen hinzugefügt: Man kann jetzt einstellen, ob man eine Art Countdown oder die Uhrzeit sehen möchte
+	- "Fertig" und "Ernte" Spalte kombiniert: wenn eine Produktion fertig ist, wird es in dieser Spalte angezeigt
+
+**Update**
+- Idle Game Events:
+	- Die Kosten zum günstigeren Abschluss einer Runde werden nun aus den Spieldaten generiert und sollten sich von alleine aktualisieren
+- Legendäre Bauwerke Rechner - Powerlevel-Werte für Stufen 1-68 für Weltraumbasis hinzugefügt
+
+**BugFix**
+- Produktionsübersicht: ist wegen eines Spiel-Updates kaputt gegangen
+- Der Weltraumfrachter hat in der Produktionsübersicht gefehlt
+- Verhandlungs-Assistent: Die Güter wurden nicht angezeigt, wenn man alte Betriebssysteme nutzt
+- LG Investitionen: Fenster repariert, die Blaue Galaxie fehlt noch, aber man sollte die sowieso bis Stufe 91 leveln
+- Burgsystem: Das Fenster war nach einem Spiel-Update kaputt
+
 ##### 3.8.0.0
 
 **Neu**
@@ -9,7 +87,7 @@
 	- Übersicht aller Fragmente und Items hinzugefügt inkl. Summe über alle Gebäude
 	- Filter hinzugefügt
 	- Kampf-Boosts kategorisiert
-	- Einheitenproduktion nach Typ und Zeitalter summiert
+	- Einheiten produktion nach Typ und Zeitalter summiert
 
 - Effizienzbewertung Update:
 	- Neue Kategorien hinzugefügt

@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -1113,7 +1113,7 @@ let Parts = {
 			'<label class="form-check-label game-cursor" for="chain-p5"><input type="checkbox" class="form-check-input" id="chain-p5" data-place="5" ' + (Parts.CopyPlaces[4] ? 'checked' : '') + '> <span>' + i18n('Boxes.OwnpartCalculator.Place') + ' 5</span></label>' +
 			'<label class="form-check-label game-cursor" for="chain-all"><input type="checkbox" class="form-check-input" id="chain-all" data-place="all" ' + (Parts.CopyModeAll ? 'checked' : '') + '> <span>' + i18n('Boxes.OwnpartCalculator.All') + '</span></label>' +
 			'<label class="form-check-label game-cursor" for="chain-auto"><input type="checkbox" class="form-check-input" id="chain-auto" data-place="auto" ' + (Parts.CopyModeAuto ? 'checked' : '') + '> <span>' + i18n('Boxes.OwnpartCalculator.Auto') + '</span></label>' +
-			'<label class="form-check-label-wide game-cursor" for="chain-auto-unsafe"><input type="checkbox" class="form-check-input" id="chain-auto-unsafe" data-place="auto-unsafe" ' + (Parts.CopyModeAutoUnsafe ? 'checked' : '') + '> <span>' + i18n('Boxes.OwnpartCalculator.AutoWithUnsafe') + '</span></label>' +
+			'<label class="form-check-label game-cursor" for="chain-auto-unsafe"><input type="checkbox" class="form-check-input" id="chain-auto-unsafe" data-place="auto-unsafe" ' + (Parts.CopyModeAutoUnsafe ? 'checked' : '') + '> <span>' + i18n('Boxes.OwnpartCalculator.AutoWithUnsafe') + '</span></label>' +
 		'</div>';
 
 		h.push(cb);
@@ -1133,8 +1133,6 @@ let Parts = {
 		// Box wurde schon in den DOM gelegt?
 		if( $('.OwnPartBoxBackground').length > 0 ){
 			$('.OwnPartBoxBackgroundBody').html( h.join('') );
-
-			// und raus...
 			return;
 		}
 
@@ -1179,10 +1177,6 @@ let Parts = {
 			// center overlay to parent box
 			let $boxWidth = $('#OwnPartBox').outerWidth() - 10,
 				$bgBodyWidth = $boxBg.outerWidth();
-
-			$boxBg.css({
-				left: Math.round( ($boxWidth - $bgBodyWidth) / 2 )
-			})
 
 			// animation
 			$boxBg.animate({height: h, opacity: 1}, 250, function () {
@@ -1553,7 +1547,7 @@ let Parts = {
 
 		h.push('<table class="foe-table">');
 
-		h.push('<thead>');
+		h.push('<thead class="sticky">');
 		h.push('<tr>');
 		h.push('<th>' + i18n('Boxes.PowerLeveling.Level') + '</th>');
 		h.push('<th>' + i18n('Boxes.PowerLeveling.P1') + '</th>');

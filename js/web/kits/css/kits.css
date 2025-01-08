@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -86,10 +86,7 @@
 #kits h2 {
 	background: linear-gradient(to bottom, var(--text-darker), #281207cc);
 	padding: 5px;
-	position: sticky;
-	top: 0;
 	width: 100%;
-	z-index: 500;
 	box-sizing: border-box;
 }
 

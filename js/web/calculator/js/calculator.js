@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -20,7 +20,6 @@ FoEproxy.addFoeHelperHandler('QuestsUpdated', data => {
 let Calculator = {
 
 	ForderBonus: 90,
-    SoundFile: new Audio(extUrl + 'vendor/sounds/message.mp3'),
     PlayerName: undefined,
     LastPlayerID: 0,
     PlayInfoSound: null,

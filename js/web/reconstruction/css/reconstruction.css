@@ -1,0 +1,36 @@
+/*
+ * **************************************************************************************
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
+ * You may use, distribute and modify this code under the
+ * terms of the AGPL license.
+ *
+ * See file LICENSE.md or go to
+ * https://github.com/mainIine/foe-helfer-extension/blob/master/LICENSE.md
+ * for full license details.
+ *
+ * **************************************************************************************
+ */
+
+
+
+ #ReconstructionListBody {
+    overflow-y: auto;
+}
+#ReconstructionList {
+    height: 400px;
+}
+
+#ReconstructionListBody td:nth-last-child(2){
+  padding-right: 0;
+  text-align: right;
+}
+
+#ReconstructionListBody td:nth-child(3){
+  text-align: center;
+  min-width: 50px;
+}
+
+#ReconstructionListBody tr.sorter-header th:last-child:before, 
+#ReconstructionListBody tr.sorter-header th:last-child:after {
+  left: 5px;
+}

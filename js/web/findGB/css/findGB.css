@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -19,11 +19,6 @@
 }
 #findGBDialogBody{
   overflow: auto;
-}
-
-#foundGB th {
-  position:sticky;
-  top:0px;
 }
 
 #foundGB .progress {

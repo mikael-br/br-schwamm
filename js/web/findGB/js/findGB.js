@@ -1,7 +1,7 @@
 
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -53,7 +53,7 @@ let findGB = {
         }
         
         html = ``;
-        html += `<table><tr>`;
+        html += `<table class="dark-bg w-full"><tr>`;
         html += `<td><select id="GBselect">`;
         html += `<option value="" disabled selected>${i18n("Boxes.findGB.selectGB")}</option>`
         for (i of findGB.list) {
@@ -65,7 +65,7 @@ let findGB = {
         html += `<td><input type="checkbox" id="GBhasProgress"><label for="GBhasProress">${i18n("Boxes.findGB.hasProgress")}</label></td>`;
         html += `<td colspan="2"><input type="button" id="findGBreset" class="btn-default" value="${i18n("General.Reset")}"></input></td>`;
         html += `</tr></table>`;
-        html += `<table id="foundGB" class="foe-table"><tr><th>${i18n("General.Player")}</th><th>${i18n("General.GB")}</th><th>${i18n("General.Level")}</th></tr>`
+        html += `<table id="foundGB" class="foe-table"><thead class="sticky"><tr><th>${i18n("General.Player")}</th><th>${i18n("General.GB")}</th><th>${i18n("General.Level")}</th></tr></thead>`
         
         for (i of findGB.found) {
             html += findGB.row(i)

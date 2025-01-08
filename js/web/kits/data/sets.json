@@ -1,6 +1,6 @@
 [	
 	{
-		"udate": "Halloween Event 2024 (09 Spetember 2024)"
+		"udate": "Wildlife Event 2024 (22 December 2024)"
 	},
 	{
 		"groupname": "Events"
@@ -64,6 +64,24 @@
 		]
 	},
 	{
+		"name": "Shika_Shrine",
+		"buildings": [
+			{"first": "W_MultiAge_WILD25A1"}
+		]
+	},
+	{
+		"name": "Koi_Pond",
+		"buildings": [
+			{"first": "W_MultiAge_WILD25B1"}
+		]
+	},
+	{
+		"name": "Usagi_Bonbori_Gate",
+		"buildings": [
+			{"first": "W_MultiAge_WILD25C1"}
+		]
+	},
+	{
 		"name": "Flamingo_Habitat",
 		"buildings": [
 			{"first": "W_MultiAge_WILD24A1"}
@@ -111,9 +129,52 @@
 		]
 	},
 	{
+		"comment":"OLD VERSION!!! remove at some point!!!",
 		"name": "Mountain_Reserve",
 		"buildings": [
 			{"first": "R_MultiAge_WildBonus21a"}
+		]
+	},
+	{
+		"name": "Mountain_Reserve",
+		"buildings": [
+			{"first": "W_MultiAge_WILD21A1"}
+		]
+	},
+	{
+		"name": "Yukitomo_Tower",
+		"buildings": [
+			{"first": "W_MultiAge_WIN24A1"}
+		]
+	},
+	{
+		"name": "Didukh",
+		"buildings": [
+			{"first": "W_MultiAge_WIN24F1"}
+		]
+	},
+	{
+		"name": "Sleigh_Builder",
+		"buildings": [
+			{"first": "W_MultiAge_WIN18B1"}
+		]
+	},
+	{
+		"name": "Holly_Hauler",
+		"buildings": [
+			{"first": "W_MultiAge_WIN24B1"}
+		]
+	},
+	{
+		"name": "Sled_Pup_Monument",
+		"buildings": [
+			{"first": "W_MultiAge_WIN24C1"}
+		]
+	},
+	{
+		"name": "Eternal_Market",
+		"buildings": [
+			{"first": "W_MultiAge_LTE24A1"}
 		]
 	},
 	{
@@ -890,6 +951,18 @@
 		]
 	},
 	{
+		"name": "Lindworm_Keep",
+		"buildings": [
+			{"first": "W_MultiAge_GBG24G1"}
+		]
+	},
+	{
+		"name": "Lindworm_Archery_Range",
+		"buildings": [
+			{"first": "W_MultiAge_GBG24H1"}
+		]
+	},
+	{
 		"groupname": "Quantum_Incursion"
 	},
 	{
@@ -940,15 +1013,35 @@
 		"buildings": [
 			{"first": "W_MultiAge_GR24D1"}
 		]
-	},{
+	},
+	{
+		"name": "Neo_Checkmate_Square",
+		"buildings": [
+			{"first": "W_MultiAge_GR25A1"}
+		]
+	},
+	{
+		"name": "Neo_Aviary",
+		"buildings": [
+			{"first": "W_MultiAge_GR25B1"}
+		]
+	},
+	{
 		"groupname": "Guild_Expeditions"
 	},
 	{
+		"comment":"OLD VERSION!!! remove at some point!!!",
 		"name": "Terrace_Farm",
 		"buildings": [
 			{"first": "P_MultiAge_Expedition16"}
 		]
 	},
+	{
+		"name": "Terrace_Farm",
+		"buildings": [
+			{"first": "W_MultiAge_Expedition16aBase"}
+		]
+	},	
 	{
 		"name": "Fountain_of_Youth",
 		"buildings": [
@@ -1106,6 +1199,5 @@
 		"buildings": [
 			{"first": "L_AllAge_CupBonus1"}
 		]
-	}
-	
+	}	
 ]

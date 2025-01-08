@@ -1,6 +1,6 @@
 /*
  * **************************************************************************************
- * Copyright (C) 2022 FoE-Helper team - All Rights Reserved
+ * Copyright (C) 2024 FoE-Helper team - All Rights Reserved
  * You may use, distribute and modify this code under the
  * terms of the AGPL license.
  *
@@ -106,7 +106,7 @@ let Recurring = {
 
         h.push(`<table id="recurringTable" class="foe-table${!!Recurring.data.hideTasks?' hideTasks':''}">`);
 
-        h.push('<thead>');
+        h.push('<thead class="sticky">');
         h.push('<tr>');
         h.push(`<th onclick="Recurring.hideTasks()">${i18n('Boxes.RecurringQuests.Table.Quest')} ⇋</th>`);
         h.push(`<th onclick="Recurring.hideTasks()">${i18n('Boxes.RecurringQuests.Table.Tasks')} ⇋</th>`);

@@ -350,7 +350,7 @@ let Technologies = {
         }
 
         let PreviousEraID = Math.max(Technologies.SelectedEraID - 1, CurrentEraID),
-            NextEraID = Math.min(Technologies.SelectedEraID + 1, Technologies.Eras.NextEra - 1);
+            NextEraID = Math.min(Technologies.SelectedEraID + 1, Technologies.getMaxEra());
 
         h.push('<div class="dark-bg" style="margin-bottom: 3px">');
 	        h.push('<div class="techno-head">');
@@ -366,7 +366,7 @@ let Technologies = {
 
         h.push('<table class="foe-table exportable">');
 
-        h.push('<thead>' +
+        h.push('<thead class="sticky">' +
             '<tr>' +
             '<th colspan="2" data-export2="resource">' + i18n('Boxes.Technologies.Resource') + '</th>' +
             '<th data-export="required">' + i18n('Boxes.Technologies.DescRequired') + '</th>' +
