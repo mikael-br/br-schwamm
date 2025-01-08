@@ -1934,6 +1934,24 @@ let CityMap = {
 		return reward
 	},
 
+	// random_good_of_previous_age   random_good_of_age   random_good_of_next_age
+	// all_goods_of_previous_age   all_goods_of_age   all_goods_of_next_age
+	setGoodsRewardFromGeneric(reward) {
+		let eraString = '' // current era needs nothing
+		let typeString = 'random_good_' // random = one random good of the era
+
+		if (reward.id.includes("NextEra")) {
+			eraString = 'next_'
+		}
+		else if (reward.id.includes("PreviousEra")) { // currently unused
+			eraString = 'previous_'
+		}
+		if (reward.id.includes("each")) {
+			typeString = 'all_goods_'
+		}
+		return {[typeString + 'of_' + eraString + 'age']: reward.amount}
+	},
+
 	// returns { unit_type: amount } 
 	// unit_type can be: random, rogue, light_melee, heavy_melee, short_ranged, long_ranged, fast, next#light_melee -> next# for next era units
 	setUnitReward(product, isEmissary = false) {
